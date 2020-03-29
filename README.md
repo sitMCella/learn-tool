@@ -27,5 +27,11 @@ Install OpenJDK 11 and PostgreSQL.
 ### Run application
 
 ```sh
-./docker-compose up
+docker-compose up
+```
+
+### SSH into PostgreSQL
+
+```sh
+docker exec -it learn-tool_db_1 /bin/bash
 ```

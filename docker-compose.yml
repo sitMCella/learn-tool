@@ -16,9 +16,13 @@ services:
       SPRING_DATASOURCE_USERNAME: $POSTGRES_USERNAME
       SPRING_DATASOURCE_PASSWORD: $POSTGRES_PASSWORD
       SPRING_DATASOURCE_PLATFORM: postgresql
+      SPRING_DATASOURCE_INITIALIZATION-MODE: always
+      SPRING_DATASOURCE_INITIALIZE: "true"
       SPRING_DATASOURCE_SCHEMA: classpath:/db/postgresql-schema.sql
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
       SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_JPA_HIBERNATE_DLL-AUTO: none
+      SPRING_JPA_HIBERNATE_SHOW-SQL: "false"
     ports:
       - '8081:8080'
     depends_on:
