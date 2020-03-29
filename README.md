@@ -10,12 +10,26 @@ Learn Tool is a web application that uses Spring Boot 2 framework and Kotlin lan
 
 ### Setup
 
-Install OpenJDK 11 and PostgreSQL.
+Install OpenJDK 11 and Docker (Docker compose).
 
 ### Build project
 
 ```sh
 ./gradlew clean build
+```
+
+### Klint
+
+Check:
+
+```sh
+./gradlew ktlintCheck
+```
+
+Format:
+
+```sh
+./gradlew ktlintFormat
 ```
 
 ### Create Docker images

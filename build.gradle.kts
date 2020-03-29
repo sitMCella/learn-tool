@@ -43,22 +43,9 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
     testImplementation("org.jetbrains.kotlin:kotlin-test")
+    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0")
     testImplementation("org.testcontainers:testcontainers:$testContainersVersion")
     testImplementation("org.testcontainers:postgresql:$testContainersVersion")
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform() {
-        exclude("**/integration/**")
-    }
-    outputs.upToDateWhen { false }
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform() {
-        include("**/integration/**")
-    }
-    outputs.upToDateWhen { false }
 }
 
 tasks.withType<KotlinCompile> {
