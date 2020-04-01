@@ -10,12 +10,26 @@ Learn Tool is a web application that uses Spring Boot 2 framework and Kotlin lan
 
 ### Setup
 
-Install OpenJDK 11 and PostgreSQL.
+Install OpenJDK 11 and Docker (Docker compose).
 
 ### Build project
 
 ```sh
 ./gradlew clean build
+```
+
+### Klint
+
+Check:
+
+```sh
+./gradlew ktlintCheck
+```
+
+Format:
+
+```sh
+./gradlew ktlintFormat
 ```
 
 ### Create Docker images
@@ -27,5 +41,22 @@ Install OpenJDK 11 and PostgreSQL.
 ### Run application
 
 ```sh
-./docker-compose up
+docker-compose up
+```
+
+### SSH into PostgreSQL
+
+```sh
+docker exec -it learn-tool_db_1 /bin/bash
+```
+
+## REST APIs documentation
+
+The folder "documents" contains the OpenAPI REST APIs documentation.
+The documentation is compliant with Swagger UI and Postman.
+
+Run the following command to validate the OpenAPI documentation file:
+ 
+```sh
+./gradlew validateOpenApi
 ```

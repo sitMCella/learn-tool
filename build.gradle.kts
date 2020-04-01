@@ -7,6 +7,7 @@ plugins {
     id("io.spring.dependency-management") version "1.0.9.RELEASE"
     id("com.google.cloud.tools.jib") version "2.1.0"
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
+    id("org.openapi.generator") version "4.2.1"
     kotlin("jvm") version "1.3.71"
     kotlin("plugin.spring") version "1.3.71"
     kotlin("plugin.jpa") version "1.3.71"
@@ -18,6 +19,8 @@ java.sourceCompatibility = JavaVersion.VERSION_11
 
 val postgresVersion = "42.2.8"
 val alpineJreImage = "adoptopenjdk/openjdk11:alpine-jre"
+val testContainersVersion = "1.13.0"
+val openApiDocumentation = "${project.rootDir}/documents/learn-tool.yaml"
 
 configurations {
     compileOnly {
@@ -30,6 +33,7 @@ repositories {
 }
 
 dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
@@ -41,10 +45,9 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
     testImplementation("org.jetbrains.kotlin:kotlin-test")
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
+    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0")
+    testImplementation("org.testcontainers:testcontainers:$testContainersVersion")
+    testImplementation("org.testcontainers:postgresql:$testContainersVersion")
 }
 
 tasks.withType<KotlinCompile> {
@@ -52,6 +55,14 @@ tasks.withType<KotlinCompile> {
         freeCompilerArgs = listOf("-Xjsr305=strict")
         jvmTarget = "1.8"
     }
+}
+
+tasks.create<org.openapitools.generator.gradle.plugin.tasks.ValidateTask>("validateLearnToolOpenApi") {
+    inputSpec.set(openApiDocumentation)
+}
+
+task("validateOpenApi") {
+    dependsOn.add(listOf("validateLearnToolOpenApi"))
 }
 
 jib {
