@@ -23,15 +23,15 @@ import org.testcontainers.containers.PostgreSQLContainer
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [BackendApplication::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(initializers = [WorkspaceIntegrationTests.Companion.Initializer::class])
-class WorkspaceIntegrationTests {
+@ContextConfiguration(initializers = [WorkspaceIntegrationTest.Companion.Initializer::class])
+class WorkspaceIntegrationTest {
 
     companion object {
         @ClassRule
         @JvmField
         val postgresql = PostgreSQLContainer<Nothing>()
 
-        private val logger = LoggerFactory.getLogger(WorkspaceIntegrationTests::class.java)
+        private val logger = LoggerFactory.getLogger(WorkspaceIntegrationTest::class.java)
 
         class Initializer : ApplicationContextInitializer<ConfigurableApplicationContext> {
 

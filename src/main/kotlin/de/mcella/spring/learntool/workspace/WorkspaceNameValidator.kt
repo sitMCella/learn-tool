@@ -5,7 +5,7 @@ import java.util.regex.Pattern
 object WorkspaceNameValidator {
     const val MAX_WORKSPACE_NAME_LENGTH = 255
 
-    private val WORKSPACE_NAME_REGEX = "^([a-z0-9]*)".format(
+    private val WORKSPACE_NAME_REGEX = "^([a-zA-Z0-9-_]*)".format(
         MAX_WORKSPACE_NAME_LENGTH
     )
     private val patternContainerName: Pattern = Pattern.compile(WORKSPACE_NAME_REGEX)

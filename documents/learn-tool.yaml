@@ -34,7 +34,7 @@ paths:
                 location: /workspaces/workspace-id
         '400':
           description: >-
-            Workspace name empty or incorrect. Allowed characters: a-z, 1-9.
+            Workspace name empty or incorrect. Allowed characters: [a-zA-Z0-9-_].
         '409':
           description: >-
             A Workspace already exists with this name.
