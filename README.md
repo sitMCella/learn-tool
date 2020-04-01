@@ -49,3 +49,14 @@ docker-compose up
 ```sh
 docker exec -it learn-tool_db_1 /bin/bash
 ```
+
+## REST APIs documentation
+
+The folder "documents" contains the OpenAPI REST APIs documentation.
+The documentation is compliant with Swagger UI and Postman.
+
+Run the following command to validate the OpenAPI documentation file:
+ 
+```sh
+./gradlew validateOpenApi
+```

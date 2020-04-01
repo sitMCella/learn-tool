@@ -1,0 +1,40 @@
+openapi: "3.0.0"
+info:
+  title: Learn Tool REST APIs
+  description: Documentation for the Learn Tool REST APIs.
+  version: 1.0.0
+paths:
+  /workspaces:
+    post:
+      summary: Create a new Workspace
+      operationId: create-workspace
+      tags:
+        - workspace
+      requestBody:
+        description: Workspace payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+      responses:
+        '201':
+          description: Workspace successfully created.
+          headers:
+            location:
+              description: The location of the created Workspace.
+              schema:
+                type: string
+              example:
+                location: /workspaces/workspace-id
+        '400':
+          description: >-
+            Workspace name empty or incorrect. Allowed characters: a-z, 1-9.
+        '409':
+          description: >-
+            A Workspace already exists with this name.

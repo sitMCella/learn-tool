@@ -7,6 +7,7 @@ plugins {
     id("io.spring.dependency-management") version "1.0.9.RELEASE"
     id("com.google.cloud.tools.jib") version "2.1.0"
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
+    id("org.openapi.generator") version "4.2.1"
     kotlin("jvm") version "1.3.71"
     kotlin("plugin.spring") version "1.3.71"
     kotlin("plugin.jpa") version "1.3.71"
@@ -19,6 +20,7 @@ java.sourceCompatibility = JavaVersion.VERSION_11
 val postgresVersion = "42.2.8"
 val alpineJreImage = "adoptopenjdk/openjdk11:alpine-jre"
 val testContainersVersion = "1.13.0"
+val openApiDocumentation = "${project.rootDir}/documents/learn-tool.yaml"
 
 configurations {
     compileOnly {
@@ -53,6 +55,14 @@ tasks.withType<KotlinCompile> {
         freeCompilerArgs = listOf("-Xjsr305=strict")
         jvmTarget = "1.8"
     }
+}
+
+tasks.create<org.openapitools.generator.gradle.plugin.tasks.ValidateTask>("validateLearnToolOpenApi") {
+    inputSpec.set(openApiDocumentation)
+}
+
+task("validateOpenApi") {
+    dependsOn.add(listOf("validateLearnToolOpenApi"))
 }
 
 jib {
