@@ -1,4 +1,4 @@
-package de.mcella.spring.learntool.workspace
+package de.mcella.spring.learntool.workspace.storage
 
 import de.mcella.spring.learntool.workspace.WorkspaceNameValidator.MAX_WORKSPACE_NAME_LENGTH
 import javax.persistence.Entity

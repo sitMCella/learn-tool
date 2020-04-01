@@ -1,8 +1,8 @@
 package de.mcella.spring.learntool.workspace.integration
 
 import de.mcella.spring.learntool.BackendApplication
-import de.mcella.spring.learntool.workspace.Workspace
-import de.mcella.spring.learntool.workspace.WorkspaceRepository
+import de.mcella.spring.learntool.workspace.storage.Workspace
+import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
 import kotlin.test.assertTrue
 import org.junit.ClassRule
