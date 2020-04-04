@@ -38,16 +38,26 @@ Format:
 ./gradlew jibDockerBuild
 ```
 
+### Setup Docker compose variables
+
+Create a file .env with the following content:
+
+```sh
+POSTGRES_USERNAME=postgres
+POSTGRES_PASSWORD=postgres
+```
+
 ### Run application
 
 ```sh
 docker-compose up
 ```
 
-### SSH into PostgreSQL
+### Access PostgreSQL
 
 ```sh
 docker exec -it learn-tool_db_1 /bin/bash
+psql learntool $POSTGRES_USERNAME
 ```
 
 ## REST APIs documentation
