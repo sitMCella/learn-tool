@@ -9,6 +9,7 @@ import java.net.URI
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import org.junit.Before
 import org.junit.ClassRule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -19,6 +20,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpEntity
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringRunner
@@ -65,6 +67,11 @@ class CardIntegrationTest {
     @Autowired
     lateinit var workspaceRepository: WorkspaceRepository
 
+    @Before
+    fun setUp() {
+        cardRepository.deleteAll()
+    }
+
     @Test
     fun `given a Workspace name and a CardContent, when a POST request is sent to the create endpoint, then a Card is created`() {
         val workspaceName = "workspaceTest"
@@ -82,5 +89,26 @@ class CardIntegrationTest {
         assertEquals(workspaceName, createdCard.workspaceName)
         assertEquals("question", createdCard.question)
         assertEquals("response", createdCard.response)
+    }
+
+    @Test
+    fun `given a Workspace name and a Cards CSV stream content, when a POST request is sent to the createMany endpoint, then the Cards are created`() {
+        val workspaceName = "workspaceTest"
+        val streamContent = "question,response\nquestionTest1,responseTest1\nquestionTest2,responseTest2"
+        val request = HttpEntity(ByteArrayResource(streamContent.toByteArray()))
+        val workspace = Workspace(workspaceName)
+        workspaceRepository.save(workspace)
+
+        testRestTemplate.postForObject(URI("http://localhost:$port/workspaces/$workspaceName/cards/many.csv"), request, String::class.java)
+
+        val cards = cardRepository.findAll()
+        assertTrue { cards.size == 2 }
+        for (i in 0 until 1) {
+            val createdCard = cards[i]
+            assertNotNull(createdCard.id)
+            assertEquals(workspaceName, createdCard.workspaceName)
+            assertEquals("questionTest${i + 1}", createdCard.question)
+            assertEquals("responseTest${i + 1}", createdCard.response)
+        }
     }
 }

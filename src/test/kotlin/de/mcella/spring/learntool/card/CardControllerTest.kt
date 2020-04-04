@@ -27,10 +27,13 @@ class CardControllerTest {
     @MockBean
     private lateinit var cardService: CardService
 
+    @MockBean
+    private lateinit var cardImportService: CardImportService
+
     private val objectMapper = ObjectMapper()
 
     @Test
-    fun `given a Workspace name and a CardContent, when sending a post request to the card endpoint, then the create method of CardService is called`() {
+    fun `given a Workspace name and a CardContent, when sending a post request to the create endpoint, then the create method of CardService is called`() {
         val workspaceName = "workspaceTest"
         val cardContent = CardContent("question", "response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
