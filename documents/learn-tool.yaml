@@ -31,10 +31,76 @@ paths:
               schema:
                 type: string
               example:
-                location: /workspaces/workspace-id
-        '422':
-          description: >-
-            Workspace name empty or incorrect. Allowed characters: [a-zA-Z0-9-_].
+                location: /workspaces/workspaceTest
         '409':
           description: >-
             A Workspace already exists with this name.
+        '422':
+          description: >-
+            Workspace name empty or incorrect. Allowed characters: [a-zA-Z0-9-_].
+  /workspaces/{workspaceName}/cards:
+    post:
+      summary: Create a new Card
+      operationId: create-card
+      tags:
+        - card
+      parameters:
+        - name: workspaceName
+          in: path
+          description: The name of the Workspace.
+          required: true
+          schema:
+            type: string
+          example: "workspaceTest"
+      requestBody:
+        description: Card content payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - question
+                - response
+              properties:
+                question:
+                  type: string
+                response:
+                  type: string
+      responses:
+        '201':
+          description: Card successfully created.
+          headers:
+            location:
+              description: The location of the created Card.
+              schema:
+                type: string
+              example:
+                location: /workspaces/workspaceTest/cards/3cf14a93-f8c7-4b6b-ac24-a662ca500c21
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  workspaceName:
+                    type: string
+                  question:
+                    type: string
+                  response:
+                    type: string
+              example:
+                id: "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
+                workspaceName: "workspaceTest"
+                question: "This is a question"
+                response: "This is a response"
+        '404':
+          description: >-
+            Workspace not found.
+        '409':
+          description: >-
+            A Card already exists with this id.
+        '422':
+          description: >-
+            Card content fields null or empty.

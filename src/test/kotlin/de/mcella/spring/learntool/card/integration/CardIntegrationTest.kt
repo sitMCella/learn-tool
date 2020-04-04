@@ -1,9 +1,13 @@
-package de.mcella.spring.learntool.workspace.integration
+package de.mcella.spring.learntool.card.integration
 
 import de.mcella.spring.learntool.BackendApplication
+import de.mcella.spring.learntool.card.CardContent
+import de.mcella.spring.learntool.card.storage.CardRepository
 import de.mcella.spring.learntool.workspace.storage.Workspace
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import org.junit.ClassRule
 import org.junit.Test
@@ -22,8 +26,8 @@ import org.testcontainers.containers.PostgreSQLContainer
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [BackendApplication::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(initializers = [WorkspaceIntegrationTest.Companion.Initializer::class])
-class WorkspaceIntegrationTest {
+@ContextConfiguration(initializers = [CardIntegrationTest.Companion.Initializer::class])
+class CardIntegrationTest {
 
     companion object {
         @ClassRule
@@ -56,16 +60,27 @@ class WorkspaceIntegrationTest {
     lateinit var testRestTemplate: TestRestTemplate
 
     @Autowired
+    lateinit var cardRepository: CardRepository
+
+    @Autowired
     lateinit var workspaceRepository: WorkspaceRepository
 
     @Test
-    fun `given a Workspace name, when a POST request is sent to the create endpoint, then a Workspace is created`() {
-        val workspace = Workspace("workspace1")
-        val request = HttpEntity(workspace)
+    fun `given a Workspace name and a CardContent, when a POST request is sent to the create endpoint, then a Card is created`() {
+        val workspaceName = "workspaceTest"
+        val cardContent = CardContent("question", "response")
+        val request = HttpEntity(cardContent)
+        val workspace = Workspace(workspaceName)
+        workspaceRepository.save(workspace)
 
-        testRestTemplate.postForObject(URI("http://localhost:$port/workspaces"), request, String::class.java)
+        testRestTemplate.postForObject(URI("http://localhost:$port/workspaces/$workspaceName/cards"), request, String::class.java)
 
-        val workspaces = workspaceRepository.findAll()
-        assertTrue { workspaces.contains(workspace) }
+        val cards = cardRepository.findAll()
+        assertTrue { cards.size == 1 }
+        val createdCard = cards[0]
+        assertNotNull(createdCard.id)
+        assertEquals(workspaceName, createdCard.workspaceName)
+        assertEquals("question", createdCard.question)
+        assertEquals("response", createdCard.response)
     }
 }
