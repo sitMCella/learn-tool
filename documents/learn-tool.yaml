@@ -22,6 +22,8 @@ paths:
               properties:
                 name:
                   type: string
+            example:
+              name: "workspaceTest"
       responses:
         '201':
           description: Workspace successfully created.
@@ -33,8 +35,7 @@ paths:
               example:
                 location: /workspaces/workspaceTest
         '409':
-          description: >-
-            A Workspace already exists with this name.
+          description: A Workspace already exists with this name.
         '422':
           description: >-
             Workspace name empty or incorrect. Allowed characters: [a-zA-Z0-9-_].
@@ -67,6 +68,9 @@ paths:
                   type: string
                 response:
                   type: string
+            example:
+              question: "This is a question"
+              response: "This is a response"
       responses:
         '201':
           description: Card successfully created.
@@ -96,11 +100,43 @@ paths:
                 question: "This is a question"
                 response: "This is a response"
         '404':
-          description: >-
-            Workspace not found.
+          description: Workspace not found.
         '409':
-          description: >-
-            A Card already exists with this id.
+          description: A Card already exists with this id.
+        '422':
+          description: Card content fields null or empty.
+  /workspaces/{workspaceName}/cards/many.csv:
+    post:
+      summary: Create new Cards
+      operationId: create-cards
+      tags:
+        - card
+      parameters:
+        - name: workspaceName
+          in: path
+          description: The name of the Workspace.
+          required: true
+          schema:
+            type: string
+          example: "workspaceTest"
+      requestBody:
+        description: Cards content payload.
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+            example: >-
+              question,response
+              questionTest,responseTest
+      responses:
+        '201':
+          description: Cards successfully created.
+        '404':
+          description: Workspace not found.
+        '409':
+          description: One of the Cards already exists with the same id.
         '422':
           description: >-
-            Card content fields null or empty.
+            CSV fields null or empty, or missing headers.

@@ -18,9 +18,7 @@ class CardService(private val cardRepository: CardRepository, private val worksp
         }
         val cardId = CardIdGenerator.create()
         if (cardRepository.existsById(cardId)) {
-            throw CardAlreadyExistsException(
-                cardId
-            )
+            throw CardAlreadyExistsException(cardId)
         }
         val card = Card.create(cardId, workspaceName, cardContent)
         cardRepository.save(card)

@@ -9,6 +9,8 @@ import javax.validation.constraints.NotNull
 import javax.validation.constraints.Pattern
 
 const val UUID_REGEXP = "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+const val QUESTION = "question"
+const val RESPONSE = "response"
 
 @Entity
 @Table(name = "cards")
