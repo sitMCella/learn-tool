@@ -47,6 +47,7 @@ dependencies {
     }
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0")
+    testImplementation("pl.pragmatists:JUnitParams:1.1.1")
     testImplementation("org.testcontainers:testcontainers:$testContainersVersion")
     testImplementation("org.testcontainers:postgresql:$testContainersVersion")
 }
