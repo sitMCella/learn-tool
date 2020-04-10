@@ -9,3 +9,12 @@ CREATE TABLE if not exists cards (
   response text NOT NULL,
   CONSTRAINT fkWorkspaceName FOREIGN KEY (workspace_name) REFERENCES workspaces(name)
 );
+
+CREATE TABLE if not exists learn_cards (
+  id varchar (36) primary key references cards,
+  last_review timestamp NOT NULL,
+  next_review timestamp NOT NULL,
+  repetitions integer NOT NULL,
+  ease_factor real NOT NULL,
+  interval_days integer NOT NULL
+)

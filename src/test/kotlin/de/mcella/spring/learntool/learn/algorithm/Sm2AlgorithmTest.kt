@@ -1,5 +1,6 @@
-package de.mcella.spring.learntool.learn
+package de.mcella.spring.learntool.learn.algorithm
 
+import de.mcella.spring.learntool.learn.exceptions.InputValuesNotAcceptableException
 import junitparams.JUnitParamsRunner
 import junitparams.Parameters
 import kotlin.test.assertEquals
@@ -19,10 +20,27 @@ class Sm2AlgorithmTest {
         arrayOf("0", "1", "2.0", "1", "1", "0", "2.0")
     )
 
+    @Test(expected = InputValuesNotAcceptableException::class)
+    fun `given the algorithm input values with quality equals to -1, when validating the input values, then throw InputValuesNotAcceptableException`() {
+        val inputValues = InputValues(-1, 0, MIN_EASE_FACTOR, 0)
+        Sm2Algorithm.validate(inputValues)
+    }
+
+    @Test(expected = InputValuesNotAcceptableException::class)
+    fun `given the algorithm input values with quality equals to 6, when validating the input values, then throw InputValuesNotAcceptableException`() {
+        val inputValues = InputValues(6, 0, MIN_EASE_FACTOR, 0)
+        Sm2Algorithm.validate(inputValues)
+    }
+
     @Test
     @Parameters
     fun test(quality: String, previousRepetitions: String, previousEaseFactor: String, previousInterval: String, interval: String, repetitions: String, easeFactor: String) {
-        val inputValues = InputValues(quality.toInt(), previousRepetitions.toInt(), previousEaseFactor.toFloat(), previousInterval.toInt())
+        val inputValues = InputValues(
+            quality.toInt(),
+            previousRepetitions.toInt(),
+            previousEaseFactor.toFloat(),
+            previousInterval.toInt()
+        )
 
         val outputValues = Sm2Algorithm.evaluate(inputValues)
 

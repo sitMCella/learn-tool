@@ -3,7 +3,8 @@ package de.mcella.spring.learntool.card
 import de.mcella.spring.learntool.card.exceptions.CardAlreadyExistsException
 import de.mcella.spring.learntool.card.storage.Card
 import de.mcella.spring.learntool.card.storage.CardRepository
-import de.mcella.spring.learntool.workspace.exceptions.WorkspaceDoesNotExistException
+import de.mcella.spring.learntool.common.toNullable
+import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import org.springframework.stereotype.Service
 
@@ -14,7 +15,7 @@ class CardService(private val cardRepository: CardRepository, private val worksp
         require(!cardContent.question.isNullOrEmpty()) { "The field 'question' is required." }
         require(!cardContent.response.isNullOrEmpty()) { "The field 'response' is required." }
         if (!workspaceRepository.existsById(workspaceName)) {
-            throw WorkspaceDoesNotExistException(workspaceName)
+            throw WorkspaceNotExistsException(workspaceName)
         }
         val cardId = CardIdGenerator.create()
         if (cardRepository.existsById(cardId)) {
@@ -24,4 +25,13 @@ class CardService(private val cardRepository: CardRepository, private val worksp
         cardRepository.save(card)
         return card
     }
+
+    fun getFirstCardFromWorkspace(workspaceName: String): Card? {
+        if (!workspaceRepository.existsById(workspaceName)) {
+            throw WorkspaceNotExistsException(workspaceName)
+        }
+        return cardRepository.findFirstByWorkspaceName(workspaceName).toNullable()
+    }
+
+    fun findById(cardId: String): Card? = cardRepository.findById(cardId).toNullable()
 }

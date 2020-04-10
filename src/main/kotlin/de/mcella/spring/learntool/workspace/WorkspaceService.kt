@@ -17,4 +17,6 @@ class WorkspaceService(private val workspaceRepository: WorkspaceRepository) {
         }
         workspaceRepository.save(workspace)
     }
+
+    fun exists(workspaceName: String): Boolean = workspaceRepository.existsById(workspaceName)
 }
