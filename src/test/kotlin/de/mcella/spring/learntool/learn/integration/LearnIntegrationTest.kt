@@ -4,9 +4,14 @@ import de.mcella.spring.learntool.BackendApplication
 import de.mcella.spring.learntool.card.CardService
 import de.mcella.spring.learntool.card.storage.Card
 import de.mcella.spring.learntool.card.storage.CardRepository
+import de.mcella.spring.learntool.learn.EvaluationParameters
+import de.mcella.spring.learntool.learn.storage.LearnCard
+import de.mcella.spring.learntool.learn.storage.LearnCardRepository
 import de.mcella.spring.learntool.workspace.storage.Workspace
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
+import java.time.Duration
+import java.time.Instant
 import kotlin.test.assertEquals
 import org.junit.Before
 import org.junit.ClassRule
@@ -19,6 +24,8 @@ import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ContextConfiguration
@@ -67,16 +74,20 @@ class LearnIntegrationTest {
     lateinit var workspaceRepository: WorkspaceRepository
 
     @Autowired
+    lateinit var learnCardRepository: LearnCardRepository
+
+    @Autowired
     lateinit var cardService: CardService
 
     @Before
     fun setUp() {
         cardRepository.deleteAll()
         workspaceRepository.deleteAll()
+        learnCardRepository.deleteAll()
     }
 
     @Test
-    fun `given a Workspace name, when a GET request is performed to the learn endpoint, then a Card is returned`() {
+    fun `given a Workspace name, when a GET request is performed to the learn endpoint, then the response HTTP Status is 200 OK and the response body contains a Card`() {
         val workspaceName = "workspaceTest"
         val workspace = Workspace(workspaceName)
         workspaceRepository.save(workspace)
@@ -91,5 +102,28 @@ class LearnIntegrationTest {
         val expectedResponseEntity = ResponseEntity.status(HttpStatus.OK).body(card)
         assertEquals(expectedResponseEntity.statusCode, responseEntity.statusCode)
         assertEquals(expectedResponseEntity.body, responseEntity.body)
+    }
+
+    @Test
+    fun `given a Workspace name and the evaluation parameters, when a POST request is performed to the learn endpoint, then the response HTTP Status is 200 OK and the response body contains a LearnCard`() {
+        val workspaceName = "workspaceTest"
+        val workspace = Workspace(workspaceName)
+        workspaceRepository.save(workspace)
+        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
+        val card = Card(cardId, workspaceName, "question", "response")
+        cardRepository.save(card)
+        val instant = Instant.now()
+        val learnCard = LearnCard.createInitial(cardId, instant)
+        learnCardRepository.save(learnCard)
+        val evaluationParameters = EvaluationParameters(cardId, 5)
+        val request = HttpEntity(evaluationParameters)
+
+        val responseEntity = testRestTemplate.exchange(URI("http://localhost:$port/workspaces/$workspaceName/learn"), HttpMethod.PUT, request, LearnCard::class.java)
+
+        val lastReview = (responseEntity as ResponseEntity<LearnCard>).body?.lastReview
+        val expectedLearnCard = LearnCard(cardId, lastReview!!, lastReview.plus(Duration.ofDays(1)), 1, 1.4f, 1)
+        val expectedResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedLearnCard)
+        assertEquals(expectedResponseEntity.statusCode, responseEntity.statusCode)
+        assertEquals(expectedResponseEntity.body, (responseEntity as ResponseEntity<LearnCard>).body)
     }
 }

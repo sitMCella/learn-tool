@@ -1,7 +1,7 @@
 package de.mcella.spring.learntool.card
 
 import de.mcella.spring.learntool.card.exceptions.CardAlreadyExistsException
-import de.mcella.spring.learntool.workspace.exceptions.WorkspaceDoesNotExistException
+import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import java.io.ByteArrayInputStream
 import org.junit.Test
 import org.mockito.Mockito
@@ -12,12 +12,12 @@ class CardImportServiceTest {
 
     private val cardImportService = CardImportService(cardService)
 
-    @Test(expected = WorkspaceDoesNotExistException::class)
-    fun `given a non existent Workspace name and a Cards stream content, when creating the Cards, then throw WorkspaceDoesNotExistException`() {
+    @Test(expected = WorkspaceNotExistsException::class)
+    fun `given a non existent Workspace name and a Cards stream content, when creating the Cards, then throw WorkspaceNotExistsException`() {
         val workspaceName = "workspaceTest"
         val streamContent = "question,response\nquestionTest1,responseTest1\nquestionTest2,responseTest2"
         val cardContent1 = CardContent("questionTest1", "responseTest1")
-        Mockito.`when`(cardService.create(workspaceName, cardContent1)).thenThrow(WorkspaceDoesNotExistException(workspaceName))
+        Mockito.`when`(cardService.create(workspaceName, cardContent1)).thenThrow(WorkspaceNotExistsException(workspaceName))
 
         cardImportService.createMany(workspaceName, ByteArrayInputStream(streamContent.toByteArray()))
     }

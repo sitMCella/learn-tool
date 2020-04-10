@@ -178,3 +178,69 @@ paths:
                 response: "This is a response"
         '404':
           description: Workspace or Card not found.
+    put:
+      summary: Evaluate a Card from the Workspace
+      operationId: evaluate-card
+      tags:
+        - card
+        - learn
+      parameters:
+        - name: workspaceName
+          in: path
+          description: The name of the Workspace.
+          required: true
+          schema:
+            type: string
+          example: "workspaceTest"
+      requestBody:
+        description: Evaluation parameters content payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cardId
+                - quality
+              properties:
+                cardId:
+                  type: string
+                quality:
+                  type: integer
+            example:
+              cardId: "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
+              quality: 5
+      responses:
+        '200':
+          description: LearnCard content.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  lastReview:
+                    type: string
+                    format: date-time
+                  nextReview:
+                    type: string
+                    format: date-time
+                  repetitions:
+                    type: integer
+                  easeFactor:
+                    type: number
+                    format: float
+                  intervalDays:
+                    type: integer
+              example:
+                "id": "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
+                "lastReview": "2020-04-10T19:46:06.167117Z"
+                "nextReview": "2020-04-10T19:47:06.167117Z"
+                "repetitions": 1
+                "easeFactor": 1.4
+                "intervalDays": 1
+        '404':
+          description: Workspace or Card not found.
+        '406':
+          description: The Card does not belong to the Workspace or not acceptable evaluation parameters.

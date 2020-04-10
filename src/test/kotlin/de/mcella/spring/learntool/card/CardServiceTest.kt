@@ -3,7 +3,7 @@ package de.mcella.spring.learntool.card
 import de.mcella.spring.learntool.card.exceptions.CardAlreadyExistsException
 import de.mcella.spring.learntool.card.storage.Card
 import de.mcella.spring.learntool.card.storage.CardRepository
-import de.mcella.spring.learntool.workspace.exceptions.WorkspaceDoesNotExistException
+import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.util.Optional
 import kotlin.test.assertEquals
@@ -21,8 +21,8 @@ class CardServiceTest {
 
     private val cardService = CardService(cardRepository, workspaceRepository)
 
-    @Test(expected = WorkspaceDoesNotExistException::class)
-    fun `given a non existent Workspace name and a Card content, when creating the Card, then throw WorkspaceDoesNotExistException`() {
+    @Test(expected = WorkspaceNotExistsException::class)
+    fun `given a non existent Workspace name and a Card content, when creating the Card, then throw WorkspaceNotExistsException`() {
         val workspaceName = "workspaceTest"
         val cardContent = CardContent("question", "response")
         Mockito.`when`(workspaceRepository.existsById(workspaceName)).thenReturn(false)
@@ -57,8 +57,8 @@ class CardServiceTest {
         assertEquals("response", card.response)
     }
 
-    @Test(expected = WorkspaceDoesNotExistException::class)
-    fun `given a non existent Workspace name, when retrieving the first Card from the Workspace, then throw WorkspaceDoesNotExistException`() {
+    @Test(expected = WorkspaceNotExistsException::class)
+    fun `given a non existent Workspace name, when retrieving the first Card from the Workspace, then throw WorkspaceNotExistsException`() {
         val workspaceName = "workspaceTest"
         Mockito.`when`(workspaceRepository.existsById(workspaceName)).thenReturn(false)
 

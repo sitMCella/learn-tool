@@ -3,7 +3,7 @@ package de.mcella.spring.learntool.card
 import com.fasterxml.jackson.databind.ObjectMapper
 import de.mcella.spring.learntool.card.exceptions.CardAlreadyExistsException
 import de.mcella.spring.learntool.card.storage.Card
-import de.mcella.spring.learntool.workspace.exceptions.WorkspaceDoesNotExistException
+import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import java.lang.IllegalArgumentException
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -75,7 +75,7 @@ class CardControllerTest {
         val workspaceName = "workspaceTest"
         val cardContent = CardContent("request", "response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
-        Mockito.`when`(cardService.create(workspaceName, cardContent)).thenThrow(WorkspaceDoesNotExistException(workspaceName))
+        Mockito.`when`(cardService.create(workspaceName, cardContent)).thenThrow(WorkspaceNotExistsException(workspaceName))
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/workspaces/$workspaceName/cards")
