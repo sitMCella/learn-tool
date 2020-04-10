@@ -5,7 +5,9 @@ import de.mcella.spring.learntool.card.storage.Card
 import de.mcella.spring.learntool.card.storage.CardRepository
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceDoesNotExistException
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
+import java.util.Optional
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.anyString
@@ -53,5 +55,36 @@ class CardServiceTest {
         assertEquals(workspaceName, card.workspaceName)
         assertEquals("question", card.question)
         assertEquals("response", card.response)
+    }
+
+    @Test(expected = WorkspaceDoesNotExistException::class)
+    fun `given a non existent Workspace name, when retrieving the first Card from the Workspace, then throw WorkspaceDoesNotExistException`() {
+        val workspaceName = "workspaceTest"
+        Mockito.`when`(workspaceRepository.existsById(workspaceName)).thenReturn(false)
+
+        cardService.getFirstCardFromWorkspace(workspaceName)
+    }
+
+    @Test
+    fun `given a Workspace name, when retrieving the first Card from the Workspace and no Cards exist into the Workspace, then return null`() {
+        val workspaceName = "workspaceTest"
+        Mockito.`when`(workspaceRepository.existsById(workspaceName)).thenReturn(true)
+        Mockito.`when`(cardRepository.findFirstByWorkspaceName(workspaceName)).thenReturn(Optional.empty())
+
+        val card = cardService.getFirstCardFromWorkspace(workspaceName)
+
+        assertNull(card)
+    }
+
+    @Test
+    fun `given a Workspace name, when retrieving the first Card from the Workspace, then return the Card`() {
+        val workspaceName = "workspaceTest"
+        Mockito.`when`(workspaceRepository.existsById(workspaceName)).thenReturn(true)
+        val expectedCard = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspaceName, "question", "response")
+        Mockito.`when`(cardRepository.findFirstByWorkspaceName(workspaceName)).thenReturn(Optional.of(expectedCard))
+
+        val card = cardService.getFirstCardFromWorkspace(workspaceName)
+
+        assertEquals(expectedCard, card)
     }
 }

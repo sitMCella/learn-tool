@@ -1,6 +1,8 @@
 package de.mcella.spring.learntool.workspace
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceNameException
+import de.mcella.spring.learntool.workspace.exceptions.WorkspaceAlreadyExistsException
 import de.mcella.spring.learntool.workspace.storage.Workspace
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,7 +32,7 @@ class WorkspaceControllerTest {
     private val objectMapper = ObjectMapper()
 
     @Test
-    fun `given a Workspace, when sending a post request to workspace endpoint, then WorkspaceService is called`() {
+    fun `given a Workspace, when sending a post request to create workspace endpoint, then the create method of WorkspaceService is called`() {
         val workspace = Workspace("workspaceTest")
         val contentBody = objectMapper.writeValueAsString(workspace)
 
@@ -41,6 +43,36 @@ class WorkspaceControllerTest {
         ).andExpect(MockMvcResultMatchers.status().isCreated)
             .andExpect(MockMvcResultMatchers.header().exists(HttpHeaders.LOCATION))
             .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.LOCATION, "/workspaces/workspaceTest"))
+
+        Mockito.verify(workspaceService).create(workspace)
+    }
+
+    @Test
+    fun `given a Workspace with invalid name, when sending a post request to the create workspace endpoint, then the create method of WorkspaceService is called and a UNPROCESSABLE_ENTITY response is returned`() {
+        val workspace = Workspace("workspace-Test")
+        val contentBody = objectMapper.writeValueAsString(workspace)
+        Mockito.`when`(workspaceService.create(workspace)).thenThrow(InvalidWorkspaceNameException(""))
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/workspaces")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(contentBody)
+        ).andExpect(MockMvcResultMatchers.status().isUnprocessableEntity)
+
+        Mockito.verify(workspaceService).create(workspace)
+    }
+
+    @Test
+    fun `given a Workspace, when sending a post request to the create workspace endpoint and the Workspace already exists, then the create method of WorkspaceService is called and a CONFLICT response is returned`() {
+        val workspace = Workspace("workspaceTest")
+        val contentBody = objectMapper.writeValueAsString(workspace)
+        Mockito.`when`(workspaceService.create(workspace)).thenThrow(WorkspaceAlreadyExistsException(workspace))
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/workspaces")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(contentBody)
+        ).andExpect(MockMvcResultMatchers.status().isConflict)
 
         Mockito.verify(workspaceService).create(workspace)
     }

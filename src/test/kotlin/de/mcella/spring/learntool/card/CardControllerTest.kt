@@ -1,7 +1,10 @@
 package de.mcella.spring.learntool.card
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import de.mcella.spring.learntool.card.exceptions.CardAlreadyExistsException
 import de.mcella.spring.learntool.card.storage.Card
+import de.mcella.spring.learntool.workspace.exceptions.WorkspaceDoesNotExistException
+import java.lang.IllegalArgumentException
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
@@ -47,6 +50,54 @@ class CardControllerTest {
         ).andExpect(MockMvcResultMatchers.status().isCreated)
             .andExpect(MockMvcResultMatchers.header().exists(HttpHeaders.LOCATION))
             .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.LOCATION, "/workspaces/$workspaceName/cards/${card.id}"))
+
+        Mockito.verify(cardService).create(workspaceName, cardContent)
+    }
+
+    @Test
+    fun `given a Workspace name and a CardContent, when sending a post request to the create endpoint and the create method of CardService throws IllegalArgumentException, then the create method of CardService is called and a UNPROCESSABLE_ENTITY response is returned`() {
+        val workspaceName = "workspaceTest"
+        val cardContent = CardContent("", "response")
+        val contentBody = objectMapper.writeValueAsString(cardContent)
+        Mockito.`when`(cardService.create(workspaceName, cardContent)).thenThrow(IllegalArgumentException::class.java)
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/workspaces/$workspaceName/cards")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(contentBody)
+        ).andExpect(MockMvcResultMatchers.status().isUnprocessableEntity)
+
+        Mockito.verify(cardService).create(workspaceName, cardContent)
+    }
+
+    @Test
+    fun `given a Workspace name and a CardContent, when sending a post request to the create endpoint and the Workspace does not exist, then the create method of CardService is called and a NOT_FOUND response is returned`() {
+        val workspaceName = "workspaceTest"
+        val cardContent = CardContent("request", "response")
+        val contentBody = objectMapper.writeValueAsString(cardContent)
+        Mockito.`when`(cardService.create(workspaceName, cardContent)).thenThrow(WorkspaceDoesNotExistException(workspaceName))
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/workspaces/$workspaceName/cards")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(contentBody)
+        ).andExpect(MockMvcResultMatchers.status().isNotFound)
+
+        Mockito.verify(cardService).create(workspaceName, cardContent)
+    }
+
+    @Test
+    fun `given a Workspace name and a CardContent, when sending a post request to the create endpoint and the card already exists, then the create method of CardService is called and a CONFLICT response is returned`() {
+        val workspaceName = "workspaceTest"
+        val cardContent = CardContent("request", "response")
+        val contentBody = objectMapper.writeValueAsString(cardContent)
+        Mockito.`when`(cardService.create(workspaceName, cardContent)).thenThrow(CardAlreadyExistsException("9e493dc0-ef75-403f-b5d6-ed510634f8a6"))
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/workspaces/$workspaceName/cards")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(contentBody)
+        ).andExpect(MockMvcResultMatchers.status().isConflict)
 
         Mockito.verify(cardService).create(workspaceName, cardContent)
     }
