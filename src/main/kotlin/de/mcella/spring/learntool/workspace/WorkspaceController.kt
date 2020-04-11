@@ -5,9 +5,11 @@ import java.net.URI
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -21,4 +23,8 @@ class WorkspaceController(private val workspaceService: WorkspaceService) {
         bodyBuilder.location(URI("/workspaces/${workspace.name}"))
         return bodyBuilder.body(createdWorkspace)
     }
+
+    @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
+    @ResponseStatus(HttpStatus.OK)
+    fun getAll(): List<Workspace> = workspaceService.getAll()
 }

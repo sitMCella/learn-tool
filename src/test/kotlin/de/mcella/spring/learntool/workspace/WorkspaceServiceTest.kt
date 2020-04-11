@@ -46,6 +46,19 @@ class WorkspaceServiceTest {
     }
 
     @Test
+    fun `when retrieving all the Workspaces, then call the method findAll of WorkspaceRepository and return the list of Workspaces`() {
+        val workspace1 = Workspace("workspaceTest1")
+        val workspace2 = Workspace("workspaceTest2")
+        val workspaces = listOf(workspace1, workspace2)
+        Mockito.`when`(workspaceRepository.findAll()).thenReturn(workspaces)
+
+        val retrievedWorkspaces = workspaceService.getAll()
+
+        Mockito.verify(workspaceRepository).findAll()
+        assertEquals(workspaces, retrievedWorkspaces)
+    }
+
+    @Test
     fun `given a Workspace name, when checking the Workspace existence and the Workspace exists, then call the method existsById of WorkspaceRepository and return true`() {
         val workspaceName = "workspaceTest"
         Mockito.`when`(workspaceRepository.existsById(workspaceName)).thenReturn(true)
