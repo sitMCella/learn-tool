@@ -12,6 +12,7 @@ CREATE TABLE if not exists cards (
 
 CREATE TABLE if not exists learn_cards (
   id varchar (36) primary key references cards,
+  workspace_name varchar (255),
   last_review timestamp NOT NULL,
   next_review timestamp NOT NULL,
   repetitions integer NOT NULL,

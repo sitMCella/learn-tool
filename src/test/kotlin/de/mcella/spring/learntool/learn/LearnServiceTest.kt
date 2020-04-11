@@ -52,7 +52,7 @@ class LearnServiceTest {
         val evaluationParameters = EvaluationParameters(cardId, 5)
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspaceName, "question", "response")
         Mockito.`when`(cardService.findById(cardId)).thenReturn(card)
-        val learnCard = LearnCard.createInitial(cardId, Instant.now())
+        val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
         Mockito.`when`(learnCardRepository.findById(cardId)).thenReturn(Optional.of(learnCard))
         Mockito.`when`(learnCardRepository.save(any(LearnCard::class.java))).thenReturn(learnCard)
 
@@ -68,7 +68,7 @@ class LearnServiceTest {
         val evaluationParameters = EvaluationParameters(cardId, 5)
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspaceName, "question", "response")
         Mockito.`when`(cardService.findById(cardId)).thenReturn(card)
-        val learnCard = LearnCard.createInitial(cardId, Instant.now())
+        val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
         Mockito.`when`(learnCardRepository.findById(cardId)).thenReturn(Optional.of(learnCard))
         Mockito.`when`(learnCardRepository.save(any(LearnCard::class.java))).thenReturn(learnCard)
 
@@ -84,7 +84,7 @@ class LearnServiceTest {
         val evaluationParameters = EvaluationParameters(cardId, 5)
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspaceName, "question", "response")
         Mockito.`when`(cardService.findById(cardId)).thenReturn(card)
-        val learnCard = LearnCard.createInitial(cardId, Instant.now())
+        val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
         Mockito.`when`(learnCardRepository.findById(cardId)).thenReturn(Optional.empty())
         Mockito.`when`(learnCardRepository.save(any(LearnCard::class.java))).thenReturn(learnCard)
 
@@ -93,7 +93,7 @@ class LearnServiceTest {
         val argumentCaptor = ArgumentCaptor.forClass(LearnCard::class.java)
         Mockito.verify(learnCardRepository, times(2)).save(argumentCaptor.capture())
         val updatedLearnCards = argumentCaptor.allValues
-        assertEquals(LearnCard.createInitial(cardId, updatedLearnCards[0].lastReview), updatedLearnCards[0])
+        assertEquals(LearnCard.createInitial(cardId, workspaceName, updatedLearnCards[0].lastReview), updatedLearnCards[0])
     }
 
     @Test
@@ -103,7 +103,7 @@ class LearnServiceTest {
         val evaluationParameters = EvaluationParameters(cardId, 5)
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspaceName, "question", "response")
         Mockito.`when`(cardService.findById(cardId)).thenReturn(card)
-        val learnCard = LearnCard.createInitial(cardId, Instant.now())
+        val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
         Mockito.`when`(learnCardRepository.findById(cardId)).thenReturn(Optional.of(learnCard))
         Mockito.`when`(learnCardRepository.save(any(LearnCard::class.java))).thenReturn(learnCard)
 
@@ -122,7 +122,7 @@ class LearnServiceTest {
         val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
         val evaluationParameters = EvaluationParameters(cardId, 5)
         Mockito.`when`(cardService.findById(cardId)).thenReturn(null)
-        val learnCard = LearnCard.createInitial(cardId, Instant.now())
+        val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
         Mockito.`when`(learnCardRepository.findById(cardId)).thenReturn(Optional.of(learnCard))
         Mockito.`when`(learnCardRepository.save(any(LearnCard::class.java))).thenReturn(learnCard)
 
@@ -136,7 +136,7 @@ class LearnServiceTest {
         val evaluationParameters = EvaluationParameters(cardId, 5)
         val card = Card(cardId, "anotherWorkspaceName", "question", "response")
         Mockito.`when`(cardService.findById(cardId)).thenReturn(card)
-        val learnCard = LearnCard.createInitial(cardId, Instant.now())
+        val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
         Mockito.`when`(learnCardRepository.findById(cardId)).thenReturn(Optional.of(learnCard))
         Mockito.`when`(learnCardRepository.save(any(LearnCard::class.java))).thenReturn(learnCard)
 

@@ -220,6 +220,8 @@ paths:
                 properties:
                   id:
                     type: string
+                  workspaceName:
+                    type: string
                   lastReview:
                     type: string
                     format: date-time
@@ -234,12 +236,13 @@ paths:
                   intervalDays:
                     type: integer
               example:
-                "id": "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
-                "lastReview": "2020-04-10T19:46:06.167117Z"
-                "nextReview": "2020-04-10T19:47:06.167117Z"
-                "repetitions": 1
-                "easeFactor": 1.4
-                "intervalDays": 1
+                id: "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
+                workspaceName: "workspaceTest"
+                lastReview: "2020-04-10T19:46:06.167117Z"
+                nextReview: "2020-04-10T19:47:06.167117Z"
+                repetitions: 1
+                easeFactor: 1.4
+                intervalDays: 1
         '404':
           description: Workspace or Card not found.
         '406':

@@ -22,11 +22,11 @@ class LearnService(private val cardService: CardService, private val learnCardRe
         val cardId = evaluationParameters.cardId
         val card = cardService.findById(cardId) ?: throw CardNotFoundException(workspaceName, cardId)
         if (card.workspaceName != workspaceName) throw CardBindingException(workspaceName, cardId)
-        val learnCard = learnCardRepository.findById(cardId).toNullable() ?: learnCardRepository.save(LearnCard.createInitial(cardId, Instant.now()))
+        val learnCard = learnCardRepository.findById(cardId).toNullable() ?: learnCardRepository.save(LearnCard.createInitial(cardId, workspaceName, Instant.now()))
         val inputValues = InputValues.create(evaluationParameters, learnCard)
         Sm2Algorithm.validate(inputValues)
         val outputValues = Sm2Algorithm.evaluate(inputValues)
-        val updatedLearnCard = LearnCard.create(cardId, outputValues, Instant.now())
+        val updatedLearnCard = LearnCard.create(cardId, workspaceName, outputValues, Instant.now())
         return learnCardRepository.save(updatedLearnCard)
     }
 }

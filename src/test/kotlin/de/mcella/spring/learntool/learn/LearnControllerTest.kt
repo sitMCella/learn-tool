@@ -81,7 +81,7 @@ class LearnControllerTest {
         val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
         val evaluationParameters = EvaluationParameters(cardId, 5)
         val contentBody = objectMapper.writeValueAsString(evaluationParameters)
-        val learnCard = LearnCard.createInitial(cardId, Instant.now())
+        val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
         Mockito.`when`(learnService.evaluateCard(workspaceName, evaluationParameters)).thenReturn(learnCard)
 
         mockMvc.perform(
