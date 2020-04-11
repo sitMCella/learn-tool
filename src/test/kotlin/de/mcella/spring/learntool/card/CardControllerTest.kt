@@ -36,7 +36,7 @@ class CardControllerTest {
     private val objectMapper = ObjectMapper()
 
     @Test
-    fun `given a Workspace name and a CardContent, when sending a post request to the create endpoint, then the create method of CardService is called`() {
+    fun `given a Workspace name and a CardContent, when sending a POST REST request to the cards endpoint, then the create method of CardService is called`() {
         val workspaceName = "workspaceTest"
         val cardContent = CardContent("question", "response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
@@ -55,7 +55,7 @@ class CardControllerTest {
     }
 
     @Test
-    fun `given a Workspace name and a CardContent, when sending a post request to the create endpoint and the create method of CardService throws IllegalArgumentException, then the create method of CardService is called and a UNPROCESSABLE_ENTITY response is returned`() {
+    fun `given a Workspace name and a CardContent, when sending a POST REST request to the cards endpoint and the create method of CardService throws IllegalArgumentException, then an UNPROCESSABLE_ENTITY http status response is returned`() {
         val workspaceName = "workspaceTest"
         val cardContent = CardContent("", "response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
@@ -66,12 +66,10 @@ class CardControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isUnprocessableEntity)
-
-        Mockito.verify(cardService).create(workspaceName, cardContent)
     }
 
     @Test
-    fun `given a Workspace name and a CardContent, when sending a post request to the create endpoint and the Workspace does not exist, then the create method of CardService is called and a NOT_FOUND response is returned`() {
+    fun `given a Workspace name and a CardContent, when sending a POST REST request to the cards endpoint and the Workspace does not exist, then a NOT_FOUND http status response is returned`() {
         val workspaceName = "workspaceTest"
         val cardContent = CardContent("request", "response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
@@ -82,12 +80,10 @@ class CardControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isNotFound)
-
-        Mockito.verify(cardService).create(workspaceName, cardContent)
     }
 
     @Test
-    fun `given a Workspace name and a CardContent, when sending a post request to the create endpoint and the card already exists, then the create method of CardService is called and a CONFLICT response is returned`() {
+    fun `given a Workspace name and a CardContent, when sending a POST REST request to the cards endpoint and the Card already exists, then a CONFLICT http status response is returned`() {
         val workspaceName = "workspaceTest"
         val cardContent = CardContent("request", "response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
@@ -98,7 +94,5 @@ class CardControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isConflict)
-
-        Mockito.verify(cardService).create(workspaceName, cardContent)
     }
 }

@@ -2,6 +2,7 @@ package de.mcella.spring.learntool.card.integration
 
 import de.mcella.spring.learntool.BackendApplication
 import de.mcella.spring.learntool.card.CardContent
+import de.mcella.spring.learntool.card.storage.Card
 import de.mcella.spring.learntool.card.storage.CardRepository
 import de.mcella.spring.learntool.workspace.storage.Workspace
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
@@ -73,14 +74,14 @@ class CardIntegrationTest {
     }
 
     @Test
-    fun `given a Workspace name and a CardContent, when a POST request is sent to the create endpoint, then a Card is created`() {
+    fun `given a Workspace name and a CardContent, when a POST REST request is sent to the cards endpoint, then a Card is created and the response body contains the Card`() {
         val workspaceName = "workspaceTest"
         val cardContent = CardContent("question", "response")
         val request = HttpEntity(cardContent)
         val workspace = Workspace(workspaceName)
         workspaceRepository.save(workspace)
 
-        testRestTemplate.postForObject(URI("http://localhost:$port/workspaces/$workspaceName/cards"), request, String::class.java)
+        val responseEntity = testRestTemplate.postForObject(URI("http://localhost:$port/workspaces/$workspaceName/cards"), request, Card::class.java)
 
         val cards = cardRepository.findAll()
         assertTrue { cards.size == 1 }
@@ -89,10 +90,12 @@ class CardIntegrationTest {
         assertEquals(workspaceName, createdCard.workspaceName)
         assertEquals("question", createdCard.question)
         assertEquals("response", createdCard.response)
+        val expectedCard = Card(createdCard.id, workspaceName, "question", "response")
+        assertEquals(expectedCard, responseEntity)
     }
 
     @Test
-    fun `given a Workspace name and a Cards CSV stream content, when a POST request is sent to the createMany endpoint, then the Cards are created`() {
+    fun `given a Workspace name and a Cards CSV stream content, when a POST REST request is sent to the cards many csv endpoint, then the Cards are created`() {
         val workspaceName = "workspaceTest"
         val streamContent = "question,response\nquestionTest1,responseTest1\nquestionTest2,responseTest2"
         val request = HttpEntity(ByteArrayResource(streamContent.toByteArray()))

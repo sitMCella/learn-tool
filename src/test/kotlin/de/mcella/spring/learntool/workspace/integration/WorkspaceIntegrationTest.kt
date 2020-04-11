@@ -4,6 +4,7 @@ import de.mcella.spring.learntool.BackendApplication
 import de.mcella.spring.learntool.workspace.storage.Workspace
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.junit.ClassRule
 import org.junit.Test
@@ -59,13 +60,14 @@ class WorkspaceIntegrationTest {
     lateinit var workspaceRepository: WorkspaceRepository
 
     @Test
-    fun `given a Workspace name, when a POST request is sent to the create endpoint, then a Workspace is created`() {
+    fun `given a Workspace name, when a POST REST request is sent to the create endpoint, then a Workspace is created and the response body contains the Workspace`() {
         val workspace = Workspace("workspace1")
         val request = HttpEntity(workspace)
 
-        testRestTemplate.postForObject(URI("http://localhost:$port/workspaces"), request, String::class.java)
+        val responseEntity = testRestTemplate.postForObject(URI("http://localhost:$port/workspaces"), request, Workspace::class.java)
 
         val workspaces = workspaceRepository.findAll()
         assertTrue { workspaces.contains(workspace) }
+        assertEquals(workspace, responseEntity)
     }
 }

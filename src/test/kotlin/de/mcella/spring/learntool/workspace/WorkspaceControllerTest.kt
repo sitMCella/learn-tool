@@ -32,7 +32,7 @@ class WorkspaceControllerTest {
     private val objectMapper = ObjectMapper()
 
     @Test
-    fun `given a Workspace, when sending a post request to create workspace endpoint, then the create method of WorkspaceService is called`() {
+    fun `given a Workspace, when sending a POST REST request to workspaces endpoint, then the create method of WorkspaceService is called`() {
         val workspace = Workspace("workspaceTest")
         val contentBody = objectMapper.writeValueAsString(workspace)
 
@@ -48,7 +48,7 @@ class WorkspaceControllerTest {
     }
 
     @Test
-    fun `given a Workspace with invalid name, when sending a post request to the create workspace endpoint, then the create method of WorkspaceService is called and a UNPROCESSABLE_ENTITY response is returned`() {
+    fun `given a Workspace with invalid name, when sending a POST REST request to the workspaces endpoint, then an UNPROCESSABLE_ENTITY http status response is returned`() {
         val workspace = Workspace("workspace-Test")
         val contentBody = objectMapper.writeValueAsString(workspace)
         Mockito.`when`(workspaceService.create(workspace)).thenThrow(InvalidWorkspaceNameException(""))
@@ -58,12 +58,10 @@ class WorkspaceControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isUnprocessableEntity)
-
-        Mockito.verify(workspaceService).create(workspace)
     }
 
     @Test
-    fun `given a Workspace, when sending a post request to the create workspace endpoint and the Workspace already exists, then the create method of WorkspaceService is called and a CONFLICT response is returned`() {
+    fun `given a Workspace, when sending a POST REST request to the workspaces endpoint and the Workspace already exists, then a CONFLICT http status response is returned`() {
         val workspace = Workspace("workspaceTest")
         val contentBody = objectMapper.writeValueAsString(workspace)
         Mockito.`when`(workspaceService.create(workspace)).thenThrow(WorkspaceAlreadyExistsException(workspace))
@@ -73,7 +71,5 @@ class WorkspaceControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isConflict)
-
-        Mockito.verify(workspaceService).create(workspace)
     }
 }

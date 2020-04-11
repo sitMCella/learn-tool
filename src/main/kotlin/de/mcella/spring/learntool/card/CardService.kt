@@ -1,6 +1,7 @@
 package de.mcella.spring.learntool.card
 
 import de.mcella.spring.learntool.card.exceptions.CardAlreadyExistsException
+import de.mcella.spring.learntool.card.exceptions.CardNotFoundException
 import de.mcella.spring.learntool.card.storage.Card
 import de.mcella.spring.learntool.card.storage.CardRepository
 import de.mcella.spring.learntool.common.toNullable
@@ -26,12 +27,5 @@ class CardService(private val cardRepository: CardRepository, private val worksp
         return card
     }
 
-    fun getFirstCardFromWorkspace(workspaceName: String): Card? {
-        if (!workspaceRepository.existsById(workspaceName)) {
-            throw WorkspaceNotExistsException(workspaceName)
-        }
-        return cardRepository.findFirstByWorkspaceName(workspaceName).toNullable()
-    }
-
-    fun findById(cardId: String): Card? = cardRepository.findById(cardId).toNullable()
+    fun findById(cardId: String): Card = cardRepository.findById(cardId).toNullable() ?: throw CardNotFoundException(cardId)
 }

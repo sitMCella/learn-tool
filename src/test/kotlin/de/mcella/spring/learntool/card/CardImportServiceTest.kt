@@ -23,7 +23,7 @@ class CardImportServiceTest {
     }
 
     @Test(expected = CardAlreadyExistsException::class)
-    fun `given a Workspace name and a Cards stream content, when creating the Cards, then throw CardAlreadyExistsException if a Card id already exists`() {
+    fun `given a Workspace name and a Cards stream content, when creating the Cards and the Card already exists, then throw CardAlreadyExistsException`() {
         val workspaceName = "workspaceTest"
         val streamContent = "question,response\nquestionTest1,responseTest1\nquestionTest2,responseTest2"
         val cardContent1 = CardContent("questionTest1", "responseTest1")
