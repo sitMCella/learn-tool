@@ -34,11 +34,20 @@ paths:
                 type: string
               example:
                 location: /workspaces/workspaceTest
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+              example:
+                name: "workspaceTest"
         '409':
           description: A Workspace already exists with this name.
         '422':
           description: >-
-            Workspace name empty or incorrect. Allowed characters: [a-zA-Z0-9-_].
+            The Workspace name is empty or incorrect. Allowed characters: [a-zA-Z0-9-_].
   /workspaces/{workspaceName}/cards:
     post:
       summary: Create a new Card
@@ -100,11 +109,11 @@ paths:
                 question: "This is a question"
                 response: "This is a response"
         '404':
-          description: Workspace not found.
+          description: The Workspace does not exist.
         '409':
           description: A Card already exists with this id.
         '422':
-          description: Card content fields null or empty.
+          description: The Card content fields are null or empty.
   /workspaces/{workspaceName}/cards/many.csv:
     post:
       summary: Create new Cards
@@ -134,13 +143,80 @@ paths:
         '201':
           description: Cards successfully created.
         '404':
-          description: Workspace not found.
+          description: The Workspace does not exist.
         '409':
           description: One of the Cards already exists with the same id.
         '422':
           description: >-
             CSV fields null or empty, or missing headers.
   /workspaces/{workspaceName}/learn:
+    post:
+      summary: Create a new LearnCard
+      operationId: create-learn-card
+      tags:
+        - card
+        - learn
+      parameters:
+        - name: workspaceName
+          in: path
+          description: The name of the Workspace.
+          required: true
+          schema:
+            type: string
+          example: "workspaceTest"
+      requestBody:
+        description: Card id payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cardId
+              properties:
+                cardId:
+                  type: string
+            example:
+              cardId: "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
+      responses:
+        '201':
+          description: LearnCard successfully created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  workspaceName:
+                    type: string
+                  lastReview:
+                    type: string
+                    format: date-time
+                  nextReview:
+                    type: string
+                    format: date-time
+                  repetitions:
+                    type: integer
+                  easeFactor:
+                    type: number
+                    format: float
+                  intervalDays:
+                    type: integer
+              example:
+                id: "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
+                workspaceName: "workspaceTest"
+                lastReview: "2020-04-10T19:46:06.167117Z"
+                nextReview: "2020-04-10T19:46:06.167117Z"
+                repetitions: 0
+                easeFactor: 1.3
+                intervalDays: 0
+        '404':
+          description: The Card does not exist.
+        '406':
+          description: The Card does not belong to the Workspace.
+        '409':
+          description: The LearnCard already exists.
     get:
       summary: Retrieve a Card from the Workspace
       operationId: retrieve-card
@@ -177,7 +253,7 @@ paths:
                 question: "This is a question"
                 response: "This is a response"
         '404':
-          description: Workspace or Card not found.
+          description: The Workspace or the Card do not exist.
     put:
       summary: Evaluate a Card from the Workspace
       operationId: evaluate-card
@@ -220,6 +296,8 @@ paths:
                 properties:
                   id:
                     type: string
+                  workspaceName:
+                    type: string
                   lastReview:
                     type: string
                     format: date-time
@@ -234,13 +312,14 @@ paths:
                   intervalDays:
                     type: integer
               example:
-                "id": "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
-                "lastReview": "2020-04-10T19:46:06.167117Z"
-                "nextReview": "2020-04-10T19:47:06.167117Z"
-                "repetitions": 1
-                "easeFactor": 1.4
-                "intervalDays": 1
+                id: "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
+                workspaceName: "workspaceTest"
+                lastReview: "2020-04-10T19:46:06.167117Z"
+                nextReview: "2020-04-10T19:47:06.167117Z"
+                repetitions: 1
+                easeFactor: 1.4
+                intervalDays: 1
         '404':
-          description: Workspace or Card not found.
+          description: The Workspace or the Card do not exist.
         '406':
           description: The Card does not belong to the Workspace or not acceptable evaluation parameters.

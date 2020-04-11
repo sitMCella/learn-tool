@@ -2,6 +2,7 @@ package de.mcella.spring.learntool.workspace
 
 import de.mcella.spring.learntool.workspace.storage.Workspace
 import java.net.URI
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -14,8 +15,10 @@ import org.springframework.web.bind.annotation.RestController
 class WorkspaceController(private val workspaceService: WorkspaceService) {
 
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
-    fun create(@RequestBody workspace: Workspace): ResponseEntity<Void> {
-        workspaceService.create(workspace)
-        return ResponseEntity.created(URI("/workspaces/${workspace.name}")).build()
+    fun create(@RequestBody workspace: Workspace): ResponseEntity<Workspace> {
+        val createdWorkspace = workspaceService.create(workspace)
+        val bodyBuilder = ResponseEntity.status(HttpStatus.CREATED)
+        bodyBuilder.location(URI("/workspaces/${workspace.name}"))
+        return bodyBuilder.body(createdWorkspace)
     }
 }

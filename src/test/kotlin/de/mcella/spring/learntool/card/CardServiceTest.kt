@@ -7,7 +7,6 @@ import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsExcepti
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.util.Optional
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.anyString
@@ -31,7 +30,7 @@ class CardServiceTest {
     }
 
     @Test(expected = CardAlreadyExistsException::class)
-    fun `given a Workspace name and a Card content, when creating the Card, then throw CardAlreadyExistsException if the Card id already exists`() {
+    fun `given a Workspace name and a Card content, when creating the Card and the Card already exists, then throw CardAlreadyExistsException`() {
         val workspaceName = "workspaceTest"
         val cardContent = CardContent("question", "response")
         Mockito.`when`(workspaceRepository.existsById(workspaceName)).thenReturn(true)
@@ -41,50 +40,32 @@ class CardServiceTest {
     }
 
     @Test
-    fun `given a Workspace name and a Card content, when creating the Card, then call the method save of CardRepository`() {
+    fun `given a Workspace name and a Card content, when creating the Card, then call the method save of CardRepository and return the Card`() {
         val workspaceName = "workspaceTest"
         val cardContent = CardContent("question", "response")
         Mockito.`when`(workspaceRepository.existsById(workspaceName)).thenReturn(true)
         Mockito.`when`(cardRepository.existsById(anyString())).thenReturn(false)
 
-        cardService.create(workspaceName, cardContent)
+        val card = cardService.create(workspaceName, cardContent)
 
         val argumentCaptor = ArgumentCaptor.forClass(Card::class.java)
         Mockito.verify(cardRepository).save(argumentCaptor.capture())
-        val card = argumentCaptor.value
-        assertEquals(workspaceName, card.workspaceName)
-        assertEquals("question", card.question)
-        assertEquals("response", card.response)
-    }
-
-    @Test(expected = WorkspaceNotExistsException::class)
-    fun `given a non existent Workspace name, when retrieving the first Card from the Workspace, then throw WorkspaceNotExistsException`() {
-        val workspaceName = "workspaceTest"
-        Mockito.`when`(workspaceRepository.existsById(workspaceName)).thenReturn(false)
-
-        cardService.getFirstCardFromWorkspace(workspaceName)
+        val createdCard = argumentCaptor.value
+        assertEquals(workspaceName, createdCard.workspaceName)
+        assertEquals("question", createdCard.question)
+        assertEquals("response", createdCard.response)
+        assertEquals(createdCard, card)
     }
 
     @Test
-    fun `given a Workspace name, when retrieving the first Card from the Workspace and no Cards exist into the Workspace, then return null`() {
-        val workspaceName = "workspaceTest"
-        Mockito.`when`(workspaceRepository.existsById(workspaceName)).thenReturn(true)
-        Mockito.`when`(cardRepository.findFirstByWorkspaceName(workspaceName)).thenReturn(Optional.empty())
+    fun `given a Card id, when retrieving the Card, then call the method findById of CardRepository and return the Card`() {
+        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
+        val expectedCard = Card(cardId, "workspaceTest", "question", "response")
+        Mockito.`when`(cardRepository.findById(cardId)).thenReturn(Optional.of(expectedCard))
 
-        val card = cardService.getFirstCardFromWorkspace(workspaceName)
+        val card = cardService.findById(cardId)
 
-        assertNull(card)
-    }
-
-    @Test
-    fun `given a Workspace name, when retrieving the first Card from the Workspace, then return the Card`() {
-        val workspaceName = "workspaceTest"
-        Mockito.`when`(workspaceRepository.existsById(workspaceName)).thenReturn(true)
-        val expectedCard = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspaceName, "question", "response")
-        Mockito.`when`(cardRepository.findFirstByWorkspaceName(workspaceName)).thenReturn(Optional.of(expectedCard))
-
-        val card = cardService.getFirstCardFromWorkspace(workspaceName)
-
+        Mockito.verify(cardRepository).findById(cardId)
         assertEquals(expectedCard, card)
     }
 }
