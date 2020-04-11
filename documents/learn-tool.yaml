@@ -48,6 +48,25 @@ paths:
         '422':
           description: >-
             The Workspace name is empty or incorrect. Allowed characters: [a-zA-Z0-9-_].
+    get:
+      summary: Get all the Workspaces
+      operationId: get-workspaces
+      tags:
+        - workspace
+      responses:
+        '200':
+          description: The list of Workspaces.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                example:
+                  - name: "workspaceTest"
   /workspaces/{workspaceName}/cards:
     post:
       summary: Create a new Card

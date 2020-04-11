@@ -72,4 +72,21 @@ class WorkspaceControllerTest {
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isConflict)
     }
+
+    @Test
+    fun `when sending a GET REST request to workspaces endpoint, then the getAll method of WorkspaceService is called and a list of Workspaces is returned`() {
+        val workspace1 = Workspace("workspaceTest1")
+        val workspace2 = Workspace("workspaceTest2")
+        val workspaces = listOf(workspace1, workspace2)
+        Mockito.`when`(workspaceService.getAll()).thenReturn(workspaces)
+        val expectedContentBody = objectMapper.writeValueAsString(workspaces)
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/workspaces")
+        ).andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(MockMvcResultMatchers.content().json(expectedContentBody))
+
+        Mockito.verify(workspaceService).getAll()
+    }
 }

@@ -18,5 +18,7 @@ class WorkspaceService(private val workspaceRepository: WorkspaceRepository) {
         return workspaceRepository.save(workspace)
     }
 
+    fun getAll(): List<Workspace> = workspaceRepository.findAll()
+
     fun exists(workspaceName: String): Boolean = workspaceRepository.existsById(workspaceName)
 }

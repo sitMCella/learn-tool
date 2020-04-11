@@ -6,6 +6,7 @@ import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import org.junit.Before
 import org.junit.ClassRule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -17,6 +18,7 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.http.HttpEntity
+import org.springframework.http.HttpStatus
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringRunner
 import org.testcontainers.containers.PostgreSQLContainer
@@ -59,8 +61,13 @@ class WorkspaceIntegrationTest {
     @Autowired
     lateinit var workspaceRepository: WorkspaceRepository
 
+    @Before
+    fun setUp() {
+        workspaceRepository.deleteAll()
+    }
+
     @Test
-    fun `given a Workspace name, when a POST REST request is sent to the create endpoint, then a Workspace is created and the response body contains the Workspace`() {
+    fun `given a Workspace name, when a POST REST request is sent to the workspaces endpoint, then a Workspace is created and the http response body contains the Workspace`() {
         val workspace = Workspace("workspace1")
         val request = HttpEntity(workspace)
 
@@ -69,5 +76,19 @@ class WorkspaceIntegrationTest {
         val workspaces = workspaceRepository.findAll()
         assertTrue { workspaces.contains(workspace) }
         assertEquals(workspace, responseEntity)
+    }
+
+    @Test
+    fun `when a GET REST request is sent to the workspaces endpoint, then the http response body contains the list of Workspaces`() {
+        val workspace1 = Workspace("workspace1")
+        workspaceRepository.save(workspace1)
+        val workspace2 = Workspace("workspace2")
+        workspaceRepository.save(workspace2)
+
+        val responseEntity = testRestTemplate.getForEntity(URI("http://localhost:$port/workspaces"), List::class.java)
+
+        assertEquals(HttpStatus.OK, responseEntity.statusCode)
+        val workspaces = responseEntity.body as List<*>
+        assertTrue { workspaces.size == 2 }
     }
 }
