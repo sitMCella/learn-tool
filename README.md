@@ -12,10 +12,23 @@ Learn Tool is a web application that uses Spring Boot 2 framework and Kotlin lan
 
 Install OpenJDK 11 and Docker (Docker compose).
 
-### Build project
+### Build backend project (development)
 
 ```sh
 ./gradlew clean build
+```
+
+### Build frontend project (development)
+
+```sh
+cd ./frontend
+mvn clean build
+```
+
+### Build project (production)
+
+```sh
+./gradlew clean build -Pprod
 ```
 
 ### Klint
@@ -47,7 +60,20 @@ POSTGRES_USERNAME=postgres
 POSTGRES_PASSWORD=postgres
 ```
 
-### Run application
+### Run application (development)
+
+```sh
+docker-compose up
+```
+
+Run frontend application:
+
+```sh
+cd ./frontend
+npm start
+```
+
+### Run application (production)
 
 ```sh
 docker-compose up
@@ -58,6 +84,12 @@ docker-compose up
 ```sh
 docker exec -it learn-tool_db_1 /bin/bash
 psql learntool $POSTGRES_USERNAME
+```
+
+### Access application
+
+```sh
+http://localhost:8080
 ```
 
 ## REST APIs documentation
