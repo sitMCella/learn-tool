@@ -1,5 +1,6 @@
 package de.mcella.spring.learntool.card
 
+import de.mcella.spring.learntool.UnitTest
 import de.mcella.spring.learntool.card.exceptions.CardAlreadyExistsException
 import de.mcella.spring.learntool.card.storage.Card
 import de.mcella.spring.learntool.card.storage.CardRepository
@@ -8,10 +9,12 @@ import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.util.Optional
 import kotlin.test.assertEquals
 import org.junit.Test
+import org.junit.experimental.categories.Category
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito
 
+@Category(UnitTest::class)
 class CardServiceTest {
 
     private val cardRepository = Mockito.mock(CardRepository::class.java)

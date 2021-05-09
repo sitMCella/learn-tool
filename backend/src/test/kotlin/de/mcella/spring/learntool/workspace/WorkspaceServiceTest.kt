@@ -1,5 +1,6 @@
 package de.mcella.spring.learntool.workspace
 
+import de.mcella.spring.learntool.UnitTest
 import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceNameException
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceAlreadyExistsException
 import de.mcella.spring.learntool.workspace.storage.Workspace
@@ -8,8 +9,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import org.junit.Test
+import org.junit.experimental.categories.Category
 import org.mockito.Mockito
 
+@Category(UnitTest::class)
 class WorkspaceServiceTest {
 
     private val workspaceRepository = Mockito.mock(WorkspaceRepository::class.java)

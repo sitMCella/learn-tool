@@ -1,8 +1,11 @@
 package de.mcella.spring.learntool.workspace
 
+import de.mcella.spring.learntool.UnitTest
 import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceNameException
 import org.junit.Test
+import org.junit.experimental.categories.Category
 
+@Category(UnitTest::class)
 class WorkspaceNameValidatorTest {
 
     @Test

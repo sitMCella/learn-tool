@@ -1,11 +1,14 @@
 package de.mcella.spring.learntool.card
 
+import de.mcella.spring.learntool.UnitTest
 import de.mcella.spring.learntool.card.exceptions.CardAlreadyExistsException
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import java.io.ByteArrayInputStream
 import org.junit.Test
+import org.junit.experimental.categories.Category
 import org.mockito.Mockito
 
+@Category(UnitTest::class)
 class CardImportServiceTest {
 
     private val cardService = Mockito.mock(CardService::class.java)

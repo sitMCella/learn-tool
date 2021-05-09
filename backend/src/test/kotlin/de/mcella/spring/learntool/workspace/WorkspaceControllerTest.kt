@@ -1,10 +1,12 @@
 package de.mcella.spring.learntool.workspace
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import de.mcella.spring.learntool.UnitTest
 import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceNameException
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceAlreadyExistsException
 import de.mcella.spring.learntool.workspace.storage.Workspace
 import org.junit.Test
+import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,6 +21,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 @RunWith(SpringRunner::class)
+@Category(UnitTest::class)
 @WebMvcTest(WorkspaceController::class)
 @AutoConfigureWebClient
 class WorkspaceControllerTest {

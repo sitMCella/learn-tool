@@ -14,8 +14,18 @@ Install OpenJDK 11 and Docker (Docker compose).
 
 ### Build backend project (development)
 
+#### Build backend and run unit tests
+
 ```sh
+cd ./backend
 ./gradlew clean build
+```
+
+#### Build backend and run unit tests and integration tests
+
+```sh
+cd ./backend
+./gradlew clean build integrationTest
 ```
 
 ### Build frontend project (development)
@@ -27,8 +37,16 @@ mvn clean build
 
 ### Build project (production)
 
+#### Build backend and run unit tests
+
 ```sh
-./gradlew clean build -Pprod
+./gradlew clean build
+```
+
+#### Build backend and run unit tests and integration tests
+
+```sh
+./gradlew clean build integrationTest
 ```
 
 ### Klint
@@ -62,11 +80,13 @@ POSTGRES_PASSWORD=postgres
 
 ### Run application (development)
 
+Run the backend application:
+
 ```sh
 docker-compose up
 ```
 
-Run frontend application:
+Run the frontend application:
 
 ```sh
 cd ./frontend

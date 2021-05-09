@@ -1,13 +1,16 @@
 package de.mcella.spring.learntool.learn.algorithm
 
+import de.mcella.spring.learntool.UnitTest
 import de.mcella.spring.learntool.learn.exceptions.InputValuesNotAcceptableException
 import junitparams.JUnitParamsRunner
 import junitparams.Parameters
 import kotlin.test.assertEquals
 import org.junit.Test
+import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
 @RunWith(JUnitParamsRunner::class)
+@Category(UnitTest::class)
 class Sm2AlgorithmTest {
 
     fun parametersForTest() = arrayOf(
