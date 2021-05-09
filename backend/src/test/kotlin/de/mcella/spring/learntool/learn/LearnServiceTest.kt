@@ -1,5 +1,6 @@
 package de.mcella.spring.learntool.learn
 
+import de.mcella.spring.learntool.UnitTest
 import de.mcella.spring.learntool.card.CardService
 import de.mcella.spring.learntool.card.exceptions.CardNotFoundException
 import de.mcella.spring.learntool.card.storage.Card
@@ -15,10 +16,12 @@ import java.util.Optional
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.junit.Test
+import org.junit.experimental.categories.Category
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 
+@Category(UnitTest::class)
 class LearnServiceTest {
 
     private val cardService = Mockito.mock(CardService::class.java)

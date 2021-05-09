@@ -1,6 +1,7 @@
 package de.mcella.spring.learntool.workspace.integration
 
 import de.mcella.spring.learntool.BackendApplication
+import de.mcella.spring.learntool.IntegrationTest
 import de.mcella.spring.learntool.workspace.storage.Workspace
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
@@ -9,6 +10,7 @@ import kotlin.test.assertTrue
 import org.junit.Before
 import org.junit.ClassRule
 import org.junit.Test
+import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -24,6 +26,7 @@ import org.springframework.test.context.junit4.SpringRunner
 import org.testcontainers.containers.PostgreSQLContainer
 
 @RunWith(SpringRunner::class)
+@Category(IntegrationTest::class)
 @SpringBootTest(classes = [BackendApplication::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(initializers = [WorkspaceIntegrationTest.Companion.Initializer::class])
 class WorkspaceIntegrationTest {

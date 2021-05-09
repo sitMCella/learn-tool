@@ -1,6 +1,7 @@
 package de.mcella.spring.learntool.learn
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import de.mcella.spring.learntool.UnitTest
 import de.mcella.spring.learntool.card.exceptions.CardNotFoundException
 import de.mcella.spring.learntool.card.storage.Card
 import de.mcella.spring.learntool.learn.exceptions.CardBindingException
@@ -11,6 +12,7 @@ import de.mcella.spring.learntool.learn.storage.LearnCard
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import java.time.Instant
 import org.junit.Test
+import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,6 +26,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 @RunWith(SpringRunner::class)
+@Category(UnitTest::class)
 @WebMvcTest(LearnController::class)
 @AutoConfigureWebClient
 class LearnControllerTest {

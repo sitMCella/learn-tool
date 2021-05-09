@@ -17,7 +17,7 @@ java.sourceCompatibility = JavaVersion.VERSION_11
 
 val postgresVersion = "42.2.8"
 val alpineJreImage = "adoptopenjdk/openjdk11:alpine-jre"
-val testContainersVersion = "1.13.0"
+val testContainersVersion = "1.15.3"
 val openApiDocumentation = "${project.rootDir}/backend/documents/learn-tool.yaml"
 
 configurations {
@@ -51,9 +51,29 @@ dependencies {
 }
 
 tasks.withType<KotlinCompile> {
+    dependsOn("copyWebApp")
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
         jvmTarget = "1.8"
+    }
+}
+
+tasks.register<Copy>("copyWebApp") {
+    dependsOn(":frontend:npm_run_build")
+    description = "Copies the React build project in the Spring Boot backend static directory"
+    from("../frontend/build")
+    into("build/resources/main/static/.")
+}
+
+tasks.test {
+    useJUnit {
+        includeCategories("de.mcella.spring.learntool.UnitTest")
+    }
+}
+
+task<Test>("integrationTest") {
+    useJUnit {
+        includeCategories("de.mcella.spring.learntool.IntegrationTest")
     }
 }
 
@@ -63,16 +83,6 @@ tasks.create<org.openapitools.generator.gradle.plugin.tasks.ValidateTask>("valid
 
 task("validateOpenApi") {
     dependsOn.add(listOf("validateLearnToolOpenApi"))
-}
-
-if (project.hasProperty("prod")) {
-    tasks.withType<Jar> {
-        dependsOn(":frontend:npm_run_build")
-
-        from("../frontend/build") {
-            into("static")
-        }
-    }
 }
 
 jib {
