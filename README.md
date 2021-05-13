@@ -17,15 +17,13 @@ Install OpenJDK 11 and Docker (Docker compose).
 #### Build backend and run unit tests
 
 ```sh
-cd ./backend
-./gradlew clean build
+./gradlew clean build -PskipWebApp
 ```
 
 #### Build backend and run unit tests and integration tests
 
 ```sh
-cd ./backend
-./gradlew clean build integrationTest
+./gradlew clean build integrationTest -PskipWebApp
 ```
 
 ### Build frontend project (development)

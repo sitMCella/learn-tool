@@ -19,6 +19,7 @@ val postgresVersion = "42.2.8"
 val alpineJreImage = "adoptopenjdk/openjdk11:alpine-jre"
 val testContainersVersion = "1.15.3"
 val openApiDocumentation = "${project.rootDir}/backend/documents/learn-tool.yaml"
+val skipWebApp = "skipWebApp"
 
 configurations {
     compileOnly {
@@ -59,7 +60,10 @@ tasks.withType<KotlinCompile> {
 }
 
 tasks.register<Copy>("copyWebApp") {
-    dependsOn(":frontend:npm_run_build")
+    onlyIf { !project.hasProperty(skipWebApp) }
+    if (!project.hasProperty(skipWebApp)) {
+        dependsOn(":frontend:npm_run_build")
+    }
     description = "Copies the React build project in the Spring Boot backend static directory"
     from("../frontend/build")
     into("build/resources/main/static/.")

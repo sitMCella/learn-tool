@@ -39,8 +39,13 @@ function Workspaces() {
         setList(newWorkspaces);
         setNewWorkspaceStatus(false);
     }
+    const createErrorHandler = () => {
+        const newWorkspaces = list.slice(0,-1);
+        setList(newWorkspaces);
+        setNewWorkspaceStatus(false);
+    }
     const cancelButtonClickHandler = () => {
-        const newWorkspaces = list.slice(0,-1)
+        const newWorkspaces = list.slice(0,-1);
         setList(newWorkspaces);
         setNewWorkspaceStatus(false);
     };
@@ -48,7 +53,7 @@ function Workspaces() {
         <div>
             <Button variant="contained" color="primary" onClick={newWorkspaceHandler} disabled={newWorkspaceStatus}>New Workspace</Button>
             <List component="nav" aria-label="main mailbox folders">
-                {list.map(workspace => <Workspace name={workspace.name} selected={false} new={workspace.new} handleSubmit={submitHandler} handleCancel={cancelButtonClickHandler}></Workspace>)}
+                {list.map(workspace => <Workspace name={workspace.name} selected={false} new={workspace.new} handleSubmit={submitHandler} handleError={createErrorHandler} handleCancel={cancelButtonClickHandler}></Workspace>)}
             </List>
         </div>
     );

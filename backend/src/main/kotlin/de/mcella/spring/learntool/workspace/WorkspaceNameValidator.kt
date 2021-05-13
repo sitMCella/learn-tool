@@ -4,6 +4,7 @@ import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceNameExcep
 import java.util.regex.Pattern
 
 object WorkspaceNameValidator {
+    const val MIN_WORKSPACE_NAME_LENGTH = 1
     const val MAX_WORKSPACE_NAME_LENGTH = 255
 
     private val WORKSPACE_NAME_REGEX = "^([a-zA-Z0-9-_]*)".format(
@@ -17,6 +18,6 @@ object WorkspaceNameValidator {
     }
 
     private fun isValid(workspaceName: String): Boolean {
-        return patternContainerName.matcher(workspaceName).matches()
+        return workspaceName.length in MIN_WORKSPACE_NAME_LENGTH..MAX_WORKSPACE_NAME_LENGTH && patternContainerName.matcher(workspaceName).matches()
     }
 }

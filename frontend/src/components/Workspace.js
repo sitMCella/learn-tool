@@ -21,11 +21,18 @@ function Workspace(props) {
                 },
                 body: JSON.stringify({name: newWorkspaceName})
             });
+            if(!response.ok) {
+                throw new Error("Error while creating the Workspace " + newWorkspaceName);
+            }
             const workspace = await response.json();
             props.handleSubmit(workspace.name);
             setNewWorkspaceName('');
         };
-        createWorkspace();
+        createWorkspace().catch((err) => {
+            console.log(err);
+            props.handleError();
+            setNewWorkspaceName('');
+        });
     };
     if (props.new) {
         return (

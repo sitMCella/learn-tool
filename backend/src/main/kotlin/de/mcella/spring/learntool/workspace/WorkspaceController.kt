@@ -18,8 +18,6 @@ class WorkspaceController(private val workspaceService: WorkspaceService) {
 
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
     fun create(@RequestBody workspace: Workspace): ResponseEntity<Workspace> {
-        println("called create workspace!")
-        println(workspace)
         val createdWorkspace = workspaceService.create(workspace)
         val bodyBuilder = ResponseEntity.status(HttpStatus.CREATED)
         bodyBuilder.location(URI("/workspaces/${workspace.name}"))
