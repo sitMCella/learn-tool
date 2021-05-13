@@ -4,6 +4,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import TextField from '@material-ui/core/TextField';
 import { Button } from "@material-ui/core";
 import Box from '@material-ui/core/Box';
+import { Link } from "react-router-dom";
 
 function Workspace(props) {
     const [newWorkspaceName, setNewWorkspaceName] = useState('');
@@ -12,7 +13,6 @@ function Workspace(props) {
     };
     const submitHandler = (event) => {
         event.preventDefault();
-        console.log(newWorkspaceName);
         const createWorkspace = async () => {
             const response = await fetch('http://localhost:8080/workspaces', {
                 method: 'POST',
@@ -36,10 +36,7 @@ function Workspace(props) {
     };
     if (props.new) {
         return (
-            <ListItem
-                button
-                selected={props.selected}
-            >
+            <ListItem button selected={props.selected} >
                 <form onSubmit={submitHandler}>
                     <Box display="flex" justifyContent="flex-start" alignItems="center">
                         <Box>
@@ -57,10 +54,7 @@ function Workspace(props) {
         );
     } else {
         return (
-            <ListItem
-                button
-                selected={props.selected}
-            >
+            <ListItem button selected={props.selected} component={Link} to={'/workspaces/' + props.name} >
                 <ListItemText primary={props.name} />
             </ListItem>
         );

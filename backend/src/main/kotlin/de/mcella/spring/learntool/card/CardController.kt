@@ -6,6 +6,7 @@ import java.net.URI
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -39,4 +40,8 @@ class CardController(private val cardService: CardService, private val cardImpor
         @PathVariable(value = "workspaceName") workspaceName: String,
         content: InputStream
     ) = cardImportService.createMany(workspaceName, content)
+
+    @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
+    @ResponseStatus(HttpStatus.OK)
+    fun getFromWorkspaceName(@PathVariable(value = "workspaceName") workspaceName: String): List<Card> = cardService.findByWorkspaceName(workspaceName)
 }
