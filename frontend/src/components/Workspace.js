@@ -14,7 +14,7 @@ function Workspace(props) {
     const submitHandler = (event) => {
         event.preventDefault();
         const createWorkspace = async () => {
-            const response = await fetch('http://localhost:8080/workspaces', {
+            const response = await fetch('/api/workspaces', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

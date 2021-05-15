@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 
 @RestController
-@RequestMapping("/workspaces/{workspaceName}/cards")
+@RequestMapping("/api/workspaces/{workspaceName}/cards")
 class CardController(private val cardService: CardService, private val cardImportService: CardImportService) {
 
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])

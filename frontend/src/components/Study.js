@@ -5,6 +5,11 @@ import {default as CardUi} from "@material-ui/core/Card/Card";
 import {Link, useParams} from "react-router-dom";
 import {Button} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
+import {makeStyles} from "@material-ui/core/styles";
+import Toolbar from "@material-ui/core/Toolbar";
+import IconButton from "@material-ui/core/IconButton";
+import MenuIcon from "@material-ui/icons/Menu";
+import AppBar from "@material-ui/core/AppBar";
 
 function Study() {
     const params = useParams();
@@ -16,7 +21,7 @@ function Study() {
     const [evaluationButtonsVisible, setEvaluationButtonsVisible] = useState(false);
     const [noCardsLft, setNoCardsLeft] = useState(false);
     const getCard = async () => {
-        const response = await fetch('http://localhost:8080/workspaces/' + params.name + '/learn', {
+        const response = await fetch('/api/workspaces/' + params.name + '/learn', {
             method: 'GET',
             headers: {
                 'Accepted': 'application/json'
@@ -46,7 +51,7 @@ function Study() {
     }
     const evaluateCardHandler = () => {
         const evaluateCard = async () => {
-            const response = await fetch('http://localhost:8080/workspaces/' + params.name + '/learn', {
+            const response = await fetch('/api/workspaces/' + params.name + '/learn', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -80,32 +85,64 @@ function Study() {
         });
     }
     const qualityValues = [0, 1, 2, 3, 4, 5];
+    const useStyles = makeStyles((theme) => ({
+        appBar: {
+            marginBottom: theme.spacing(2),
+        },
+        menuButton: {
+            marginRight: theme.spacing(2),
+        },
+        title: {
+            marginRight: theme.spacing(10),
+        },
+        card: {
+            minHeight: '40vh',
+        },
+        cardContent: {
+            marginTop: theme.spacing(2),
+        },
+        appbarBottom: {
+            alignItems: 'center',
+        }
+    }));
+    const classes = useStyles();
     return (
         <div>
+            <AppBar position="static" className={classes.appBar}>
+                <Toolbar>
+                    <IconButton className={classes.menuButton} edge="start" color="inherit" aria-label="menu">
+                        <MenuIcon />
+                    </IconButton>
+                    <Button color="inherit" component={Link} to={'/workspaces'}>Workspaces</Button>
+                    <Button color="inherit" component={Link} to={'/workspaces/' + params.name + '/cards'}>Cards</Button>
+                </Toolbar>
+            </AppBar>
             { !noCardsLft ? (
                 <div>
-                    <CardUi>
+                    <CardUi className={classes.card}>
                         <CardContent>
-                            <Typography variant="body2" color="textSecondary" component="p">
-                                Question: {cardQuestion}
+                            <Typography variant="body1" color="textSecondary" component="p" className={classes.cardContent}>
+                                <b>Question:</b> {cardQuestion}
                             </Typography>
                             <Box component="span" display={responseVisibility}>
-                                <Typography variant="body2" color="textSecondary" component="p" >
-                                    Response: {cardResponse}
+                                <Typography variant="body1" color="textSecondary" component="p" className={classes.cardContent}>
+                                    <b>Response:</b> {cardResponse}
                                 </Typography>
                             </Box>
                         </CardContent>
                     </CardUi>
-                    <Box component="span" m={3}>
-                        {flipButtonVisible && (<Button variant="contained" color="primary" onClick={flipCardHandler}>Flip</Button>)}
-                        {evaluationButtonsVisible && (
-                            <Box component="span" display={responseVisibility}>
-                                {qualityValues.map((value) => {
-                                    return <Button key={value} variant="contained" color="primary" onClick={() => evaluateCardHandler({value})}>{value}</Button>
-                                })}
-                            </Box>
-                        )}
-                    </Box>
+                    <AppBar position="static" className={classes.appbarBottom}>
+                        <Toolbar>
+                            {flipButtonVisible && (<Button color="inherit" style={{maxWidth: '50vh', minWidth: '50vh'}} onClick={flipCardHandler}>Flip</Button>)}
+                            {evaluationButtonsVisible && (
+                                <Box component="span" display={responseVisibility}>
+                                    {qualityValues.map((value) => {
+                                        return <Button key={value} color="inherit" onClick={() => evaluateCardHandler({value})}>{value}</Button>
+                                    })}
+                                </Box>
+                            )}
+                        </Toolbar>
+                    </AppBar>
                 </div>
             ) :
             (
