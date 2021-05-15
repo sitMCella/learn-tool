@@ -1,7 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import {Button} from "@material-ui/core";
 import List from "@material-ui/core/List";
+import Box from '@material-ui/core/Box';
 import Card from './Card';
 
 const WorkspaceDetails = () => {
@@ -55,7 +56,10 @@ const WorkspaceDetails = () => {
     };
     return (
         <div>
-            <Button variant="contained" color="primary" onClick={newCardHandler} disabled={newCardStatus}>New Card</Button>
+            <Box component="span" m={3}>
+                <Button variant="contained" color="primary" onClick={newCardHandler} disabled={newCardStatus}>New Card</Button>
+                <Button variant="contained" color="primary" component={Link} to={'/workspaces/' + params.name + '/study'}>Study</Button>
+            </Box>
             <List component="nav" aria-label="main mailbox folders">
                 {list.map(card => <Card key={card.question} workspaceName={params.name} question={card.question} response={card.response} selected={false} new={card.new} handleSubmit={submitHandler} handleError={createErrorHandler} handleCancel={cancelButtonClickHandler}></Card>)}
             </List>
