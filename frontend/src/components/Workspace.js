@@ -14,7 +14,7 @@ function Workspace(props) {
     const submitHandler = (event) => {
         event.preventDefault();
         const createWorkspace = async () => {
-            const response = await fetch('http://localhost:8080/workspaces', {
+            const response = await fetch('/api/workspaces', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -22,15 +22,15 @@ function Workspace(props) {
                 body: JSON.stringify({name: newWorkspaceName})
             });
             if(!response.ok) {
-                throw new Error("Error while creating the Workspace " + newWorkspaceName);
+                throw new Error(response.status);
             }
             const workspace = await response.json();
             props.handleSubmit(workspace.name);
             setNewWorkspaceName('');
         };
         createWorkspace().catch((err) => {
-            console.log(err);
-            props.handleError();
+            console.log("Error while creating the Workspace " + newWorkspaceName);
+            props.handleError(err.message);
             setNewWorkspaceName('');
         });
     };

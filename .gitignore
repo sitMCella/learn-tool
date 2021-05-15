@@ -193,3 +193,5 @@ gradle-app.setting
 **/build/
 
 .env
+
+META-INF/

@@ -19,7 +19,7 @@ function Card(props) {
     const submitHandler = (event) => {
         event.preventDefault();
         const createCard = async () => {
-            const response = await fetch('http://localhost:8080/workspaces/' + props.workspaceName + '/cards', {
+            const response = await fetch('/api/workspaces/' + props.workspaceName + '/cards', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -38,7 +38,7 @@ function Card(props) {
             });
         };
         const createLearnCard = async (cardId) => {
-            const response = await fetch('http://localhost:8080/workspaces/' + props.workspaceName + '/learn', {
+            const response = await fetch('/api/workspaces/' + props.workspaceName + '/learn', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/workspaces")
+@RequestMapping("/api/workspaces")
 class WorkspaceController(private val workspaceService: WorkspaceService) {
 
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
     fun create(@RequestBody workspace: Workspace): ResponseEntity<Workspace> {
         val createdWorkspace = workspaceService.create(workspace)
         val bodyBuilder = ResponseEntity.status(HttpStatus.CREATED)
-        bodyBuilder.location(URI("/workspaces/${workspace.name}"))
+        bodyBuilder.location(URI("/api/workspaces/${workspace.name}"))
         return bodyBuilder.body(createdWorkspace)
     }
 
