@@ -22,15 +22,15 @@ function Workspace(props) {
                 body: JSON.stringify({name: newWorkspaceName})
             });
             if(!response.ok) {
-                throw new Error("Error while creating the Workspace " + newWorkspaceName);
+                throw new Error(response.status);
             }
             const workspace = await response.json();
             props.handleSubmit(workspace.name);
             setNewWorkspaceName('');
         };
         createWorkspace().catch((err) => {
-            console.log(err);
-            props.handleError();
+            console.log("Error while creating the Workspace " + newWorkspaceName);
+            props.handleError(err.message);
             setNewWorkspaceName('');
         });
     };
