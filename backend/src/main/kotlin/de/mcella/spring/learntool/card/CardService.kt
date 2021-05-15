@@ -27,5 +27,7 @@ class CardService(private val cardRepository: CardRepository, private val worksp
         return card
     }
 
+    fun findByWorkspaceName(workspaceName: String): List<Card> = cardRepository.findByWorkspaceName(workspaceName)
+
     fun findById(cardId: String): Card = cardRepository.findById(cardId).toNullable() ?: throw CardNotFoundException(cardId)
 }
