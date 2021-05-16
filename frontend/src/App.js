@@ -10,7 +10,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-          <Container maxWidth="lg">
+          <Container >
               <BrowserRouter>
                   <Switch>
                       <Redirect exact from="/" to="/workspaces" />

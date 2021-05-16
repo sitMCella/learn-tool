@@ -3,11 +3,20 @@ import { useParams, Link } from 'react-router-dom';
 import {Button} from "@material-ui/core";
 import List from "@material-ui/core/List";
 import Card from './Card';
+import clsx from 'clsx';
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import AppBar from "@material-ui/core/AppBar";
-import {makeStyles} from "@material-ui/core/styles";
+import {makeStyles, useTheme} from "@material-ui/core/styles";
+import Drawer from '@material-ui/core/Drawer';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import Divider from '@material-ui/core/Divider';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import DashboardIcon from '@material-ui/icons/Dashboard';
 
 const WorkspaceDetails = () => {
     const params = useParams();
@@ -58,33 +67,127 @@ const WorkspaceDetails = () => {
         setList(newCards);
         setNewCardStatus(false);
     };
+    const drawerWidth = 240;
+    const [open, setOpen] = React.useState(false);
+    const handleDrawerToggle = () => {
+        setOpen(!open);
+    };
+    const handleDrawerClose = () => {
+        setOpen(false);
+    };
     const useStyles = makeStyles((theme) => ({
-        appBar: {
-            marginBottom: theme.spacing(2),
-        },
         menuButton: {
             marginRight: theme.spacing(2),
+            ['@media only screen and (max-width:768px)']: {
+                display: 'none',
+            },
         },
-        title: {
-            marginRight: theme.spacing(10),
+        appBar: {
+            ['@media only screen and (max-width:14000px)']: {
+                marginLeft: theme.spacing(5),
+            },
+            marginBottom: theme.spacing(2),
+            zIndex: theme.zIndex.drawer + 1,
+            transition: theme.transitions.create(['width', 'margin'], {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.leavingScreen,
+            }),
         },
+        drawer: {
+            width: drawerWidth,
+            flexShrink: 0,
+            whiteSpace: 'nowrap',
+        },
+        drawerOpen: {
+            width: drawerWidth,
+            transition: theme.transitions.create('width', {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.enteringScreen,
+            }),
+        },
+        drawerClose: {
+            transition: theme.transitions.create('width', {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.leavingScreen,
+            }),
+            overflowX: 'hidden',
+            width: theme.spacing(7) + 1,
+            [theme.breakpoints.up('sm')]: {
+                width: theme.spacing(7) + 1,
+            },
+        },
+        hide: {
+            display: 'none',
+        },
+        toolbar: {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            padding: theme.spacing(0, 1),
+            ...theme.mixins.toolbar,
+        },
+        drawerCloseButton: {
+            ['@media only screen and (max-width:768px)']: {
+                display: 'none',
+            },
+        },
+        divider: {
+            ['@media only screen and (max-width:768px)']: {
+                display: 'none',
+            },
+        },
+        content: {
+            ['@media only screen and (max-width:14000px)']: {
+                marginLeft: theme.spacing(5),
+            },
+        }
     }));
     const classes = useStyles();
+    const theme = useTheme();
     return (
         <div>
             <AppBar position="static" className={classes.appBar}>
                 <Toolbar>
-                    <IconButton className={classes.menuButton} edge="start" color="inherit" aria-label="menu">
+                    <IconButton edge="start" color="inherit" aria-label="menu" onClick={handleDrawerToggle} className={classes.menuButton}>
                         <MenuIcon />
                     </IconButton>
-                    <Button color="inherit" component={Link} to={'/workspaces'}>Workspaces</Button>
                     <Button color="inherit" onClick={newCardHandler} disabled={newCardStatus}>New Card</Button>
                     <Button color="inherit" component={Link} to={'/workspaces/' + params.name + '/study'}>Study</Button>
                 </Toolbar>
             </AppBar>
-            <List component="nav" aria-label="main mailbox folders">
-                {list.map(card => <Card key={card.question} workspaceName={params.name} question={card.question} response={card.response} selected={false} new={card.new} handleSubmit={submitHandler} handleError={createErrorHandler} handleCancel={cancelButtonClickHandler}></Card>)}
-            </List>
+            <Drawer
+                variant="permanent"
+                className={clsx(classes.drawer, {
+                    [classes.drawerOpen]: open,
+                    [classes.drawerClose]: !open,
+                })}
+                classes={{
+                    paper: clsx({
+                        [classes.drawerOpen]: open,
+                        [classes.drawerClose]: !open,
+                    }),
+                }}
+            >
+                <div className={classes.toolbar}>
+                    <IconButton onClick={handleDrawerClose} className={clsx(classes.drawerCloseButton, {
+                        [classes.hide]: !open,
+                    })}>
+                        {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+                    </IconButton>
+                </div>
+                <Divider className={classes.divider} />
+                <List>
+                    <ListItem button key="Workspaces" component={Link} to={'/workspaces'}>
+                        <ListItemIcon><DashboardIcon /></ListItemIcon>
+                        <ListItemText primary="Workspaces" />
+                    </ListItem>
+                </List>
+            </Drawer>
+            <div className={classes.content}>
+                <List component="nav" aria-label="main mailbox folders">
+                    {list.map(card => <Card key={card.question} workspaceName={params.name} question={card.question} response={card.response} selected={false} new={card.new} handleSubmit={submitHandler} handleError={createErrorHandler} handleCancel={cancelButtonClickHandler}></Card>)}
+                </List>
+            </div>
         </div>
     );
 }
