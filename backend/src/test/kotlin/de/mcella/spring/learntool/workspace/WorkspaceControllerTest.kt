@@ -40,12 +40,12 @@ class WorkspaceControllerTest {
         val contentBody = objectMapper.writeValueAsString(workspace)
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/workspaces")
+            MockMvcRequestBuilders.post("/api/workspaces")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isCreated)
             .andExpect(MockMvcResultMatchers.header().exists(HttpHeaders.LOCATION))
-            .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.LOCATION, "/workspaces/workspaceTest"))
+            .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.LOCATION, "/api/workspaces/workspaceTest"))
 
         Mockito.verify(workspaceService).create(workspace)
     }
@@ -57,7 +57,7 @@ class WorkspaceControllerTest {
         Mockito.`when`(workspaceService.create(workspace)).thenThrow(InvalidWorkspaceNameException(""))
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/workspaces")
+            MockMvcRequestBuilders.post("/api/workspaces")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isUnprocessableEntity)
@@ -70,7 +70,7 @@ class WorkspaceControllerTest {
         Mockito.`when`(workspaceService.create(workspace)).thenThrow(WorkspaceAlreadyExistsException(workspace))
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/workspaces")
+            MockMvcRequestBuilders.post("/api/workspaces")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isConflict)
@@ -85,7 +85,7 @@ class WorkspaceControllerTest {
         val expectedContentBody = objectMapper.writeValueAsString(workspaces)
 
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/workspaces")
+            MockMvcRequestBuilders.get("/api/workspaces")
         ).andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(MockMvcResultMatchers.content().json(expectedContentBody))

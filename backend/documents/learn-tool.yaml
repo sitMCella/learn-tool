@@ -133,6 +133,42 @@ paths:
           description: A Card already exists with this id.
         '422':
           description: The Card content fields are null or empty.
+    get:
+      summary: Get all the Cards of a Workspace
+      operationId: get-cards
+      tags:
+        - card
+      parameters:
+        - name: workspaceName
+          in: path
+          description: The name of the Workspace.
+          required: true
+          schema:
+            type: string
+          example: "workspaceTest"
+      responses:
+        '200':
+          description: The list of Cards.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    workspaceName:
+                      type: string
+                    question:
+                      type: string
+                    response:
+                      type: string
+                example:
+                  - id: "123"
+                    workspaceName: "workspaceTest"
+                    question: "Question"
+                    response: "Response"
   /workspaces/{workspaceName}/cards/many.csv:
     post:
       summary: Create new Cards

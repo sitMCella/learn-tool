@@ -84,7 +84,7 @@ class CardIntegrationTest {
         val workspace = Workspace(workspaceName)
         workspaceRepository.save(workspace)
 
-        val responseEntity = testRestTemplate.postForObject(URI("http://localhost:$port/workspaces/$workspaceName/cards"), request, Card::class.java)
+        val responseEntity = testRestTemplate.postForObject(URI("http://localhost:$port/api/workspaces/$workspaceName/cards"), request, Card::class.java)
 
         val cards = cardRepository.findAll()
         assertTrue { cards.size == 1 }
@@ -105,7 +105,7 @@ class CardIntegrationTest {
         val workspace = Workspace(workspaceName)
         workspaceRepository.save(workspace)
 
-        testRestTemplate.postForObject(URI("http://localhost:$port/workspaces/$workspaceName/cards/many.csv"), request, String::class.java)
+        testRestTemplate.postForObject(URI("http://localhost:$port/api/workspaces/$workspaceName/cards/many.csv"), request, String::class.java)
 
         val cards = cardRepository.findAll()
         assertTrue { cards.size == 2 }

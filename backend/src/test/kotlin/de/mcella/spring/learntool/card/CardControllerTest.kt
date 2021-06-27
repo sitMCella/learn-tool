@@ -47,7 +47,7 @@ class CardControllerTest {
         Mockito.`when`(cardService.create(workspaceName, cardContent)).thenReturn(card)
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/workspaces/$workspaceName/cards")
+            MockMvcRequestBuilders.post("/api/workspaces/$workspaceName/cards")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isCreated)
@@ -65,7 +65,7 @@ class CardControllerTest {
         Mockito.`when`(cardService.create(workspaceName, cardContent)).thenThrow(IllegalArgumentException::class.java)
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/workspaces/$workspaceName/cards")
+            MockMvcRequestBuilders.post("/api/workspaces/$workspaceName/cards")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isUnprocessableEntity)
@@ -79,7 +79,7 @@ class CardControllerTest {
         Mockito.`when`(cardService.create(workspaceName, cardContent)).thenThrow(WorkspaceNotExistsException(workspaceName))
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/workspaces/$workspaceName/cards")
+            MockMvcRequestBuilders.post("/api/workspaces/$workspaceName/cards")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isNotFound)
@@ -93,7 +93,7 @@ class CardControllerTest {
         Mockito.`when`(cardService.create(workspaceName, cardContent)).thenThrow(CardAlreadyExistsException("9e493dc0-ef75-403f-b5d6-ed510634f8a6"))
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/workspaces/$workspaceName/cards")
+            MockMvcRequestBuilders.post("/api/workspaces/$workspaceName/cards")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isConflict)

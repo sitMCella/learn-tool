@@ -102,7 +102,7 @@ class LearnIntegrationTest {
         val learnCardParameters = LearnCardParameters(cardId)
         val request = HttpEntity(learnCardParameters, headers)
 
-        val responseEntity = testRestTemplate.postForObject(URI("http://localhost:$port/workspaces/$workspaceName/learn"), request, LearnCard::class.java)
+        val responseEntity = testRestTemplate.postForObject(URI("http://localhost:$port/api/workspaces/$workspaceName/learn"), request, LearnCard::class.java)
 
         val learnCards = learnCardRepository.findAll()
         assertTrue { learnCards.size == 1 }
@@ -126,7 +126,7 @@ class LearnIntegrationTest {
         learnCardRepository.save(learnCard)
 
         val responseEntity = testRestTemplate.getForEntity(
-            URI("http://localhost:$port/workspaces/$workspaceName/learn"),
+            URI("http://localhost:$port/api/workspaces/$workspaceName/learn"),
             Card::class.java
         )
 
@@ -149,7 +149,7 @@ class LearnIntegrationTest {
         val evaluationParameters = EvaluationParameters(cardId, 5)
         val request = HttpEntity(evaluationParameters)
 
-        val responseEntity = testRestTemplate.exchange(URI("http://localhost:$port/workspaces/$workspaceName/learn"), HttpMethod.PUT, request, LearnCard::class.java)
+        val responseEntity = testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/$workspaceName/learn"), HttpMethod.PUT, request, LearnCard::class.java)
 
         val lastReview = (responseEntity as ResponseEntity<LearnCard>).body?.lastReview
         val expectedLearnCard = LearnCard(cardId, workspaceName, lastReview!!, lastReview.plus(Duration.ofDays(1)), 1, 1.4f, 1)

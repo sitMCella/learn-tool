@@ -74,7 +74,7 @@ class WorkspaceIntegrationTest {
         val workspace = Workspace("workspace1")
         val request = HttpEntity(workspace)
 
-        val responseEntity = testRestTemplate.postForObject(URI("http://localhost:$port/workspaces"), request, Workspace::class.java)
+        val responseEntity = testRestTemplate.postForObject(URI("http://localhost:$port/api/workspaces"), request, Workspace::class.java)
 
         val workspaces = workspaceRepository.findAll()
         assertTrue { workspaces.contains(workspace) }
@@ -88,7 +88,7 @@ class WorkspaceIntegrationTest {
         val workspace2 = Workspace("workspace2")
         workspaceRepository.save(workspace2)
 
-        val responseEntity = testRestTemplate.getForEntity(URI("http://localhost:$port/workspaces"), List::class.java)
+        val responseEntity = testRestTemplate.getForEntity(URI("http://localhost:$port/api/workspaces"), List::class.java)
 
         assertEquals(HttpStatus.OK, responseEntity.statusCode)
         val workspaces = responseEntity.body as List<*>
