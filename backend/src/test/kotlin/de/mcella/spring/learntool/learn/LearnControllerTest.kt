@@ -49,7 +49,7 @@ class LearnControllerTest {
         val contentBody = objectMapper.writeValueAsString(learnCardParameters)
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/workspaces/$workspaceName/learn")
+            MockMvcRequestBuilders.post("/api/workspaces/$workspaceName/learn")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isCreated)
@@ -67,7 +67,7 @@ class LearnControllerTest {
         val contentBody = objectMapper.writeValueAsString(learnCardParameters)
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/workspaces/$workspaceName/learn")
+            MockMvcRequestBuilders.post("/api/workspaces/$workspaceName/learn")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isConflict)
@@ -82,7 +82,7 @@ class LearnControllerTest {
         val contentBody = objectMapper.writeValueAsString(learnCardParameters)
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/workspaces/$workspaceName/learn")
+            MockMvcRequestBuilders.post("/api/workspaces/$workspaceName/learn")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isNotFound)
@@ -97,7 +97,7 @@ class LearnControllerTest {
         val contentBody = objectMapper.writeValueAsString(learnCardParameters)
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/workspaces/$workspaceName/learn")
+            MockMvcRequestBuilders.post("/api/workspaces/$workspaceName/learn")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isNotAcceptable)
@@ -111,7 +111,7 @@ class LearnControllerTest {
         val expectedContentBody = objectMapper.writeValueAsString(card)
 
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/workspaces/$workspaceName/learn")
+            MockMvcRequestBuilders.get("/api/workspaces/$workspaceName/learn")
         ).andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(MockMvcResultMatchers.content().json(expectedContentBody))
@@ -125,7 +125,7 @@ class LearnControllerTest {
         Mockito.`when`(learnService.getCard(workspaceName)).thenThrow(WorkspaceNotExistsException(workspaceName))
 
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/workspaces/$workspaceName/learn")
+            MockMvcRequestBuilders.get("/api/workspaces/$workspaceName/learn")
         ).andExpect(MockMvcResultMatchers.status().isNotFound)
     }
 
@@ -135,7 +135,7 @@ class LearnControllerTest {
         Mockito.`when`(learnService.getCard(workspaceName)).thenThrow(LearnCardsNotFoundException(workspaceName))
 
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/workspaces/$workspaceName/learn")
+            MockMvcRequestBuilders.get("/api/workspaces/$workspaceName/learn")
         ).andExpect(MockMvcResultMatchers.status().isNotFound)
     }
 
@@ -149,7 +149,7 @@ class LearnControllerTest {
         Mockito.`when`(learnService.evaluateCard(workspaceName, evaluationParameters)).thenReturn(learnCard)
 
         mockMvc.perform(
-            MockMvcRequestBuilders.put("/workspaces/$workspaceName/learn")
+            MockMvcRequestBuilders.put("/api/workspaces/$workspaceName/learn")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isOk)
@@ -166,7 +166,7 @@ class LearnControllerTest {
         Mockito.`when`(learnService.evaluateCard(workspaceName, evaluationParameters)).thenThrow(WorkspaceNotExistsException(workspaceName))
 
         mockMvc.perform(
-            MockMvcRequestBuilders.put("/workspaces/$workspaceName/learn")
+            MockMvcRequestBuilders.put("/api/workspaces/$workspaceName/learn")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isNotFound)
@@ -181,7 +181,7 @@ class LearnControllerTest {
         Mockito.`when`(learnService.evaluateCard(workspaceName, evaluationParameters)).thenThrow(CardNotFoundException(cardId))
 
         mockMvc.perform(
-            MockMvcRequestBuilders.put("/workspaces/$workspaceName/learn")
+            MockMvcRequestBuilders.put("/api/workspaces/$workspaceName/learn")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isNotFound)
@@ -196,7 +196,7 @@ class LearnControllerTest {
         Mockito.`when`(learnService.evaluateCard(workspaceName, evaluationParameters)).thenThrow(CardBindingException(workspaceName, cardId))
 
         mockMvc.perform(
-            MockMvcRequestBuilders.put("/workspaces/$workspaceName/learn")
+            MockMvcRequestBuilders.put("/api/workspaces/$workspaceName/learn")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isNotAcceptable)
@@ -211,7 +211,7 @@ class LearnControllerTest {
         Mockito.`when`(learnService.evaluateCard(workspaceName, evaluationParameters)).thenThrow(InputValuesNotAcceptableException(""))
 
         mockMvc.perform(
-            MockMvcRequestBuilders.put("/workspaces/$workspaceName/learn")
+            MockMvcRequestBuilders.put("/api/workspaces/$workspaceName/learn")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isNotAcceptable)
