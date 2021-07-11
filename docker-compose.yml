@@ -2,15 +2,17 @@ version: '3.7'
 services:
   db:
     image: postgres
+    container_name: "db"
     environment:
       POSTGRES_USER: $POSTGRES_USERNAME
       POSTGRES_PASSWORD: $POSTGRES_PASSWORD
       POSTGRES_DB: learntool
     ports:
-      - '5432:5432'
+      - "5432:5432"
 
   backend:
-    image: learntool/backend
+    image: "learntool/backend"
+    container_name: "backend"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/learntool
       SPRING_DATASOURCE_USERNAME: $POSTGRES_USERNAME
@@ -24,6 +26,17 @@ services:
       SPRING_JPA_HIBERNATE_DLL-AUTO: none
       SPRING_JPA_HIBERNATE_SHOW-SQL: 0
     ports:
-      - '8080:8080'
+      - "8080:8080"
     depends_on:
-      - 'db'
+      - db
+
+  frontend:
+    image: "learntool/frontend"
+    build:
+      context: frontend
+      dockerfile: "Dockerfile"
+    container_name: "frontend"
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
