@@ -6,7 +6,7 @@ Learn Tool consists mainly of an active recall learning tool, but offers a whole
 
 ## Development
 
-Learn Tool is a web application that uses Spring Boot 2 framework and Kotlin language on the backend, and Angular framework on the frontend.
+Learn Tool is a web application that uses Spring Boot 2 framework and Kotlin language on the backend, and React JS framework on the frontend.
 
 ### Setup
 
@@ -35,13 +35,13 @@ mvn clean build
 
 ### Build project (production)
 
-#### Build backend and run unit tests
+#### Build project and run unit tests
 
 ```sh
 ./gradlew clean build
 ```
 
-#### Build backend and run unit tests and integration tests
+#### Build project and run unit tests and integration tests
 
 ```sh
 ./gradlew clean build integrationTest
@@ -94,7 +94,7 @@ npm start
 ### Run application (production)
 
 ```sh
-docker-compose up
+docker-compose up --build
 ```
 
 ### Access PostgreSQL
@@ -107,7 +107,7 @@ psql learntool $POSTGRES_USERNAME
 ### Access application
 
 ```sh
-http://localhost:8080
+http://localhost:80
 ```
 
 ## REST APIs documentation
