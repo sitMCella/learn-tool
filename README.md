@@ -54,13 +54,7 @@ Install OpenJDK 11 and Docker (Docker compose).
 
 ### Create Docker images
 
-#### Create Docker images (development)
-
-```sh
-./gradlew jibDockerBuild -PskipWebApp
-```
-
-#### Create Docker images (production)
+#### Create Docker images
 
 ```sh
 ./gradlew jibDockerBuild
@@ -80,7 +74,7 @@ POSTGRES_PASSWORD=postgres
 #### Run the backend application (development)
 
 ```sh
-docker-compose up
+docker-compose -f docker-compose-development.yml up
 ```
 
 #### Run the frontend application (development)
