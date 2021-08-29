@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -28,6 +29,22 @@ class CardController(private val cardService: CardService, private val cardImpor
             val card: Card = cardService.create(workspaceName, cardContent)
             val bodyBuilder = ResponseEntity.status(HttpStatus.CREATED)
             bodyBuilder.location(URI("/workspaces/$workspaceName/cards/${card.id}"))
+            return bodyBuilder.body(card)
+        } catch (e: IllegalArgumentException) {
+            throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.message)
+        }
+    }
+
+    @PutMapping("/{cardId}", consumes = [MediaType.APPLICATION_JSON_VALUE])
+    fun update(
+        @PathVariable(value = "workspaceName") workspaceName: String,
+        @PathVariable(value = "cardId") cardId: String,
+        @RequestBody cardContent: CardContent
+    ): ResponseEntity<Card> {
+        try {
+            val card: Card = cardService.update(cardId, workspaceName, cardContent)
+            val bodyBuilder = ResponseEntity.status(HttpStatus.OK)
+            bodyBuilder.location(URI("/workspaces/$workspaceName/cards/$cardId"))
             return bodyBuilder.body(card)
         } catch (e: IllegalArgumentException) {
             throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.message)

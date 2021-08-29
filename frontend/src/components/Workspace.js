@@ -5,6 +5,7 @@ import TextField from '@material-ui/core/TextField';
 import { Button } from "@material-ui/core";
 import Box from '@material-ui/core/Box';
 import { Link } from "react-router-dom";
+import {makeStyles} from "@material-ui/core/styles";
 
 function Workspace(props) {
     const [newWorkspaceName, setNewWorkspaceName] = useState('');
@@ -34,18 +35,24 @@ function Workspace(props) {
             setNewWorkspaceName('');
         });
     };
+    const useStyles = makeStyles((theme) => ({
+        input: {
+            width: 260,
+        },
+    }));
+    const classes = useStyles();
     if (props.new) {
         return (
             <ListItem button selected={props.selected} >
                 <form onSubmit={submitHandler}>
-                    <Box display="flex" justifyContent="flex-start" alignItems="center">
-                        <Box>
-                            <TextField id="new-workspace-name" label="New workspace" variant="outlined" value={newWorkspaceName} onChange={workspaceNameChangeHandler} />
+                    <Box display="flex" flexWrap="wrap" p={0} justifyContent="flex-start" alignItems="center">
+                        <Box p={1}>
+                            <TextField id="new-workspace-name" label="New workspace" required variant="outlined" InputProps={{ className: classes.input }} value={newWorkspaceName} onChange={workspaceNameChangeHandler} />
                         </Box>
-                        <Box ml="1rem">
+                        <Box p={1}>
                             <Button variant="contained" color="primary" type="submit">Create</Button>
                         </Box>
-                        <Box ml="1rem">
+                        <Box p={1}>
                             <Button variant="contained" color="secondary" onClick={props.handleCancel}>Cancel</Button>
                         </Box>
                     </Box>

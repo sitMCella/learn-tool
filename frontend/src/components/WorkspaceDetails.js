@@ -48,25 +48,40 @@ const WorkspaceDetails = () => {
         if(newCardStatus) {
             return;
         }
-        const newCards = [{ id: null, question: "Question", response: "Response", new: true }, ...list];
+        const newCards = [{ id: null, question: "Question", response: "Response", new: true, change: false}, ...list];
         setList(newCards);
         setNewCardStatus(true);
     };
-    const submitHandler = (id, question, response) => {
-        const newCards = [{ id: id, question: question, response: response, new: false }, ...list.slice(1)];
+    const createCardHandler = (id, question, response) => {
+        const newCards = [{ id: id, question: question, response: response, new: false, change: false}, ...list.slice(1)];
         setList(newCards);
         setNewCardStatus(false);
     }
-    const createErrorHandler = () => {
-        const newCards = list.slice(1);
-        setList(newCards);
-        setNewCardStatus(false);
-    }
-    const cancelButtonClickHandler = () => {
+    const createCardCancelHandler = () => {
         const newCards = list.slice(1);
         setList(newCards);
         setNewCardStatus(false);
     };
+    const updateCardHandler = (cardId) => {
+        setNewCardStatus(true);
+        const newCards = list.map(card => (card.id === cardId ? {...card, change: true} : card));
+        setList(newCards);
+    }
+    const updateCardCompleteHandler = (cardId, question, response) => {
+        setNewCardStatus(false);
+        const newCards = list.map(card => (card.id === cardId ? {...card, question: question, response: response, change: false} : card));
+        setList(newCards);
+    }
+    const updateCardCancelHandler = (cardId) => {
+        setNewCardStatus(false);
+        const newCards = list.map(card => (card.id === cardId ? {...card, change: false} : card));
+        setList(newCards);
+    }
+    const createCardErrorHandler = () => {
+        const newCards = list.slice(1);
+        setList(newCards);
+        setNewCardStatus(false);
+    }
     const drawerWidth = 240;
     const [open, setOpen] = React.useState(false);
     const handleDrawerToggle = () => {
@@ -185,7 +200,7 @@ const WorkspaceDetails = () => {
             </Drawer>
             <div className={classes.content}>
                 <List component="nav" aria-label="main mailbox folders">
-                    {list.map(card => <Card key={card.question} workspaceName={params.name} question={card.question} response={card.response} selected={false} new={card.new} handleSubmit={submitHandler} handleError={createErrorHandler} handleCancel={cancelButtonClickHandler}></Card>)}
+                    {list.map(card => <Card key={card.id} workspaceName={params.name} id={card.id} question={card.question} response={card.response} selected={false} new={card.new} change={card.change} handleCreateCard={createCardHandler} handleCreateCardCancel={createCardCancelHandler} handleUpdateCard={updateCardHandler} handleUpdateCardComplete={updateCardCompleteHandler} handleUpdateCardCancel={updateCardCancelHandler} handleCraeteCardError={createCardErrorHandler}></Card>)}
                 </List>
             </div>
         </div>

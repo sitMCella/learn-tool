@@ -2,8 +2,10 @@ package de.mcella.spring.learntool.card
 
 import de.mcella.spring.learntool.UnitTest
 import de.mcella.spring.learntool.card.exceptions.CardAlreadyExistsException
+import de.mcella.spring.learntool.card.exceptions.CardNotFoundException
 import de.mcella.spring.learntool.card.storage.Card
 import de.mcella.spring.learntool.card.storage.CardRepository
+import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceNameException
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.util.Optional
@@ -58,6 +60,62 @@ class CardServiceTest {
         assertEquals("question", createdCard.question)
         assertEquals("response", createdCard.response)
         assertEquals(createdCard, card)
+    }
+
+    @Test(expected = WorkspaceNotExistsException::class)
+    fun `given a Card Id, a non existent Workspace name and a Card content, when updating the Card, then throw WorkspaceNotExistsException`() {
+        val cardId = "cardIdTest"
+        val workspaceName = "workspaceTest"
+        val cardContent = CardContent("question", "response")
+        Mockito.`when`(workspaceRepository.existsById(workspaceName)).thenReturn(false)
+
+        cardService.update(cardId, workspaceName, cardContent)
+    }
+
+    @Test(expected = CardNotFoundException::class)
+    fun `given a Card Id, a Workspace name and a Card content, when updating a non existent Card, then throw CardNotFoundException`() {
+        val cardId = "cardIdTest"
+        val workspaceName = "workspaceTest"
+        val cardContent = CardContent("question", "response")
+        Mockito.`when`(workspaceRepository.existsById(workspaceName)).thenReturn(true)
+        Mockito.`when`(cardRepository.findById(cardId)).thenReturn(Optional.empty())
+
+        cardService.update(cardId, workspaceName, cardContent)
+    }
+
+    @Test(expected = InvalidWorkspaceNameException::class)
+    fun `given a Card Id, a wrong Workspace name and a Card content, when updating a Card, then throw InvalidWorkspaceNameException`() {
+        val cardId = "cardIdTest"
+        val workspaceName = "workspaceTest"
+        val cardContent = CardContent("question", "response")
+        val wrongWorkspaceName = "wrongWorkspaceNameTest"
+        Mockito.`when`(workspaceRepository.existsById(wrongWorkspaceName)).thenReturn(true)
+        val card = Card.create(cardId, workspaceName, cardContent)
+        Mockito.`when`(cardRepository.findById(cardId)).thenReturn(Optional.of(card))
+
+        cardService.update(cardId, wrongWorkspaceName, cardContent)
+    }
+
+    @Test
+    fun `given a Card Id, a Workspace name and a Card content, when updating a Card, then call the method save of CardRepository and return the Card`() {
+        val cardId = "cardIdTest"
+        val workspaceName = "workspaceTest"
+        val cardContent = CardContent("question", "response")
+        Mockito.`when`(workspaceRepository.existsById(workspaceName)).thenReturn(true)
+        val card = Card.create(cardId, workspaceName, cardContent)
+        Mockito.`when`(cardRepository.findById(cardId)).thenReturn(Optional.of(card))
+        val updatedCardContent = CardContent("updated question", "updated response")
+
+        val savedCard = cardService.update(cardId, workspaceName, updatedCardContent)
+
+        val argumentCaptor = ArgumentCaptor.forClass(Card::class.java)
+        Mockito.verify(cardRepository).save(argumentCaptor.capture())
+        val createdCard = argumentCaptor.value
+        assertEquals(cardId, createdCard.id)
+        assertEquals(workspaceName, createdCard.workspaceName)
+        assertEquals("updated question", createdCard.question)
+        assertEquals("updated response", createdCard.response)
+        assertEquals(createdCard, savedCard)
     }
 
     @Test

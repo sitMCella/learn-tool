@@ -4,7 +4,7 @@ info:
   description: Documentation for the Learn Tool REST APIs.
   version: 1.0.0
 paths:
-  /workspaces:
+  /api/workspaces:
     post:
       summary: Create a new Workspace
       operationId: create-workspace
@@ -67,7 +67,7 @@ paths:
                       type: string
                 example:
                   - name: "workspaceTest"
-  /workspaces/{workspaceName}/cards:
+  /api/workspaces/{workspaceName}/cards:
     post:
       summary: Create a new Card
       operationId: create-card
@@ -108,7 +108,7 @@ paths:
               schema:
                 type: string
               example:
-                location: /workspaces/workspaceTest/cards/3cf14a93-f8c7-4b6b-ac24-a662ca500c21
+                location: "/workspaces/workspaceTest/cards/3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
           content:
             application/json:
               schema:
@@ -169,7 +169,78 @@ paths:
                     workspaceName: "workspaceTest"
                     question: "Question"
                     response: "Response"
-  /workspaces/{workspaceName}/cards/many.csv:
+  /api/workspaces/{workspaceName}/cards/{cardId}:
+    put:
+      summary: Update a Card
+      operationId: update-card
+      tags:
+        - card
+      parameters:
+        - name: workspaceName
+          in: path
+          description: The name of the Workspace.
+          required: true
+          schema:
+            type: string
+          example: "workspaceTest"
+        - name: cardId
+          in: path
+          description: The Id of the Card.
+          required: true
+          schema:
+            type: string
+          example: "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
+      requestBody:
+        description: Card content payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - question
+                - response
+              properties:
+                question:
+                  type: string
+                response:
+                  type: string
+            example:
+              question: "This is a question"
+              response: "This is a response"
+      responses:
+        '200':
+          description: Card successfully updated.
+          headers:
+            location:
+              description: The location of the created Card.
+              schema:
+                type: string
+              example:
+                location: "/workspaces/workspaceTest/cards/3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  workspaceName:
+                    type: string
+                  question:
+                    type: string
+                  response:
+                    type: string
+              example:
+                id: "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
+                workspaceName: "workspaceTest"
+                question: "This is a question"
+                response: "This is a response"
+        '404':
+          description: The Workspace does not exist.
+        '422':
+          description: Either the Card content fields are null or empty, or the provided Workspace name is wrong.
+  /api/workspaces/{workspaceName}/cards/many.csv:
     post:
       summary: Create new Cards
       operationId: create-cards
@@ -204,7 +275,7 @@ paths:
         '422':
           description: >-
             CSV fields null or empty, or missing headers.
-  /workspaces/{workspaceName}/learn:
+  /api/workspaces/{workspaceName}/learn:
     post:
       summary: Create a new LearnCard
       operationId: create-learn-card
