@@ -6,17 +6,18 @@ import TextField from '@material-ui/core/TextField';
 import { Button } from "@material-ui/core";
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
+import {makeStyles} from "@material-ui/core/styles";
 
 function Card(props) {
-    const [newQuestion, setNewQuestion] = useState('');
-    const [newResponse, setNewResponse] = useState('');
+    const [newQuestion, setNewQuestion] = useState(props.question);
+    const [newResponse, setNewResponse] = useState(props.response);
     const questionChangeHandler = (event) => {
         setNewQuestion(event.target.value)
     };
     const responseChangeHandler = (event) => {
         setNewResponse(event.target.value)
     };
-    const submitHandler = (event) => {
+    const createCardSubmitHandler = (event) => {
         event.preventDefault();
         const createCard = async () => {
             const response = await fetch('/api/workspaces/' + props.workspaceName + '/cards', {
@@ -30,7 +31,7 @@ function Card(props) {
                 throw new Error("Error while creating the Card");
             }
             const card = await response.json();
-            props.handleSubmit(card.id, card.question, card.response);
+            props.handleCreateCard(card.id, card.question, card.response);
             setNewQuestion('');
             setNewResponse('');
             createLearnCard(card.id).catch((err) => {
@@ -51,27 +52,95 @@ function Card(props) {
         };
         createCard().catch((err) => {
             console.log(err);
-            props.handleError();
+            props.handleCraeteCardError();
             setNewQuestion('');
             setNewResponse('');
         });
     };
+    const updateCardSubmitHandler = (event) => {
+        event.preventDefault();
+        const updateCard = async () => {
+            const response = await fetch('/api/workspaces/' + props.workspaceName + '/cards/' + props.id, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({question: newQuestion, response: newResponse})
+            });
+            if(!response.ok) {
+                throw new Error("Error while creating the Card");
+            }
+            const card = await response.json();
+            props.handleUpdateCardComplete(card.id, card.question, card.response);
+            setNewQuestion('');
+            setNewResponse('');
+        };
+        updateCard().catch((err) => {
+            console.log(err);
+            props.handleCraeteCardError();
+            setNewQuestion('');
+            setNewResponse('');
+        });
+    };
+    const updateCardCancelHandler = (event) => {
+        event.preventDefault();
+        setNewQuestion(props.question);
+        setNewResponse(props.response);
+        props.handleUpdateCardCancel(props.id)
+    }
+    const useStyles = makeStyles(() => ({
+        formContent: {
+            width: '100%',
+        },
+        input: {
+            width: 1100,
+            ['@media only screen and (max-width:768px)']: {
+                width: 260,
+            },
+        },
+        card: {
+            width: '100%',
+            textAlign: 'left',
+        },
+    }));
+    const classes = useStyles();
     if (props.new) {
         return (
             <ListItem button selected={props.selected} >
-                <form onSubmit={submitHandler}>
-                    <Box display="flex" justifyContent="flex-start" alignItems="center">
-                        <Box>
-                            <TextField id="new-card-question" label="New question" variant="outlined" value={newQuestion} onChange={questionChangeHandler} />
+                <form onSubmit={createCardSubmitHandler}>
+                    <Box display="flex" flexWrap="wrap" p={0}  justifyContent="flex-start" alignItems="center">
+                        <Box p={1} className={classes.formContent}>
+                            <TextField id="new-card-question" label="New question" required variant="outlined" InputProps={{ className: classes.input }} value={newQuestion} onChange={questionChangeHandler} />
                         </Box>
-                        <Box>
-                            <TextField id="new-card-response" label="New response" variant="outlined" value={newResponse} onChange={responseChangeHandler} />
+                        <Box p={1}>
+                            <TextField id="new-card-response" label="New response" required variant="outlined" InputProps={{ className: classes.input }} value={newResponse} onChange={responseChangeHandler} />
                         </Box>
-                        <Box ml="1rem">
+                        <Box p={1}>
                             <Button variant="contained" color="primary" type="submit">Create</Button>
                         </Box>
-                        <Box ml="1rem">
-                            <Button variant="contained" color="secondary" onClick={props.handleCancel}>Cancel</Button>
+                        <Box p={1}>
+                            <Button variant="contained" color="secondary" onClick={props.handleCreateCardCancel}>Cancel</Button>
+                        </Box>
+                    </Box>
+                </form>
+            </ListItem>
+        );
+    } else if (props.change) {
+        return (
+            <ListItem button selected={props.selected} >
+                <form onSubmit={updateCardSubmitHandler}>
+                    <Box display="flex" flexWrap="wrap" p={0}  justifyContent="flex-start" alignItems="center">
+                        <Box p={1} className={classes.formContent}>
+                            <TextField id="new-card-question" label="New question" required variant="outlined" InputProps={{ className: classes.input }} value={newQuestion} onChange={questionChangeHandler} />
+                        </Box>
+                        <Box p={1}>
+                            <TextField id="new-card-response" label="New response" required variant="outlined" InputProps={{ className: classes.input }} value={newResponse} onChange={responseChangeHandler} />
+                        </Box>
+                        <Box p={1}>
+                            <Button variant="contained" color="primary" type="submit">Update</Button>
+                        </Box>
+                        <Box p={1}>
+                            <Button variant="contained" color="secondary" onClick={updateCardCancelHandler}>Cancel</Button>
                         </Box>
                     </Box>
                 </form>
@@ -80,14 +149,32 @@ function Card(props) {
     } else {
         return (
             <ListItem button selected={props.selected}>
-                <CardUi>
+                <CardUi className={classes.card} onClick={() => props.handleUpdateCard(props.id)}>
                     <CardContent>
-                        <Typography variant="body2" color="textSecondary" component="p">
-                            Question: {props.question}
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary" component="p">
-                            Response: {props.response}
-                        </Typography>
+                        <Box display="flex" flexWrap="wrap" p={0} m={0}>
+                            <Box pr={2}>
+                                <Typography variant="body1" color="textSecondary" component="p" gutterBottom >
+                                    <b>Question:</b>
+                                </Typography>
+                            </Box>
+                            <Box p={0}>
+                                <Typography variant="body1" color="textSecondary" component="p" gutterBottom >
+                                    {props.question}
+                                </Typography>
+                            </Box>
+                        </Box>
+                        <Box display="flex" flexWrap="wrap" p={0} m={0}>
+                            <Box pr={2}>
+                                <Typography variant="body1" color="textSecondary" component="p" gutterBottom >
+                                    <b>Response:</b>
+                                </Typography>
+                            </Box>
+                            <Box p={0}>
+                                <Typography variant="body1" color="textSecondary" component="p" gutterBottom >
+                                    {props.response}
+                                </Typography>
+                            </Box>
+                        </Box>
                     </CardContent>
                 </CardUi>
             </ListItem>

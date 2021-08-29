@@ -30,18 +30,18 @@ Install OpenJDK 11 and Docker (Docker compose).
 
 ```sh
 cd ./frontend
-mvn clean build
+./gradlew clean build
 ```
 
 ### Build project (production)
 
-#### Build backend and run unit tests
+#### Build project and run unit tests
 
 ```sh
 ./gradlew clean build
 ```
 
-#### Build backend and run unit tests and integration tests
+#### Build project and run unit tests and integration tests
 
 ```sh
 ./gradlew clean build integrationTest
@@ -62,6 +62,14 @@ Format:
 ```
 
 ### Create Docker images
+
+### Create Docker images (development)
+
+```sh
+./gradlew jibDockerBuild -PskipWebApp
+```
+
+### Create Docker images (production)
 
 ```sh
 ./gradlew jibDockerBuild

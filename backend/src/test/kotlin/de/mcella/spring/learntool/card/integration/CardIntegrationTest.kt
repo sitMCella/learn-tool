@@ -25,6 +25,8 @@ import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpEntity
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringRunner
 import org.testcontainers.containers.PostgreSQLContainer
@@ -95,6 +97,30 @@ class CardIntegrationTest {
         assertEquals("response", createdCard.response)
         val expectedCard = Card(createdCard.id, workspaceName, "question", "response")
         assertEquals(expectedCard, responseEntity)
+    }
+
+    @Test
+    fun `given a Workspace name, a Card Id, and a CardContent, when a PUT REST request is sent to the cards endpoint, then a Card is updated and the response body contains the Card`() {
+        val workspaceName = "workspaceTest"
+        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
+        val cardContent = CardContent("question", "response")
+        val workspace = Workspace(workspaceName)
+        workspaceRepository.save(workspace)
+        val card = Card.create(cardId, workspaceName, cardContent)
+        cardRepository.save(card)
+        val updatedCardContent = CardContent("updated question", "updated response")
+        val request = HttpEntity(updatedCardContent)
+
+        var responseEntity = testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/$workspaceName/cards/$cardId"), HttpMethod.PUT, request, Card::class.java)
+
+        val cards = cardRepository.findAll()
+        assertTrue { cards.size == 1 }
+        val updatedCard = cards[0]
+        assertEquals(cardId, updatedCard.id)
+        assertEquals(workspaceName, updatedCard.workspaceName)
+        assertEquals("updated question", updatedCard.question)
+        assertEquals("updated response", updatedCard.response)
+        assertEquals(HttpStatus.OK, responseEntity.statusCode)
     }
 
     @Test
