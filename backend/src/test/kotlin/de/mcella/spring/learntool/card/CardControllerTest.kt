@@ -121,7 +121,7 @@ class CardControllerTest {
     }
 
     @Test
-    fun `given a Workspace name, a Card Id, and a CardContent, when sending a PUT REST request to the cards endpoint and the create method of CardService throws IllegalArgumentException, then an UNPROCESSABLE_ENTITY http status response is returned`() {
+    fun `given a Workspace name, a Card Id, and a CardContent, when sending a PUT REST request to the cards endpoint and the CardService update method throws IllegalArgumentException, then an UNPROCESSABLE_ENTITY http status response is returned`() {
         val workspaceName = "workspaceTest"
         val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
         val cardContent = CardContent("", "response")
@@ -162,6 +162,51 @@ class CardControllerTest {
                 MockMvcRequestBuilders.put("/api/workspaces/$workspaceName/cards/$cardId")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(contentBody)
+        ).andExpect(MockMvcResultMatchers.status().isUnprocessableEntity)
+    }
+
+    @Test
+    fun `given a Workspace name and a Card Id, when sending a DELETE REST request to the cards endpoint, then the delete method of CardService is called`() {
+        val workspaceName = "workspaceTest"
+        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/api/workspaces/$workspaceName/cards/$cardId")
+        ).andExpect(MockMvcResultMatchers.status().isOk)
+
+        Mockito.verify(cardService).delete(cardId, workspaceName)
+    }
+
+    @Test
+    fun `given a Workspace name and a Card Id, when sending a DELETE REST request to the cards endpoint and the CardService delete method throws IllegalArgumentException, then an UNPROCESSABLE_ENTITY http status response is returned`() {
+        val workspaceName = "workspaceTest"
+        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
+        Mockito.`when`(cardService.delete(cardId, workspaceName)).thenThrow(IllegalArgumentException::class.java)
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/api/workspaces/$workspaceName/cards/$cardId")
+        ).andExpect(MockMvcResultMatchers.status().isUnprocessableEntity)
+    }
+
+    @Test
+    fun `given a Workspace name and a Card Id, when sending a DELETE REST request to the cards endpoint and the Workspace does not exist, then a NOT_FOUND http status response is returned`() {
+        val workspaceName = "workspaceTest"
+        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
+        Mockito.`when`(cardService.delete(cardId, workspaceName)).thenThrow(WorkspaceNotExistsException(workspaceName))
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/api/workspaces/$workspaceName/cards/$cardId")
+        ).andExpect(MockMvcResultMatchers.status().isNotFound)
+    }
+
+    @Test
+    fun `given a Workspace name and a Card Id, when sending a DELETE REST request to the cards endpoint and the cardService update method throws InvalidWorkspaceNameException, then an UNPROCESSABLE_ENTITY http status response is returned`() {
+        val workspaceName = "workspaceTest"
+        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
+        Mockito.`when`(cardService.delete(cardId, workspaceName)).thenThrow(InvalidWorkspaceNameException("The provided workspaceName does not match with the card workspace"))
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/api/workspaces/$workspaceName/cards/$cardId")
         ).andExpect(MockMvcResultMatchers.status().isUnprocessableEntity)
     }
 }

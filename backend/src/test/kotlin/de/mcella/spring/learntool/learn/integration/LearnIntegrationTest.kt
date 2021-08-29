@@ -157,4 +157,24 @@ class LearnIntegrationTest {
         assertEquals(expectedResponseEntity.statusCode, responseEntity.statusCode)
         assertEquals(expectedResponseEntity.body, (responseEntity as ResponseEntity<LearnCard>).body)
     }
+
+    @Test
+    fun `given a Workspace name and a Card id, when a DELETE REST request is performed to the learn endpoint, then the LearnCard is deleted`() {
+        val workspaceName = "workspaceTest"
+        val workspace = Workspace(workspaceName)
+        workspaceRepository.save(workspace)
+        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
+        val card = Card(cardId, workspaceName, "question", "response")
+        cardRepository.save(card)
+        val instant = Instant.now()
+        val learnCard = LearnCard.createInitial(cardId, workspaceName, instant)
+        learnCardRepository.save(learnCard)
+        val learnCardParameters = LearnCardParameters(cardId)
+        val request = HttpEntity(learnCardParameters)
+
+        testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/$workspaceName/learn"), HttpMethod.DELETE, request, LearnCard::class.java)
+
+        val learnCards = learnCardRepository.findAll()
+        assertTrue { learnCards.size == 0 }
+    }
 }

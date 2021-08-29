@@ -118,6 +118,52 @@ class CardServiceTest {
         assertEquals(createdCard, savedCard)
     }
 
+    @Test(expected = WorkspaceNotExistsException::class)
+    fun `given a Card Id and a non existent Workspace name, when deleting a Card, then throw WorkspaceNotExistsException`() {
+        val cardId = "cardIdTest"
+        val workspaceName = "workspaceTest"
+        Mockito.`when`(workspaceRepository.existsById(workspaceName)).thenReturn(false)
+
+        cardService.delete(cardId, workspaceName)
+    }
+
+    @Test(expected = CardNotFoundException::class)
+    fun `given a Card Id and a Workspace name, when deleting a non existent Card, then throw CardNotFoundException`() {
+        val cardId = "cardIdTest"
+        val workspaceName = "workspaceTest"
+        Mockito.`when`(workspaceRepository.existsById(workspaceName)).thenReturn(true)
+        Mockito.`when`(cardRepository.findById(cardId)).thenReturn(Optional.empty())
+
+        cardService.delete(cardId, workspaceName)
+    }
+
+    @Test(expected = InvalidWorkspaceNameException::class)
+    fun `given a Card Id and a wrong Workspace name, when deleting a Card, then throw InvalidWorkspaceNameException`() {
+        val cardId = "cardIdTest"
+        val workspaceName = "workspaceTest"
+        val cardContent = CardContent("question", "response")
+        val wrongWorkspaceName = "wrongWorkspaceNameTest"
+        Mockito.`when`(workspaceRepository.existsById(wrongWorkspaceName)).thenReturn(true)
+        val card = Card.create(cardId, workspaceName, cardContent)
+        Mockito.`when`(cardRepository.findById(cardId)).thenReturn(Optional.of(card))
+
+        cardService.delete(cardId, wrongWorkspaceName)
+    }
+
+    @Test
+    fun `given a Card Id and a Workspace name, when deleting a Card, then call the method delete of CardRepository`() {
+        val cardId = "cardIdTest"
+        val workspaceName = "workspaceTest"
+        val cardContent = CardContent("question", "response")
+        Mockito.`when`(workspaceRepository.existsById(workspaceName)).thenReturn(true)
+        val card = Card.create(cardId, workspaceName, cardContent)
+        Mockito.`when`(cardRepository.findById(cardId)).thenReturn(Optional.of(card))
+
+        cardService.delete(cardId, workspaceName)
+
+        Mockito.verify(cardRepository).delete(card)
+    }
+
     @Test
     fun `given a Card id, when retrieving the Card, then call the method findById of CardRepository and return the Card`() {
         val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"

@@ -48,4 +48,12 @@ class LearnService(private val cardService: CardService, private val learnCardRe
         val updatedLearnCard = LearnCard.create(cardId, workspaceName, outputValues, Instant.now())
         return learnCardRepository.save(updatedLearnCard)
     }
+
+    fun delete(workspaceName: String, learnCardParameters: LearnCardParameters) {
+        val cardId = learnCardParameters.cardId
+        val card = cardService.findById(cardId)
+        if (card.workspaceName != workspaceName) throw CardBindingException(workspaceName, cardId)
+        val learnCard = learnCardRepository.findById(cardId).toNullable() ?: throw LearnCardNotFoundException(workspaceName, cardId)
+        learnCardRepository.delete(learnCard)
+    }
 }
