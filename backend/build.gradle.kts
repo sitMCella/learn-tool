@@ -66,7 +66,7 @@ tasks.register<Copy>("copyWebApp") {
     }
     description = "Copies the React build project in the Spring Boot backend static directory"
     from("../frontend/build")
-    into("META-INF/resources")
+    into("src/main/resources/public")
 }
 
 tasks.test {

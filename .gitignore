@@ -195,3 +195,5 @@ gradle-app.setting
 .env
 
 META-INF/
+
+public/

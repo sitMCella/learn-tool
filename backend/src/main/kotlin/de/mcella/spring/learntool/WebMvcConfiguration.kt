@@ -13,7 +13,7 @@ class WebMvcConfiguration : WebMvcConfigurer {
 
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
         registry
-                .addResourceHandler("/static/**")
-                .addResourceLocations("classpath:static/")
+                .addResourceHandler("/public/**")
+                .addResourceLocations("classpath:public/")
     }
 }
