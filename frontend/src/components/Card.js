@@ -60,6 +60,9 @@ function Card(props) {
     const updateCardSubmitHandler = (event) => {
         event.preventDefault();
         const updateCard = async () => {
+            if (props.question === newQuestion && props.response === newResponse) {
+                return
+            }
             const response = await fetch('/api/workspaces/' + props.workspaceName + '/cards/' + props.id, {
                 method: 'PUT',
                 headers: {
@@ -72,8 +75,6 @@ function Card(props) {
             }
             const card = await response.json();
             props.handleUpdateCardComplete(card.id, card.question, card.response);
-            setNewQuestion('');
-            setNewResponse('');
         };
         updateCard().catch((err) => {
             console.log(err);
