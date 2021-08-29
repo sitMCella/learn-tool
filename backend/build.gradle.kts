@@ -52,21 +52,13 @@ dependencies {
 }
 
 tasks.withType<KotlinCompile> {
-    dependsOn("copyWebApp")
+    if (!project.hasProperty(skipWebApp)) {
+        dependsOn(":frontend:npm_run_build")
+    }
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
         jvmTarget = "1.8"
     }
-}
-
-tasks.register<Copy>("copyWebApp") {
-    onlyIf { !project.hasProperty(skipWebApp) }
-    if (!project.hasProperty(skipWebApp)) {
-        dependsOn(":frontend:npm_run_build")
-    }
-    description = "Copies the React build project in the Spring Boot backend static directory"
-    from("../frontend/build")
-    into("src/main/resources/public")
 }
 
 tasks.test {
