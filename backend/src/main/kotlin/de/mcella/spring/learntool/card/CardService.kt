@@ -43,6 +43,17 @@ class CardService(private val cardRepository: CardRepository, private val worksp
         return updatedCard
     }
 
+    fun delete(cardId: String, workspaceName: String) {
+        if (!workspaceRepository.existsById(workspaceName)) {
+            throw WorkspaceNotExistsException(workspaceName)
+        }
+        val card = findById(cardId)
+        if (card.workspaceName != workspaceName) {
+            throw InvalidWorkspaceNameException("The provided workspaceName does not match with the card workspace")
+        }
+        cardRepository.delete(card)
+    }
+
     fun findByWorkspaceName(workspaceName: String): List<Card> = cardRepository.findByWorkspaceName(workspaceName)
 
     fun findById(cardId: String): Card = cardRepository.findById(cardId).toNullable() ?: throw CardNotFoundException(cardId)

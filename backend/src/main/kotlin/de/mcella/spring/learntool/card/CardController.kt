@@ -4,8 +4,10 @@ import de.mcella.spring.learntool.card.storage.Card
 import java.io.InputStream
 import java.net.URI
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -46,6 +48,19 @@ class CardController(private val cardService: CardService, private val cardImpor
             val bodyBuilder = ResponseEntity.status(HttpStatus.OK)
             bodyBuilder.location(URI("/workspaces/$workspaceName/cards/$cardId"))
             return bodyBuilder.body(card)
+        } catch (e: IllegalArgumentException) {
+            throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.message)
+        }
+    }
+
+    @DeleteMapping("/{cardId}")
+    @ResponseStatus(OK)
+    fun delete(
+        @PathVariable(value = "workspaceName") workspaceName: String,
+        @PathVariable(value = "cardId") cardId: String
+    ) {
+        try {
+            cardService.delete(cardId, workspaceName)
         } catch (e: IllegalArgumentException) {
             throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.message)
         }

@@ -124,6 +124,22 @@ class CardIntegrationTest {
     }
 
     @Test
+    fun `given a Workspace name and a Card Id, when a DELETE REST request is sent to the cards endpoint, then a Card is deleted`() {
+        val workspaceName = "workspaceTest"
+        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
+        val cardContent = CardContent("question", "response")
+        val workspace = Workspace(workspaceName)
+        workspaceRepository.save(workspace)
+        val card = Card.create(cardId, workspaceName, cardContent)
+        cardRepository.save(card)
+
+        testRestTemplate.delete(URI("http://localhost:$port/api/workspaces/$workspaceName/cards/$cardId"))
+
+        val cards = cardRepository.findAll()
+        assertTrue { cards.size == 0 }
+    }
+
+    @Test
     fun `given a Workspace name and a Cards CSV stream content, when a POST REST request is sent to the cards many csv endpoint, then the Cards are created`() {
         val workspaceName = "workspaceTest"
         val streamContent = "question,response\nquestionTest1,responseTest1\nquestionTest2,responseTest2"

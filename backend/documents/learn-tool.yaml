@@ -239,7 +239,34 @@ paths:
         '404':
           description: The Workspace does not exist.
         '422':
-          description: Either the Card content fields are null or empty, or the provided Workspace name is wrong.
+          description: Either the Card content fields are null or empty, or the Card does not belong to the provided Workspace name.
+    delete:
+      summary: Delete a Card
+      operationId: delete-card
+      tags:
+        - card
+      parameters:
+        - name: workspaceName
+          in: path
+          description: The name of the Workspace.
+          required: true
+          schema:
+            type: string
+          example: "workspaceTest"
+        - name: cardId
+          in: path
+          description: The Id of the Card.
+          required: true
+          schema:
+            type: string
+          example: "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
+      responses:
+        '200':
+          description: Card successfully deleted.
+        '404':
+          description: The Workspace does not exist.
+        '422':
+          description: The Card does not belong to the provided Workspace name.
   /api/workspaces/{workspaceName}/cards/many.csv:
     post:
       summary: Create new Cards
@@ -449,3 +476,39 @@ paths:
           description: The Workspace or the Card do not exist.
         '406':
           description: The Card does not belong to the Workspace or not acceptable evaluation parameters.
+    delete:
+      summary: Delete a new LearnCard
+      operationId: delete-learn-card
+      tags:
+        - card
+        - learn
+      parameters:
+        - name: workspaceName
+          in: path
+          description: The name of the Workspace.
+          required: true
+          schema:
+            type: string
+          example: "workspaceTest"
+      requestBody:
+        description: Card id payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cardId
+              properties:
+                cardId:
+                  type: string
+            example:
+              cardId: "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
+      responses:
+        '200':
+          description: LearnCard successfully deleted.
+        '404':
+          description: The Card or the LearnCard do not exist.
+        '406':
+          description: The Card does not belong to the Workspace.
+

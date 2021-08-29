@@ -7,6 +7,7 @@ import de.mcella.spring.learntool.card.storage.Card
 import de.mcella.spring.learntool.learn.exceptions.CardBindingException
 import de.mcella.spring.learntool.learn.exceptions.InputValuesNotAcceptableException
 import de.mcella.spring.learntool.learn.exceptions.LearnCardAlreadyExistsException
+import de.mcella.spring.learntool.learn.exceptions.LearnCardNotFoundException
 import de.mcella.spring.learntool.learn.exceptions.LearnCardsNotFoundException
 import de.mcella.spring.learntool.learn.storage.LearnCard
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
@@ -215,5 +216,64 @@ class LearnControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isNotAcceptable)
+    }
+
+    @Test
+    fun `given a Workspace name and a Card id, when sending a DELETE REST request to the learn endpoint and the Card does not exist, then a NOT_FOUND http status response is returned`() {
+        val workspaceName = "workspaceTest"
+        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
+        val learnCardParameters = LearnCardParameters(cardId)
+        Mockito.`when`(learnService.delete(workspaceName, learnCardParameters)).thenThrow(CardNotFoundException(cardId))
+        val contentBody = objectMapper.writeValueAsString(learnCardParameters)
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/api/workspaces/$workspaceName/learn")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(contentBody)
+        ).andExpect(MockMvcResultMatchers.status().isNotFound)
+    }
+
+    @Test
+    fun `given a Workspace name and a Card id, when sending a DELETE REST request to the learn endpoint and the Workspace exists and the Card exists but the Card does not belong to the Workspace, then a NOT_ACCEPTABLE http status response is returned`() {
+        val workspaceName = "workspaceTest"
+        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
+        val learnCardParameters = LearnCardParameters(cardId)
+        Mockito.`when`(learnService.delete(workspaceName, learnCardParameters)).thenThrow(CardBindingException(workspaceName, cardId))
+        val contentBody = objectMapper.writeValueAsString(learnCardParameters)
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/api/workspaces/$workspaceName/learn")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(contentBody)
+        ).andExpect(MockMvcResultMatchers.status().isNotAcceptable)
+    }
+
+    @Test
+    fun `given a Workspace name and a Card id, when sending a DELETE REST request to the learn endpoint and the LearnCard does not exist, then a NOT_FOUND http status response is returned`() {
+        val workspaceName = "workspaceTest"
+        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
+        val learnCardParameters = LearnCardParameters(cardId)
+        Mockito.`when`(learnService.delete(workspaceName, learnCardParameters)).thenThrow(LearnCardNotFoundException(workspaceName, cardId))
+        val contentBody = objectMapper.writeValueAsString(learnCardParameters)
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/api/workspaces/$workspaceName/learn")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(contentBody)
+        ).andExpect(MockMvcResultMatchers.status().isNotFound)
+    }
+
+    @Test
+    fun `given a Workspace name and a Card id, when sending a DELETE REST request to the learn endpoint, then an OK http status response is returned`() {
+        val workspaceName = "workspaceTest"
+        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
+        val learnCardParameters = LearnCardParameters(cardId)
+        val contentBody = objectMapper.writeValueAsString(learnCardParameters)
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/api/workspaces/$workspaceName/learn")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(contentBody)
+        ).andExpect(MockMvcResultMatchers.status().isOk)
     }
 }

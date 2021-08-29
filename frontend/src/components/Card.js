@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import ListItem from '@material-ui/core/ListItem';
 import {default as CardUi} from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
+import CardActions from '@material-ui/core/CardActions';
+import DeleteIcon from '@material-ui/icons/Delete';
+import EditIcon from '@material-ui/icons/Edit';
 import TextField from '@material-ui/core/TextField';
 import { Button } from "@material-ui/core";
 import Box from '@material-ui/core/Box';
@@ -28,7 +31,7 @@ function Card(props) {
                 body: JSON.stringify({workspaceName: props.workspaceName, question: newQuestion, response: newResponse})
             });
             if(!response.ok) {
-                throw new Error("Error while creating the Card");
+                throw new Error("Error while creating the Card. Error: " + JSON.stringify(response));
             }
             const card = await response.json();
             props.handleCreateCard(card.id, card.question, card.response);
@@ -47,7 +50,7 @@ function Card(props) {
                 body: JSON.stringify({cardId: cardId})
             });
             if(!response.ok) {
-                throw new Error("Error while creating the Card");
+                throw new Error("Error while creating the Card. Error: " + JSON.stringify(response));
             }
         };
         createCard().catch((err) => {
@@ -71,14 +74,14 @@ function Card(props) {
                 body: JSON.stringify({question: newQuestion, response: newResponse})
             });
             if(!response.ok) {
-                throw new Error("Error while creating the Card");
+                throw new Error("Error while updating the Card. Error: " + JSON.stringify(response));
             }
             const card = await response.json();
             props.handleUpdateCardComplete(card.id, card.question, card.response);
         };
         updateCard().catch((err) => {
             console.log(err);
-            props.handleCraeteCardError();
+            props.handleUpdateCardError(props.id, props.question, props.response);
             setNewQuestion('');
             setNewResponse('');
         });
@@ -88,6 +91,40 @@ function Card(props) {
         setNewQuestion(props.question);
         setNewResponse(props.response);
         props.handleUpdateCardCancel(props.id)
+    }
+    const deleteCardHandler = (event) => {
+        event.preventDefault();
+        const deleteLearnCard = async () => {
+            const response = await fetch('/api/workspaces/' + props.workspaceName + '/learn', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({cardId: props.id})
+            });
+            if(!response.ok) {
+                throw new Error("Error while deleting the Card. Error: " + JSON.stringify(response));
+            }
+            deleteCard().catch((err) => {
+                throw err;
+            });
+            props.handleDeleteCardComplete(props.id);
+        };
+        const deleteCard = async () => {
+            const response = await fetch('/api/workspaces/' + props.workspaceName + '/cards/' + props.id, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if(!response.ok) {
+                throw new Error("Error while deleting the Card. Error: " + JSON.stringify(response));
+            }
+        };
+
+        deleteLearnCard().catch((err) => {
+            console.log(err);
+        });
     }
     const useStyles = makeStyles(() => ({
         formContent: {
@@ -102,6 +139,16 @@ function Card(props) {
         card: {
             width: '100%',
             textAlign: 'left',
+        },
+        cardTitle: {
+            width: 80,
+        },
+        actions: {
+            display: 'flex',
+        },
+        expand: {
+            marginLeft: 'auto',
+            marginTop: 'auto'
         },
     }));
     const classes = useStyles();
@@ -150,33 +197,37 @@ function Card(props) {
     } else {
         return (
             <ListItem button selected={props.selected}>
-                <CardUi className={classes.card} onClick={() => props.handleUpdateCard(props.id)}>
+                <CardUi className={classes.card}>
                     <CardContent>
                         <Box display="flex" flexWrap="wrap" p={0} m={0}>
-                            <Box pr={2}>
-                                <Typography variant="body1" color="textSecondary" component="p" gutterBottom >
+                            <Box pr={2} className={classes.cardTitle}>
+                                <Typography variant="body1" color="textSecondary" component="p" gutterBottom>
                                     <b>Question:</b>
                                 </Typography>
                             </Box>
                             <Box p={0}>
-                                <Typography variant="body1" color="textSecondary" component="p" gutterBottom >
+                                <Typography variant="body1" color="textSecondary" component="p" gutterBottom>
                                     {props.question}
                                 </Typography>
                             </Box>
                         </Box>
                         <Box display="flex" flexWrap="wrap" p={0} m={0}>
-                            <Box pr={2}>
-                                <Typography variant="body1" color="textSecondary" component="p" gutterBottom >
+                            <Box pr={2} className={classes.cardTitle}>
+                                <Typography variant="body1" color="textSecondary" component="p" gutterBottom>
                                     <b>Response:</b>
                                 </Typography>
                             </Box>
                             <Box p={0}>
-                                <Typography variant="body1" color="textSecondary" component="p" gutterBottom >
+                                <Typography variant="body1" color="textSecondary" component="p" gutterBottom>
                                     {props.response}
                                 </Typography>
                             </Box>
                         </Box>
                     </CardContent>
+                    <CardActions className={classes.actions}>
+                        <EditIcon onClick={() => props.handleUpdateCard(props.id)} className={classes.expand}/>
+                        <DeleteIcon onClick={deleteCardHandler}/>
+                    </CardActions>
                 </CardUi>
             </ListItem>
         );

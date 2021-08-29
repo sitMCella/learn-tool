@@ -6,6 +6,7 @@ import de.mcella.spring.learntool.card.exceptions.CardNotFoundException
 import de.mcella.spring.learntool.card.storage.Card
 import de.mcella.spring.learntool.learn.exceptions.CardBindingException
 import de.mcella.spring.learntool.learn.exceptions.LearnCardAlreadyExistsException
+import de.mcella.spring.learntool.learn.exceptions.LearnCardNotFoundException
 import de.mcella.spring.learntool.learn.exceptions.LearnCardsNotFoundException
 import de.mcella.spring.learntool.learn.storage.LearnCard
 import de.mcella.spring.learntool.learn.storage.LearnCardRepository
@@ -237,5 +238,70 @@ class LearnServiceTest {
         Mockito.`when`(learnCardRepository.save(any(LearnCard::class.java))).thenReturn(learnCard)
 
         learnService.evaluateCard(workspaceName, evaluationParameters)
+    }
+
+    @Test(expected = LearnCardNotFoundException::class)
+    fun `given a Workspace name and the evaluation parameters, when evaluating a Card and the LearnCard does not exist, then throw LearnCardNotFoundException`() {
+        val workspaceName = "workspaceTest"
+        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
+        val evaluationParameters = EvaluationParameters(cardId, 5)
+        val card = Card(cardId, workspaceName, "question", "response")
+        Mockito.`when`(cardService.findById(cardId)).thenReturn(card)
+        Mockito.`when`(learnCardRepository.findById(cardId)).thenReturn(Optional.empty())
+
+        learnService.evaluateCard(workspaceName, evaluationParameters)
+    }
+
+    @Test(expected = CardNotFoundException::class)
+    fun `given a Workspace name and a Card id, when deleting a LearnCard and the Card does not exist, then throw CardNotFoundException`() {
+        val workspaceName = "workspaceTest"
+        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
+        Mockito.`when`(cardService.findById(cardId)).thenThrow(CardNotFoundException(cardId))
+        val learnCardParameters = LearnCardParameters(cardId)
+
+        learnService.delete(workspaceName, learnCardParameters)
+    }
+
+    @Test(expected = CardBindingException::class)
+    fun `given a Workspace name and a Card id, when deleting a LearnCard and the Card belongs to a different Workspace, then throw CardBindingException`() {
+        val workspaceName = "workspaceTest"
+        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
+        val card = Card(cardId, "anotherWorkspaceTest", "question", "response")
+        Mockito.`when`(cardService.findById(cardId)).thenReturn(card)
+        val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
+        Mockito.`when`(learnCardRepository.findById(cardId)).thenReturn(Optional.of(learnCard))
+        val learnCardParameters = LearnCardParameters(cardId)
+
+        learnService.delete(workspaceName, learnCardParameters)
+    }
+
+    @Test(expected = LearnCardNotFoundException::class)
+    fun `given a Workspace name and a Card id, when deleting a LearnCard and the LearnCard does not exist, then throw LearnCardNotFoundException`() {
+        val workspaceName = "workspaceTest"
+        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
+        val card = Card(cardId, workspaceName, "question", "response")
+        Mockito.`when`(cardService.findById(cardId)).thenReturn(card)
+        Mockito.`when`(learnCardRepository.findById(cardId)).thenReturn(Optional.empty())
+        val learnCardParameters = LearnCardParameters(cardId)
+
+        learnService.delete(workspaceName, learnCardParameters)
+    }
+
+    @Test
+    fun `given a Workspace name and a Card id, when deleting a LearnCard, then call the method delete of LearnCardRepository`() {
+        val workspaceName = "workspaceTest"
+        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
+        val card = Card(cardId, workspaceName, "question", "response")
+        Mockito.`when`(cardService.findById(cardId)).thenReturn(card)
+        val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
+        Mockito.`when`(learnCardRepository.findById(cardId)).thenReturn(Optional.of(learnCard))
+        val learnCardParameters = LearnCardParameters(cardId)
+
+        learnService.delete(workspaceName, learnCardParameters)
+
+        val argumentCaptor = ArgumentCaptor.forClass(LearnCard::class.java)
+        Mockito.verify(learnCardRepository).delete(argumentCaptor.capture())
+        val deletedLearnCard = argumentCaptor.value
+        assertEquals(learnCard, deletedLearnCard)
     }
 }
