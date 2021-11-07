@@ -90,13 +90,6 @@ npm start
 docker-compose up --build
 ```
 
-### Access PostgreSQL
-
-```sh
-docker exec -it learn-tool_db_1 /bin/bash
-psql learntool $POSTGRES_USERNAME
-```
-
 ### Access application
 
 #### Access the application in development
@@ -109,6 +102,27 @@ http://localhost:3000
 
 ```sh
 http://localhost:80
+```
+
+#### Access PostgreSQL
+
+```sh
+docker exec -it db /bin/bash
+psql learntool $POSTGRES_USERNAME
+```
+
+### Backup and Restore the database
+
+### Backup the database
+
+```sh
+docker exec -t db pg_dumpall -c -U postgres > backup/dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
+```
+
+#### Restore the database
+
+```sh
+cat backup/<dump_file> | docker exec -i db psql -U postgres
 ```
 
 ## REST APIs documentation
