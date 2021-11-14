@@ -6,6 +6,7 @@ import de.mcella.spring.learntool.card.storage.Card
 import de.mcella.spring.learntool.card.storage.CardRepository
 import de.mcella.spring.learntool.learn.EvaluationParameters
 import de.mcella.spring.learntool.learn.LearnCardParameters
+import de.mcella.spring.learntool.learn.algorithm.OutputValues
 import de.mcella.spring.learntool.learn.storage.LearnCard
 import de.mcella.spring.learntool.learn.storage.LearnCardRepository
 import de.mcella.spring.learntool.workspace.storage.Workspace
@@ -13,6 +14,7 @@ import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
 import java.time.Duration
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.junit.Before
@@ -115,7 +117,7 @@ class LearnIntegrationTest {
     }
 
     @Test
-    fun `given a Workspace name, when a GET REST request is performed to the learn endpoint, then the response HTTP Status is 200 OK and the response body contains a Card`() {
+    fun `given a Workspace name and a LeanCard, when a GET REST request is performed to the learn endpoint, then the response HTTP Status is 200 OK and the response body contains a Card`() {
         val workspaceName = "workspaceTest"
         val workspace = Workspace(workspaceName)
         workspaceRepository.save(workspace)
@@ -128,6 +130,28 @@ class LearnIntegrationTest {
         val responseEntity = testRestTemplate.getForEntity(
             URI("http://localhost:$port/api/workspaces/$workspaceName/learn"),
             Card::class.java
+        )
+
+        val expectedResponseEntity = ResponseEntity.status(HttpStatus.OK).body(card)
+        assertEquals(expectedResponseEntity.statusCode, responseEntity.statusCode)
+        assertEquals(expectedResponseEntity.body, responseEntity.body)
+    }
+
+    @Test
+    fun `given a Workspace name and a LearnCard with nextReview before the current date, when a GET REST request is performed to the learn endpoint, then the response HTTP Status is 200 OK and the response body contains a Card`() {
+        val workspaceName = "workspaceTest"
+        val workspace = Workspace(workspaceName)
+        workspaceRepository.save(workspace)
+        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
+        val card = Card(cardId, workspaceName, "question", "response")
+        cardRepository.save(card)
+        val outputValues = OutputValues(1, 1, 1.0f)
+        val learnCard = LearnCard.create(cardId, workspaceName, outputValues, Instant.now().minus(2, ChronoUnit.DAYS))
+        learnCardRepository.save(learnCard)
+
+        val responseEntity = testRestTemplate.getForEntity(
+                URI("http://localhost:$port/api/workspaces/$workspaceName/learn"),
+                Card::class.java
         )
 
         val expectedResponseEntity = ResponseEntity.status(HttpStatus.OK).body(card)

@@ -102,20 +102,19 @@ class LearnServiceTest {
     }
 
     @Test
-    fun `given a Workspace name, when retrieving a Card from the Workspace, then call the method findFirstByWorkspaceNameAndNextReviewBetweenOrderByNextReview of LearnCardRepository`() {
+    fun `given a Workspace name, when retrieving a Card from the Workspace, then call the method findFirstByWorkspaceNameAndNextReviewBeforeOrderByNextReview of LearnCardRepository`() {
         val workspaceName = "workspaceTest"
         val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
         val expectedCard = Card(cardId, workspaceName, "question", "response")
         val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
         val today = LocalDate.now()
-        val begin = today.atStartOfDay().toInstant(ZoneOffset.UTC)
         val end = today.plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC)
-        Mockito.`when`(learnCardRepository.findFirstByWorkspaceNameAndNextReviewBetweenOrderByNextReview(workspaceName, begin, end)).thenReturn(Optional.of(learnCard))
+        Mockito.`when`(learnCardRepository.findFirstByWorkspaceNameAndNextReviewBeforeOrderByNextReview(workspaceName, end)).thenReturn(Optional.of(learnCard))
         Mockito.`when`(cardService.findById(cardId)).thenReturn(expectedCard)
 
         learnService.getCard(workspaceName)
 
-        Mockito.verify(learnCardRepository).findFirstByWorkspaceNameAndNextReviewBetweenOrderByNextReview(workspaceName, begin, end)
+        Mockito.verify(learnCardRepository).findFirstByWorkspaceNameAndNextReviewBeforeOrderByNextReview(workspaceName, end)
     }
 
     @Test
@@ -125,9 +124,8 @@ class LearnServiceTest {
         val expectedCard = Card(cardId, workspaceName, "question", "response")
         val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
         val today = LocalDate.now()
-        val begin = today.atStartOfDay().toInstant(ZoneOffset.UTC)
         val end = today.plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC)
-        Mockito.`when`(learnCardRepository.findFirstByWorkspaceNameAndNextReviewBetweenOrderByNextReview(workspaceName, begin, end)).thenReturn(Optional.of(learnCard))
+        Mockito.`when`(learnCardRepository.findFirstByWorkspaceNameAndNextReviewBeforeOrderByNextReview(workspaceName, end)).thenReturn(Optional.of(learnCard))
         Mockito.`when`(cardService.findById(cardId)).thenReturn(expectedCard)
 
         val card = learnService.getCard(workspaceName)
@@ -140,9 +138,8 @@ class LearnServiceTest {
     fun `given a Workspace name, when retrieving a Card from the Workspace and no LearnCards for the given Workspace name exist, then throw LearnCardsNotFoundException`() {
         val workspaceName = "workspaceTest"
         val today = LocalDate.now()
-        val begin = today.atStartOfDay().toInstant(ZoneOffset.UTC)
         val end = today.plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC)
-        Mockito.`when`(learnCardRepository.findFirstByWorkspaceNameAndNextReviewBetweenOrderByNextReview(workspaceName, begin, end)).thenReturn(Optional.empty())
+        Mockito.`when`(learnCardRepository.findFirstByWorkspaceNameAndNextReviewBeforeOrderByNextReview(workspaceName, end)).thenReturn(Optional.empty())
 
         learnService.getCard(workspaceName)
     }
@@ -153,9 +150,8 @@ class LearnServiceTest {
         val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
         val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
         val today = LocalDate.now()
-        val begin = today.atStartOfDay().toInstant(ZoneOffset.UTC)
         val end = today.plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC)
-        Mockito.`when`(learnCardRepository.findFirstByWorkspaceNameAndNextReviewBetweenOrderByNextReview(workspaceName, begin, end)).thenReturn(Optional.of(learnCard))
+        Mockito.`when`(learnCardRepository.findFirstByWorkspaceNameAndNextReviewBeforeOrderByNextReview(workspaceName, end)).thenReturn(Optional.of(learnCard))
         Mockito.`when`(cardService.findById(cardId)).thenThrow(CardNotFoundException(cardId))
 
         learnService.getCard(workspaceName)

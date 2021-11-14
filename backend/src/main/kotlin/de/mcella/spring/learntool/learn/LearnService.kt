@@ -31,9 +31,8 @@ class LearnService(private val cardService: CardService, private val learnCardRe
 
     fun getCard(workspaceName: String): Card {
         val today = LocalDate.now()
-        val begin = today.atStartOfDay().toInstant(ZoneOffset.UTC)
         val end = today.plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC)
-        val learnCard = learnCardRepository.findFirstByWorkspaceNameAndNextReviewBetweenOrderByNextReview(workspaceName, begin, end).toNullable() ?: throw LearnCardsNotFoundException(workspaceName)
+        val learnCard = learnCardRepository.findFirstByWorkspaceNameAndNextReviewBeforeOrderByNextReview(workspaceName, end).toNullable() ?: throw LearnCardsNotFoundException(workspaceName)
         return cardService.findById(learnCard.id)
     }
 

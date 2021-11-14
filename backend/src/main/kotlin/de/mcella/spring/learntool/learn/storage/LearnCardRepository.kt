@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface LearnCardRepository : JpaRepository<LearnCard, String> {
 
-    fun findFirstByWorkspaceNameAndNextReviewBetweenOrderByNextReview(workspaceName: String, begin: Instant, end: Instant): Optional<LearnCard>
+    fun findFirstByWorkspaceNameAndNextReviewBeforeOrderByNextReview(workspaceName: String, end: Instant): Optional<LearnCard>
 }
