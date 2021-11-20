@@ -248,6 +248,20 @@ class LearnServiceTest {
         learnService.evaluateCard(workspaceName, evaluationParameters)
     }
 
+    @Test
+    fun `given a Workspace name, when retrieving the LearnCards, then call the method findByWorkspaceName of LearnCardRepository`() {
+        val workspaceName = "workspaceTest"
+        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
+        val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
+        val expectedLearnCards = listOf(learnCard)
+        Mockito.`when`(learnCardRepository.findByWorkspaceName(workspaceName)).thenReturn(expectedLearnCards)
+
+        val learnCards = learnService.getLearnCardsByWorkspaceName(workspaceName)
+
+        Mockito.verify(learnCardRepository).findByWorkspaceName(workspaceName)
+        assertEquals(expectedLearnCards, learnCards)
+    }
+
     @Test(expected = CardNotFoundException::class)
     fun `given a Workspace name and a Card id, when deleting a LearnCard and the Card does not exist, then throw CardNotFoundException`() {
         val workspaceName = "workspaceTest"
