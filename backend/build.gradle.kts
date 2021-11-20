@@ -5,7 +5,7 @@ plugins {
     id("eclipse")
     id("org.springframework.boot") version "2.2.6.RELEASE"
     id("io.spring.dependency-management") version "1.0.9.RELEASE"
-    id("com.google.cloud.tools.jib") version "2.1.0"
+    id("com.google.cloud.tools.jib") version "3.1.4"
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
     id("org.openapi.generator") version "4.2.1"
     kotlin("jvm") version "1.3.71"

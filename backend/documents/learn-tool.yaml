@@ -511,4 +511,30 @@ paths:
           description: The Card or the LearnCard do not exist.
         '406':
           description: The Card does not belong to the Workspace.
-
+  /api/workspaces/{workspaceName}/expoprt:
+    get:
+      summary: Export the Workspace backup
+      operationId: export-workspace
+      tags:
+        - workspace
+        - export
+      parameters:
+        - name: workspaceName
+          in: path
+          description: The name of the Workspace.
+          required: true
+          schema:
+            type: string
+          example: "workspaceTest"
+      responses:
+        '200':
+          description: Workspace backup file.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: The Workspace does not exist.
+        '500':
+          description: An error occured while exporting the Workspace backup file.

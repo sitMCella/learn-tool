@@ -48,6 +48,10 @@ class LearnService(private val cardService: CardService, private val learnCardRe
         return learnCardRepository.save(updatedLearnCard)
     }
 
+    fun getLearnCardsByWorkspaceName(workspaceName: String): List<LearnCard> {
+        return learnCardRepository.findByWorkspaceName(workspaceName)
+    }
+
     fun delete(workspaceName: String, learnCardParameters: LearnCardParameters) {
         val cardId = learnCardParameters.cardId
         val card = cardService.findById(cardId)
