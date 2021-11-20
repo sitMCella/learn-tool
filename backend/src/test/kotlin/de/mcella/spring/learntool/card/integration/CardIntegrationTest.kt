@@ -5,7 +5,7 @@ import de.mcella.spring.learntool.IntegrationTest
 import de.mcella.spring.learntool.card.CardContent
 import de.mcella.spring.learntool.card.storage.Card
 import de.mcella.spring.learntool.card.storage.CardRepository
-import de.mcella.spring.learntool.workspace.storage.Workspace
+import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
 import kotlin.test.assertEquals
@@ -83,8 +83,8 @@ class CardIntegrationTest {
         val workspaceName = "workspaceTest"
         val cardContent = CardContent("question", "response")
         val request = HttpEntity(cardContent)
-        val workspace = Workspace(workspaceName)
-        workspaceRepository.save(workspace)
+        val workspaceEntity = WorkspaceEntity(workspaceName)
+        workspaceRepository.save(workspaceEntity)
 
         val responseEntity = testRestTemplate.postForObject(URI("http://localhost:$port/api/workspaces/$workspaceName/cards"), request, Card::class.java)
 
@@ -104,8 +104,8 @@ class CardIntegrationTest {
         val workspaceName = "workspaceTest"
         val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
         val cardContent = CardContent("question", "response")
-        val workspace = Workspace(workspaceName)
-        workspaceRepository.save(workspace)
+        val workspaceEntity = WorkspaceEntity(workspaceName)
+        workspaceRepository.save(workspaceEntity)
         val card = Card.create(cardId, workspaceName, cardContent)
         cardRepository.save(card)
         val updatedCardContent = CardContent("updated question", "updated response")
@@ -128,8 +128,8 @@ class CardIntegrationTest {
         val workspaceName = "workspaceTest"
         val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
         val cardContent = CardContent("question", "response")
-        val workspace = Workspace(workspaceName)
-        workspaceRepository.save(workspace)
+        val workspaceEntity = WorkspaceEntity(workspaceName)
+        workspaceRepository.save(workspaceEntity)
         val card = Card.create(cardId, workspaceName, cardContent)
         cardRepository.save(card)
 
@@ -144,8 +144,8 @@ class CardIntegrationTest {
         val workspaceName = "workspaceTest"
         val streamContent = "question,response\nquestionTest1,responseTest1\nquestionTest2,responseTest2"
         val request = HttpEntity(ByteArrayResource(streamContent.toByteArray()))
-        val workspace = Workspace(workspaceName)
-        workspaceRepository.save(workspace)
+        val workspaceEntity = WorkspaceEntity(workspaceName)
+        workspaceRepository.save(workspaceEntity)
 
         testRestTemplate.postForObject(URI("http://localhost:$port/api/workspaces/$workspaceName/cards/many.csv"), request, String::class.java)
 

@@ -7,7 +7,7 @@ import de.mcella.spring.learntool.card.storage.CardRepository
 import de.mcella.spring.learntool.learn.algorithm.OutputValues
 import de.mcella.spring.learntool.learn.storage.LearnCard
 import de.mcella.spring.learntool.learn.storage.LearnCardRepository
-import de.mcella.spring.learntool.workspace.storage.Workspace
+import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
 import java.time.Instant
@@ -87,8 +87,8 @@ class ExportIntegrationTest {
     @Test
     fun `given a Workspace name, when a GET REST request is performed to the export endpoint, then the backup file is created and the response body contains the file`() {
         val workspaceName = "workspaceTest"
-        val workspace = Workspace(workspaceName)
-        workspaceRepository.save(workspace)
+        val workspaceEntity = WorkspaceEntity(workspaceName)
+        workspaceRepository.save(workspaceEntity)
         val cardId = "a1900ca7-dc58-4360-b41c-537d933bc9c1"
         val card = Card(cardId, workspaceName, "This is a question", "This is a response")
         cardRepository.save(card)

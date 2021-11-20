@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import de.mcella.spring.learntool.UnitTest
 import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceNameException
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceAlreadyExistsException
-import de.mcella.spring.learntool.workspace.storage.Workspace
 import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
@@ -52,7 +51,7 @@ class WorkspaceControllerTest {
 
     @Test
     fun `given a Workspace with invalid name, when sending a POST REST request to the workspaces endpoint, then an UNPROCESSABLE_ENTITY http status response is returned`() {
-        val workspace = Workspace("workspace-Test")
+        val workspace = Workspace("workspace-invalid-Test")
         val contentBody = objectMapper.writeValueAsString(workspace)
         Mockito.`when`(workspaceService.create(workspace)).thenThrow(InvalidWorkspaceNameException(""))
 

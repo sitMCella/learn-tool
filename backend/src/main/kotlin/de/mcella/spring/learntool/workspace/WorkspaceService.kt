@@ -1,8 +1,9 @@
 package de.mcella.spring.learntool.workspace
 
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceAlreadyExistsException
-import de.mcella.spring.learntool.workspace.storage.Workspace
+import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
+import kotlin.streams.toList
 import org.springframework.stereotype.Service
 
 @Service
@@ -15,10 +16,16 @@ class WorkspaceService(private val workspaceRepository: WorkspaceRepository) {
                 workspace
             )
         }
-        return workspaceRepository.save(workspace)
+        val workspaceEntity = WorkspaceEntity.create(workspace)
+        return Workspace.create(workspaceRepository.save(workspaceEntity))
     }
 
-    fun getAll(): List<Workspace> = workspaceRepository.findAll()
+    fun getAll(): List<Workspace> {
+        return workspaceRepository.findAll()
+                .stream()
+                .map { workspaceEntity -> Workspace.create(workspaceEntity) }
+                .toList()
+    }
 
     fun exists(workspaceName: String): Boolean = workspaceRepository.existsById(workspaceName)
 }
