@@ -1,6 +1,5 @@
 package de.mcella.spring.learntool.workspace
 
-import de.mcella.spring.learntool.workspace.storage.Workspace
 import java.net.URI
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType

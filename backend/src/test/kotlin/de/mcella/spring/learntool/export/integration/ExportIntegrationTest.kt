@@ -2,12 +2,14 @@ package de.mcella.spring.learntool.export.integration
 
 import de.mcella.spring.learntool.BackendApplication
 import de.mcella.spring.learntool.IntegrationTest
-import de.mcella.spring.learntool.card.storage.Card
+import de.mcella.spring.learntool.card.CardId
+import de.mcella.spring.learntool.card.storage.CardEntity
 import de.mcella.spring.learntool.card.storage.CardRepository
 import de.mcella.spring.learntool.learn.algorithm.OutputValues
-import de.mcella.spring.learntool.learn.storage.LearnCard
+import de.mcella.spring.learntool.learn.storage.LearnCardEntity
 import de.mcella.spring.learntool.learn.storage.LearnCardRepository
-import de.mcella.spring.learntool.workspace.storage.Workspace
+import de.mcella.spring.learntool.workspace.Workspace
+import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
 import java.time.Instant
@@ -86,18 +88,18 @@ class ExportIntegrationTest {
 
     @Test
     fun `given a Workspace name, when a GET REST request is performed to the export endpoint, then the backup file is created and the response body contains the file`() {
-        val workspaceName = "workspaceTest"
-        val workspace = Workspace(workspaceName)
-        workspaceRepository.save(workspace)
-        val cardId = "a1900ca7-dc58-4360-b41c-537d933bc9c1"
-        val card = Card(cardId, workspaceName, "This is a question", "This is a response")
-        cardRepository.save(card)
+        val workspace = Workspace("workspaceTest")
+        val workspaceEntity = WorkspaceEntity(workspace.name)
+        workspaceRepository.save(workspaceEntity)
+        val cardId = CardId("a1900ca7-dc58-4360-b41c-537d933bc9c1")
+        val cardEntity = CardEntity(cardId.id, workspace.name, "This is a question", "This is a response")
+        cardRepository.save(cardEntity)
         val outputValues = OutputValues(0, 0, 1.3f)
         val review = Instant.ofEpochMilli(1637090403000)
-        val learnCard = LearnCard.create(cardId, workspaceName, outputValues, review)
+        val learnCard = LearnCardEntity.create(cardId, workspace, outputValues, review)
         learnCardRepository.save(learnCard)
 
-        val responseEntity = testRestTemplate.getForEntity<Resource>(URI("http://localhost:$port/api/workspaces/$workspaceName/export"))
+        val responseEntity = testRestTemplate.getForEntity<Resource>(URI("http://localhost:$port/api/workspaces/${workspace.name}/export"))
 
         // Store the zip file
         // val outputStream: OutputStream = FileOutputStream(File("src/test/resources/backup.zip"))
@@ -123,10 +125,10 @@ class ExportIntegrationTest {
                     assertEquals("\"name\"" + System.lineSeparator() + "\"workspaceTest\"" + System.lineSeparator(), String(file.content))
                 }
                 "/cards.csv" -> {
-                    assertEquals("\"id\"\t\"workspace_name\"\t\"question\"\t\"response\"" + System.lineSeparator() + "\"" + cardId + "\"" + "\t\"workspaceTest\"\t\"This is a question\"\t\"This is a response\"" + System.lineSeparator(), String(file.content))
+                    assertEquals("\"id\"\t\"workspace_name\"\t\"question\"\t\"response\"" + System.lineSeparator() + "\"" + cardId.id + "\"" + "\t\"workspaceTest\"\t\"This is a question\"\t\"This is a response\"" + System.lineSeparator(), String(file.content))
                 }
                 "/learn_cards.csv" -> {
-                    assertEquals("\"id\"\t\"workspace_name\"\t\"last_review\"\t\"next_review\"\t\"repetitions\"\t\"ease_factor\"\t\"interval_days\"" + System.lineSeparator() + "\"" + cardId + "\"" + "\t\"workspaceTest\"\t\"2021-11-16T19:20:03Z\"\t\"2021-11-16T19:20:03Z\"\t\"0\"\t\"1.3\"\t\"0\"" + System.lineSeparator(), String(file.content))
+                    assertEquals("\"id\"\t\"workspace_name\"\t\"last_review\"\t\"next_review\"\t\"repetitions\"\t\"ease_factor\"\t\"interval_days\"" + System.lineSeparator() + "\"" + cardId.id + "\"" + "\t\"workspaceTest\"\t\"2021-11-16T19:20:03Z\"\t\"2021-11-16T19:20:03Z\"\t\"0\"\t\"1.3\"\t\"0\"" + System.lineSeparator(), String(file.content))
                 }
             }
         }

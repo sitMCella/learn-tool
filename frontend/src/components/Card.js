@@ -42,12 +42,11 @@ function Card(props) {
             });
         };
         const createLearnCard = async (cardId) => {
-            const response = await fetch('/api/workspaces/' + props.workspaceName + '/learn', {
+            const response = await fetch('/api/workspaces/' + props.workspaceName + '/learn/' + cardId, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({cardId: cardId})
+                }
             });
             if(!response.ok) {
                 throw new Error("Error while creating the Card. Error: " + JSON.stringify(response));
@@ -95,15 +94,14 @@ function Card(props) {
     const deleteCardHandler = (event) => {
         event.preventDefault();
         const deleteLearnCard = async () => {
-            const response = await fetch('/api/workspaces/' + props.workspaceName + '/learn', {
+            const response = await fetch('/api/workspaces/' + props.workspaceName + '/learn/' + props.id, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({cardId: props.id})
+                }
             });
             if(!response.ok) {
-                throw new Error("Error while deleting the Card. Error: " + JSON.stringify(response));
+                throw new Error("Error while deleting the LearnCard. Error: " + JSON.stringify(response));
             }
             deleteCard().catch((err) => {
                 throw err;

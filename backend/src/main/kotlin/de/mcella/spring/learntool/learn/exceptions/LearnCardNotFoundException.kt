@@ -1,6 +1,8 @@
 package de.mcella.spring.learntool.learn.exceptions
 
+import de.mcella.spring.learntool.card.CardId
+import de.mcella.spring.learntool.workspace.Workspace
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 
-class LearnCardNotFoundException(workspaceName: String, cardId: String) : ResponseStatusException(HttpStatus.NOT_FOUND, "LearnCard with id $cardId not found in Workspace with name $workspaceName.")
+class LearnCardNotFoundException(workspace: Workspace, cardId: CardId) : ResponseStatusException(HttpStatus.NOT_FOUND, "LearnCard with id ${cardId.id} not found in Workspace with name ${workspace.name}.")

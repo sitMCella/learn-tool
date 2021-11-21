@@ -2,7 +2,8 @@ package de.mcella.spring.learntool.workspace.integration
 
 import de.mcella.spring.learntool.BackendApplication
 import de.mcella.spring.learntool.IntegrationTest
-import de.mcella.spring.learntool.workspace.storage.Workspace
+import de.mcella.spring.learntool.workspace.Workspace
+import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
 import kotlin.test.assertEquals
@@ -77,16 +78,17 @@ class WorkspaceIntegrationTest {
         val responseEntity = testRestTemplate.postForObject(URI("http://localhost:$port/api/workspaces"), request, Workspace::class.java)
 
         val workspaces = workspaceRepository.findAll()
-        assertTrue { workspaces.contains(workspace) }
+        val workspaceEntity = WorkspaceEntity("workspace1")
+        assertTrue { workspaces.contains(workspaceEntity) }
         assertEquals(workspace, responseEntity)
     }
 
     @Test
     fun `when a GET REST request is sent to the workspaces endpoint, then the http response body contains the list of Workspaces`() {
-        val workspace1 = Workspace("workspace1")
-        workspaceRepository.save(workspace1)
-        val workspace2 = Workspace("workspace2")
-        workspaceRepository.save(workspace2)
+        val workspaceEntity1 = WorkspaceEntity("workspace1")
+        workspaceRepository.save(workspaceEntity1)
+        val workspaceEntity2 = WorkspaceEntity("workspace2")
+        workspaceRepository.save(workspaceEntity2)
 
         val responseEntity = testRestTemplate.getForEntity(URI("http://localhost:$port/api/workspaces"), List::class.java)
 

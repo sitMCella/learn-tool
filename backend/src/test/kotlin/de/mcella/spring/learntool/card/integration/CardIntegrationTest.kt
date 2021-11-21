@@ -2,10 +2,13 @@ package de.mcella.spring.learntool.card.integration
 
 import de.mcella.spring.learntool.BackendApplication
 import de.mcella.spring.learntool.IntegrationTest
+import de.mcella.spring.learntool.card.Card
 import de.mcella.spring.learntool.card.CardContent
-import de.mcella.spring.learntool.card.storage.Card
+import de.mcella.spring.learntool.card.CardId
+import de.mcella.spring.learntool.card.storage.CardEntity
 import de.mcella.spring.learntool.card.storage.CardRepository
-import de.mcella.spring.learntool.workspace.storage.Workspace
+import de.mcella.spring.learntool.workspace.Workspace
+import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
 import kotlin.test.assertEquals
@@ -80,44 +83,44 @@ class CardIntegrationTest {
 
     @Test
     fun `given a Workspace name and a CardContent, when a POST REST request is sent to the cards endpoint, then a Card is created and the response body contains the Card`() {
-        val workspaceName = "workspaceTest"
+        val workspace = Workspace("workspaceTest")
         val cardContent = CardContent("question", "response")
         val request = HttpEntity(cardContent)
-        val workspace = Workspace(workspaceName)
-        workspaceRepository.save(workspace)
+        val workspaceEntity = WorkspaceEntity(workspace.name)
+        workspaceRepository.save(workspaceEntity)
 
-        val responseEntity = testRestTemplate.postForObject(URI("http://localhost:$port/api/workspaces/$workspaceName/cards"), request, Card::class.java)
+        val responseEntity = testRestTemplate.postForObject(URI("http://localhost:$port/api/workspaces/${workspace.name}/cards"), request, Card::class.java)
 
         val cards = cardRepository.findAll()
         assertTrue { cards.size == 1 }
         val createdCard = cards[0]
         assertNotNull(createdCard.id)
-        assertEquals(workspaceName, createdCard.workspaceName)
+        assertEquals(workspace.name, createdCard.workspaceName)
         assertEquals("question", createdCard.question)
         assertEquals("response", createdCard.response)
-        val expectedCard = Card(createdCard.id, workspaceName, "question", "response")
+        val expectedCard = Card(createdCard.id, workspace.name, "question", "response")
         assertEquals(expectedCard, responseEntity)
     }
 
     @Test
     fun `given a Workspace name, a Card Id, and a CardContent, when a PUT REST request is sent to the cards endpoint, then a Card is updated and the response body contains the Card`() {
-        val workspaceName = "workspaceTest"
-        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
+        val workspace = Workspace("workspaceTest")
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val cardContent = CardContent("question", "response")
-        val workspace = Workspace(workspaceName)
-        workspaceRepository.save(workspace)
-        val card = Card.create(cardId, workspaceName, cardContent)
-        cardRepository.save(card)
+        val workspaceEntity = WorkspaceEntity(workspace.name)
+        workspaceRepository.save(workspaceEntity)
+        val cardEntity = CardEntity.create(cardId, workspace, cardContent)
+        cardRepository.save(cardEntity)
         val updatedCardContent = CardContent("updated question", "updated response")
         val request = HttpEntity(updatedCardContent)
 
-        var responseEntity = testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/$workspaceName/cards/$cardId"), HttpMethod.PUT, request, Card::class.java)
+        var responseEntity = testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/${workspace.name}/cards/${cardId.id}"), HttpMethod.PUT, request, Card::class.java)
 
         val cards = cardRepository.findAll()
         assertTrue { cards.size == 1 }
         val updatedCard = cards[0]
-        assertEquals(cardId, updatedCard.id)
-        assertEquals(workspaceName, updatedCard.workspaceName)
+        assertEquals(cardId.id, updatedCard.id)
+        assertEquals(workspace.name, updatedCard.workspaceName)
         assertEquals("updated question", updatedCard.question)
         assertEquals("updated response", updatedCard.response)
         assertEquals(HttpStatus.OK, responseEntity.statusCode)
@@ -125,15 +128,15 @@ class CardIntegrationTest {
 
     @Test
     fun `given a Workspace name and a Card Id, when a DELETE REST request is sent to the cards endpoint, then a Card is deleted`() {
-        val workspaceName = "workspaceTest"
-        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
+        val workspace = Workspace("workspaceTest")
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val cardContent = CardContent("question", "response")
-        val workspace = Workspace(workspaceName)
-        workspaceRepository.save(workspace)
-        val card = Card.create(cardId, workspaceName, cardContent)
-        cardRepository.save(card)
+        val workspaceEntity = WorkspaceEntity(workspace.name)
+        workspaceRepository.save(workspaceEntity)
+        val cardEntity = CardEntity.create(cardId, workspace, cardContent)
+        cardRepository.save(cardEntity)
 
-        testRestTemplate.delete(URI("http://localhost:$port/api/workspaces/$workspaceName/cards/$cardId"))
+        testRestTemplate.delete(URI("http://localhost:$port/api/workspaces/${workspace.name}/cards/${cardId.id}"))
 
         val cards = cardRepository.findAll()
         assertTrue { cards.size == 0 }
@@ -141,20 +144,20 @@ class CardIntegrationTest {
 
     @Test
     fun `given a Workspace name and a Cards CSV stream content, when a POST REST request is sent to the cards many csv endpoint, then the Cards are created`() {
-        val workspaceName = "workspaceTest"
+        val workspace = Workspace("workspaceTest")
         val streamContent = "question,response\nquestionTest1,responseTest1\nquestionTest2,responseTest2"
         val request = HttpEntity(ByteArrayResource(streamContent.toByteArray()))
-        val workspace = Workspace(workspaceName)
-        workspaceRepository.save(workspace)
+        val workspaceEntity = WorkspaceEntity(workspace.name)
+        workspaceRepository.save(workspaceEntity)
 
-        testRestTemplate.postForObject(URI("http://localhost:$port/api/workspaces/$workspaceName/cards/many.csv"), request, String::class.java)
+        testRestTemplate.postForObject(URI("http://localhost:$port/api/workspaces/${workspace.name}/cards/many.csv"), request, String::class.java)
 
         val cards = cardRepository.findAll()
         assertTrue { cards.size == 2 }
         for (i in 0 until 1) {
             val createdCard = cards[i]
             assertNotNull(createdCard.id)
-            assertEquals(workspaceName, createdCard.workspaceName)
+            assertEquals(workspace.name, createdCard.workspaceName)
             assertEquals("questionTest${i + 1}", createdCard.question)
             assertEquals("responseTest${i + 1}", createdCard.response)
         }

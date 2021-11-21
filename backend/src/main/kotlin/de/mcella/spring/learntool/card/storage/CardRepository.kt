@@ -4,6 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface CardRepository : JpaRepository<Card, String> {
-    fun findByWorkspaceName(workspaceName: String): List<Card>
+interface CardRepository : JpaRepository<CardEntity, String> {
+    fun findByWorkspaceName(workspaceName: String): List<CardEntity>
 }

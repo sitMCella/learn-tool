@@ -1,6 +1,8 @@
 package de.mcella.spring.learntool.card.storage
 
 import de.mcella.spring.learntool.card.CardContent
+import de.mcella.spring.learntool.card.CardId
+import de.mcella.spring.learntool.workspace.Workspace
 import javax.persistence.Entity
 import javax.persistence.Id
 import javax.persistence.Table
@@ -14,15 +16,15 @@ const val RESPONSE = "response"
 
 @Entity
 @Table(name = "cards")
-data class Card(
+data class CardEntity(
     @Id @Pattern(regexp = UUID_REGEXP) val id: String = "",
     @field:NotNull @field:NotEmpty val workspaceName: String = "",
     @field:NotNull @field:NotEmpty val question: String = "",
     @field:NotNull @field:NotEmpty val response: String = ""
 ) {
     companion object {
-        fun create(cardId: String, workspaceName: String, cardContent: CardContent): Card {
-            return Card(cardId, workspaceName, cardContent.question, cardContent.response)
+        fun create(cardId: CardId, workspace: Workspace, cardContent: CardContent): CardEntity {
+            return CardEntity(cardId.id, workspace.name, cardContent.question, cardContent.response)
         }
     }
 }

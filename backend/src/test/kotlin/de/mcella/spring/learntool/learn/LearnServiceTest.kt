@@ -1,15 +1,17 @@
 package de.mcella.spring.learntool.learn
 
 import de.mcella.spring.learntool.UnitTest
+import de.mcella.spring.learntool.card.Card
+import de.mcella.spring.learntool.card.CardId
 import de.mcella.spring.learntool.card.CardService
 import de.mcella.spring.learntool.card.exceptions.CardNotFoundException
-import de.mcella.spring.learntool.card.storage.Card
 import de.mcella.spring.learntool.learn.exceptions.CardBindingException
 import de.mcella.spring.learntool.learn.exceptions.LearnCardAlreadyExistsException
 import de.mcella.spring.learntool.learn.exceptions.LearnCardNotFoundException
 import de.mcella.spring.learntool.learn.exceptions.LearnCardsNotFoundException
-import de.mcella.spring.learntool.learn.storage.LearnCard
+import de.mcella.spring.learntool.learn.storage.LearnCardEntity
 import de.mcella.spring.learntool.learn.storage.LearnCardRepository
+import de.mcella.spring.learntool.workspace.Workspace
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -33,102 +35,98 @@ class LearnServiceTest {
 
     @Test(expected = LearnCardAlreadyExistsException::class)
     fun `given a Workspace name and a Card id, when creating a LearnCard and the LearnCard already exists, then throw LearnCardAlreadyExistsException`() {
-        val workspaceName = "workspaceTest"
-        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
-        Mockito.`when`(learnCardRepository.existsById(cardId)).thenReturn(true)
-        val learnCardParameters = LearnCardParameters(cardId)
+        val workspace = Workspace("workspaceTest")
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        Mockito.`when`(learnCardRepository.existsById(cardId.id)).thenReturn(true)
 
-        learnService.create(workspaceName, learnCardParameters)
+        learnService.create(workspace, cardId)
     }
 
     @Test(expected = CardNotFoundException::class)
     fun `given a Workspace name and a Card id, when creating a LearnCard and the Card does not exist, then throw CardNotFoundException`() {
-        val workspaceName = "workspaceTest"
-        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
-        Mockito.`when`(learnCardRepository.existsById(cardId)).thenReturn(false)
+        val workspace = Workspace("workspaceTest")
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        Mockito.`when`(learnCardRepository.existsById(cardId.id)).thenReturn(false)
         Mockito.`when`(cardService.findById(cardId)).thenThrow(CardNotFoundException(cardId))
-        val learnCardParameters = LearnCardParameters(cardId)
 
-        learnService.create(workspaceName, learnCardParameters)
+        learnService.create(workspace, cardId)
     }
 
     @Test(expected = CardBindingException::class)
     fun `given a Workspace name and a Card id, when creating a LearnCard and the Card belongs to a different Workspace, then throw CardBindingException`() {
-        val workspaceName = "workspaceTest"
-        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
-        Mockito.`when`(learnCardRepository.existsById(cardId)).thenReturn(false)
-        val card = Card(cardId, "anotherWorkspaceTest", "question", "response")
+        val workspace = Workspace("workspaceTest")
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        Mockito.`when`(learnCardRepository.existsById(cardId.id)).thenReturn(false)
+        val card = Card(cardId.id, "anotherWorkspaceTest", "question", "response")
         Mockito.`when`(cardService.findById(cardId)).thenReturn(card)
-        val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
-        Mockito.`when`(learnCardRepository.save(any(LearnCard::class.java))).thenReturn(learnCard)
-        val learnCardParameters = LearnCardParameters(cardId)
+        val learnCardEntity = LearnCardEntity.createInitial(cardId, workspace, Instant.now())
+        Mockito.`when`(learnCardRepository.save(any(LearnCardEntity::class.java))).thenReturn(learnCardEntity)
 
-        learnService.create(workspaceName, learnCardParameters)
+        learnService.create(workspace, cardId)
     }
 
     @Test
     fun `given a Workspace name and a Card id, when creating a LearnCard, then call the method save of LearnCardRepository`() {
-        val workspaceName = "workspaceTest"
-        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
-        Mockito.`when`(learnCardRepository.existsById(cardId)).thenReturn(false)
-        val card = Card(cardId, workspaceName, "question", "response")
+        val workspace = Workspace("workspaceTest")
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        Mockito.`when`(learnCardRepository.existsById(cardId.id)).thenReturn(false)
+        val card = Card(cardId.id, workspace.name, "question", "response")
         Mockito.`when`(cardService.findById(cardId)).thenReturn(card)
-        val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
-        Mockito.`when`(learnCardRepository.save(any(LearnCard::class.java))).thenReturn(learnCard)
-        val learnCardParameters = LearnCardParameters(cardId)
+        val learnCardEntity = LearnCardEntity.createInitial(cardId, workspace, Instant.now())
+        Mockito.`when`(learnCardRepository.save(any(LearnCardEntity::class.java))).thenReturn(learnCardEntity)
 
-        learnService.create(workspaceName, learnCardParameters)
+        learnService.create(workspace, cardId)
 
-        val argumentCaptor = ArgumentCaptor.forClass(LearnCard::class.java)
+        val argumentCaptor = ArgumentCaptor.forClass(LearnCardEntity::class.java)
         Mockito.verify(learnCardRepository).save(argumentCaptor.capture())
-        val createdLearnCard = argumentCaptor.value
-        assertEquals(LearnCard.createInitial(cardId, workspaceName, createdLearnCard.lastReview), createdLearnCard)
+        val createdLearnCardEntity = argumentCaptor.value
+        assertEquals(LearnCardEntity.createInitial(cardId, workspace, createdLearnCardEntity.lastReview), createdLearnCardEntity)
     }
 
     @Test
     fun `given a Workspace name and a Card id, when creating a LearnCard, then return the LearnCard`() {
-        val workspaceName = "workspaceTest"
-        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
-        Mockito.`when`(learnCardRepository.existsById(cardId)).thenReturn(false)
-        val card = Card(cardId, workspaceName, "question", "response")
+        val workspace = Workspace("workspaceTest")
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        Mockito.`when`(learnCardRepository.existsById(cardId.id)).thenReturn(false)
+        val card = Card(cardId.id, workspace.name, "question", "response")
         Mockito.`when`(cardService.findById(cardId)).thenReturn(card)
-        val expectedLearnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
-        Mockito.`when`(learnCardRepository.save(any(LearnCard::class.java))).thenReturn(expectedLearnCard)
-        val learnCardParameters = LearnCardParameters(cardId)
+        val learnCardEntity = LearnCardEntity.createInitial(cardId, workspace, Instant.now())
+        Mockito.`when`(learnCardRepository.save(any(LearnCardEntity::class.java))).thenReturn(learnCardEntity)
 
-        val learnCard = learnService.create(workspaceName, learnCardParameters)
+        val learnCard = learnService.create(workspace, cardId)
 
+        val expectedLearnCard = LearnCard(cardId.id, workspace.name, learnCardEntity.lastReview, learnCardEntity.nextReview, learnCardEntity.repetitions, learnCardEntity.easeFactor, learnCardEntity.intervalDays)
         assertEquals(expectedLearnCard, learnCard)
     }
 
     @Test
     fun `given a Workspace name, when retrieving a Card from the Workspace, then call the method findFirstByWorkspaceNameAndNextReviewBeforeOrderByNextReview of LearnCardRepository`() {
-        val workspaceName = "workspaceTest"
-        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
-        val expectedCard = Card(cardId, workspaceName, "question", "response")
-        val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
+        val workspace = Workspace("workspaceTest")
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        val expectedCard = Card(cardId.id, workspace.name, "question", "response")
+        val learnCardEntity = LearnCardEntity.createInitial(cardId, workspace, Instant.now())
         val today = LocalDate.now()
         val end = today.plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC)
-        Mockito.`when`(learnCardRepository.findFirstByWorkspaceNameAndNextReviewBeforeOrderByNextReview(workspaceName, end)).thenReturn(Optional.of(learnCard))
+        Mockito.`when`(learnCardRepository.findFirstByWorkspaceNameAndNextReviewBeforeOrderByNextReview(workspace.name, end)).thenReturn(Optional.of(learnCardEntity))
         Mockito.`when`(cardService.findById(cardId)).thenReturn(expectedCard)
 
-        learnService.getCard(workspaceName)
+        learnService.getCard(workspace)
 
-        Mockito.verify(learnCardRepository).findFirstByWorkspaceNameAndNextReviewBeforeOrderByNextReview(workspaceName, end)
+        Mockito.verify(learnCardRepository).findFirstByWorkspaceNameAndNextReviewBeforeOrderByNextReview(workspace.name, end)
     }
 
     @Test
     fun `given a Workspace name, when retrieving a Card from the Workspace, then call the method findById of CardService and return the Card`() {
-        val workspaceName = "workspaceTest"
-        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
-        val expectedCard = Card(cardId, workspaceName, "question", "response")
-        val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
+        val workspace = Workspace("workspaceTest")
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        val expectedCard = Card(cardId.id, workspace.name, "question", "response")
+        val learnCard = LearnCardEntity.createInitial(cardId, workspace, Instant.now())
         val today = LocalDate.now()
         val end = today.plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC)
-        Mockito.`when`(learnCardRepository.findFirstByWorkspaceNameAndNextReviewBeforeOrderByNextReview(workspaceName, end)).thenReturn(Optional.of(learnCard))
+        Mockito.`when`(learnCardRepository.findFirstByWorkspaceNameAndNextReviewBeforeOrderByNextReview(workspace.name, end)).thenReturn(Optional.of(learnCard))
         Mockito.`when`(cardService.findById(cardId)).thenReturn(expectedCard)
 
-        val card = learnService.getCard(workspaceName)
+        val card = learnService.getCard(workspace)
 
         Mockito.verify(cardService).findById(cardId)
         assertEquals(expectedCard, card)
@@ -136,180 +134,178 @@ class LearnServiceTest {
 
     @Test(expected = LearnCardsNotFoundException::class)
     fun `given a Workspace name, when retrieving a Card from the Workspace and no LearnCards for the given Workspace name exist, then throw LearnCardsNotFoundException`() {
-        val workspaceName = "workspaceTest"
+        val workspace = Workspace("workspaceTest")
         val today = LocalDate.now()
         val end = today.plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC)
-        Mockito.`when`(learnCardRepository.findFirstByWorkspaceNameAndNextReviewBeforeOrderByNextReview(workspaceName, end)).thenReturn(Optional.empty())
+        Mockito.`when`(learnCardRepository.findFirstByWorkspaceNameAndNextReviewBeforeOrderByNextReview(workspace.name, end)).thenReturn(Optional.empty())
 
-        learnService.getCard(workspaceName)
+        learnService.getCard(workspace)
     }
 
     @Test(expected = CardNotFoundException::class)
     fun `given a Workspace name, when retrieving a Card from the Workspace and the Card does not exist into the Workspace, then throw CardNotFoundException`() {
-        val workspaceName = "workspaceTest"
-        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
-        val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
+        val workspace = Workspace("workspaceTest")
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        val learnCard = LearnCardEntity.createInitial(cardId, workspace, Instant.now())
         val today = LocalDate.now()
         val end = today.plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC)
-        Mockito.`when`(learnCardRepository.findFirstByWorkspaceNameAndNextReviewBeforeOrderByNextReview(workspaceName, end)).thenReturn(Optional.of(learnCard))
+        Mockito.`when`(learnCardRepository.findFirstByWorkspaceNameAndNextReviewBeforeOrderByNextReview(workspace.name, end)).thenReturn(Optional.of(learnCard))
         Mockito.`when`(cardService.findById(cardId)).thenThrow(CardNotFoundException(cardId))
 
-        learnService.getCard(workspaceName)
+        learnService.getCard(workspace)
     }
 
     @Test
     fun `given a Workspace name and the evaluation parameters, when evaluating a Card, then call the method findById of CardService`() {
-        val workspaceName = "workspaceTest"
-        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
-        val evaluationParameters = EvaluationParameters(cardId, 5)
-        val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspaceName, "question", "response")
+        val workspace = Workspace("workspaceTest")
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        val evaluationParameters = EvaluationParameters(5)
+        val card = Card(cardId.id, workspace.name, "question", "response")
         Mockito.`when`(cardService.findById(cardId)).thenReturn(card)
-        val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
-        Mockito.`when`(learnCardRepository.findById(cardId)).thenReturn(Optional.of(learnCard))
-        Mockito.`when`(learnCardRepository.save(any(LearnCard::class.java))).thenReturn(learnCard)
+        val learnCard = LearnCardEntity.createInitial(cardId, workspace, Instant.now())
+        Mockito.`when`(learnCardRepository.findById(cardId.id)).thenReturn(Optional.of(learnCard))
+        Mockito.`when`(learnCardRepository.save(any(LearnCardEntity::class.java))).thenReturn(learnCard)
 
-        learnService.evaluateCard(workspaceName, evaluationParameters)
+        learnService.evaluateCard(workspace, cardId, evaluationParameters)
 
         Mockito.verify(cardService).findById(cardId)
     }
 
     @Test
     fun `given a Workspace name and the evaluation parameters, when evaluating a Card, then call the method findById of LearnCardRepository`() {
-        val workspaceName = "workspaceTest"
-        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
-        val evaluationParameters = EvaluationParameters(cardId, 5)
-        val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspaceName, "question", "response")
+        val workspace = Workspace("workspaceTest")
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        val evaluationParameters = EvaluationParameters(5)
+        val card = Card(cardId.id, workspace.name, "question", "response")
         Mockito.`when`(cardService.findById(cardId)).thenReturn(card)
-        val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
-        Mockito.`when`(learnCardRepository.findById(cardId)).thenReturn(Optional.of(learnCard))
-        Mockito.`when`(learnCardRepository.save(any(LearnCard::class.java))).thenReturn(learnCard)
+        val learnCard = LearnCardEntity.createInitial(cardId, workspace, Instant.now())
+        Mockito.`when`(learnCardRepository.findById(cardId.id)).thenReturn(Optional.of(learnCard))
+        Mockito.`when`(learnCardRepository.save(any(LearnCardEntity::class.java))).thenReturn(learnCard)
 
-        learnService.evaluateCard(workspaceName, evaluationParameters)
+        learnService.evaluateCard(workspace, cardId, evaluationParameters)
 
-        Mockito.verify(learnCardRepository).findById(cardId)
+        Mockito.verify(learnCardRepository).findById(cardId.id)
     }
 
     @Test
     fun `given a Workspace name and the evaluation parameters, when evaluating a Card, then call the method save of LearnCardRepository`() {
-        val workspaceName = "workspaceTest"
-        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
-        val evaluationParameters = EvaluationParameters(cardId, 5)
-        val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspaceName, "question", "response")
+        val workspace = Workspace("workspaceTest")
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        val evaluationParameters = EvaluationParameters(5)
+        val card = Card(cardId.id, workspace.name, "question", "response")
         Mockito.`when`(cardService.findById(cardId)).thenReturn(card)
-        val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
-        Mockito.`when`(learnCardRepository.findById(cardId)).thenReturn(Optional.of(learnCard))
-        Mockito.`when`(learnCardRepository.save(any(LearnCard::class.java))).thenReturn(learnCard)
+        val learnCard = LearnCardEntity.createInitial(cardId, workspace, Instant.now())
+        Mockito.`when`(learnCardRepository.findById(cardId.id)).thenReturn(Optional.of(learnCard))
+        Mockito.`when`(learnCardRepository.save(any(LearnCardEntity::class.java))).thenReturn(learnCard)
 
-        learnService.evaluateCard(workspaceName, evaluationParameters)
+        learnService.evaluateCard(workspace, cardId, evaluationParameters)
 
-        val argumentCaptor = ArgumentCaptor.forClass(LearnCard::class.java)
+        val argumentCaptor = ArgumentCaptor.forClass(LearnCardEntity::class.java)
         Mockito.verify(learnCardRepository).save(argumentCaptor.capture())
-        val updatedLearnCard = argumentCaptor.value
-        assertEquals(cardId, updatedLearnCard.id)
-        assertTrue { updatedLearnCard.nextReview > learnCard.nextReview }
+        val updatedLearnCardEntity = argumentCaptor.value
+        assertEquals(cardId, CardId(updatedLearnCardEntity.id))
+        assertTrue { updatedLearnCardEntity.nextReview > learnCard.nextReview }
     }
 
     @Test(expected = CardNotFoundException::class)
     fun `given a Workspace name and the evaluation parameters, when evaluating a Card and the Card does not exist, then throw CardNotFoundException`() {
-        val workspaceName = "workspaceTest"
-        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
-        val evaluationParameters = EvaluationParameters(cardId, 5)
+        val workspace = Workspace("workspaceTest")
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        val evaluationParameters = EvaluationParameters(5)
         Mockito.`when`(cardService.findById(cardId)).thenThrow(CardNotFoundException(cardId))
-        val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
-        Mockito.`when`(learnCardRepository.findById(cardId)).thenReturn(Optional.of(learnCard))
-        Mockito.`when`(learnCardRepository.save(any(LearnCard::class.java))).thenReturn(learnCard)
+        val learnCard = LearnCardEntity.createInitial(cardId, workspace, Instant.now())
+        Mockito.`when`(learnCardRepository.findById(cardId.id)).thenReturn(Optional.of(learnCard))
+        Mockito.`when`(learnCardRepository.save(any(LearnCardEntity::class.java))).thenReturn(learnCard)
 
-        learnService.evaluateCard(workspaceName, evaluationParameters)
+        learnService.evaluateCard(workspace, cardId, evaluationParameters)
     }
 
     @Test(expected = CardBindingException::class)
     fun `given a Workspace name and the evaluation parameters, when evaluating a Card and the Card does not exist into the Workspace, then throw CardBindingException`() {
-        val workspaceName = "workspaceTest"
-        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
-        val evaluationParameters = EvaluationParameters(cardId, 5)
-        val card = Card(cardId, "anotherWorkspaceName", "question", "response")
+        val workspace = Workspace("workspaceTest")
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        val evaluationParameters = EvaluationParameters(5)
+        val card = Card(cardId.id, "anotherWorkspaceName", "question", "response")
         Mockito.`when`(cardService.findById(cardId)).thenReturn(card)
-        val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
-        Mockito.`when`(learnCardRepository.findById(cardId)).thenReturn(Optional.of(learnCard))
-        Mockito.`when`(learnCardRepository.save(any(LearnCard::class.java))).thenReturn(learnCard)
+        val learnCard = LearnCardEntity.createInitial(cardId, workspace, Instant.now())
+        Mockito.`when`(learnCardRepository.findById(cardId.id)).thenReturn(Optional.of(learnCard))
+        Mockito.`when`(learnCardRepository.save(any(LearnCardEntity::class.java))).thenReturn(learnCard)
 
-        learnService.evaluateCard(workspaceName, evaluationParameters)
+        learnService.evaluateCard(workspace, cardId, evaluationParameters)
     }
 
     @Test(expected = LearnCardNotFoundException::class)
     fun `given a Workspace name and the evaluation parameters, when evaluating a Card and the LearnCard does not exist, then throw LearnCardNotFoundException`() {
-        val workspaceName = "workspaceTest"
-        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
-        val evaluationParameters = EvaluationParameters(cardId, 5)
-        val card = Card(cardId, workspaceName, "question", "response")
+        val workspace = Workspace("workspaceTest")
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        val evaluationParameters = EvaluationParameters(5)
+        val card = Card(cardId.id, workspace.name, "question", "response")
         Mockito.`when`(cardService.findById(cardId)).thenReturn(card)
-        Mockito.`when`(learnCardRepository.findById(cardId)).thenReturn(Optional.empty())
+        Mockito.`when`(learnCardRepository.findById(cardId.id)).thenReturn(Optional.empty())
 
-        learnService.evaluateCard(workspaceName, evaluationParameters)
+        learnService.evaluateCard(workspace, cardId, evaluationParameters)
     }
 
     @Test
     fun `given a Workspace name, when retrieving the LearnCards, then call the method findByWorkspaceName of LearnCardRepository`() {
-        val workspaceName = "workspaceTest"
-        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
-        val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
-        val expectedLearnCards = listOf(learnCard)
-        Mockito.`when`(learnCardRepository.findByWorkspaceName(workspaceName)).thenReturn(expectedLearnCards)
+        val workspace = Workspace("workspaceTest")
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        val learnCardEntity = LearnCardEntity.createInitial(cardId, workspace, Instant.now())
+        val learnCardEntities = listOf(learnCardEntity)
+        Mockito.`when`(learnCardRepository.findByWorkspaceName(workspace.name)).thenReturn(learnCardEntities)
 
-        val learnCards = learnService.getLearnCardsByWorkspaceName(workspaceName)
+        val learnCards = learnService.getLearnCardsByWorkspace(workspace)
 
-        Mockito.verify(learnCardRepository).findByWorkspaceName(workspaceName)
+        Mockito.verify(learnCardRepository).findByWorkspaceName(workspace.name)
+        val expectedLearnCard = LearnCard(learnCardEntity.id, learnCardEntity.workspaceName, learnCardEntity.lastReview, learnCardEntity.nextReview, learnCardEntity.repetitions, learnCardEntity.easeFactor, learnCardEntity.intervalDays)
+        val expectedLearnCards = listOf(expectedLearnCard)
         assertEquals(expectedLearnCards, learnCards)
     }
 
     @Test(expected = CardNotFoundException::class)
     fun `given a Workspace name and a Card id, when deleting a LearnCard and the Card does not exist, then throw CardNotFoundException`() {
-        val workspaceName = "workspaceTest"
-        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
+        val workspace = Workspace("workspaceTest")
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         Mockito.`when`(cardService.findById(cardId)).thenThrow(CardNotFoundException(cardId))
-        val learnCardParameters = LearnCardParameters(cardId)
 
-        learnService.delete(workspaceName, learnCardParameters)
+        learnService.delete(workspace, cardId)
     }
 
     @Test(expected = CardBindingException::class)
     fun `given a Workspace name and a Card id, when deleting a LearnCard and the Card belongs to a different Workspace, then throw CardBindingException`() {
-        val workspaceName = "workspaceTest"
-        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
-        val card = Card(cardId, "anotherWorkspaceTest", "question", "response")
+        val workspace = Workspace("workspaceTest")
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        val card = Card(cardId.id, "anotherWorkspaceTest", "question", "response")
         Mockito.`when`(cardService.findById(cardId)).thenReturn(card)
-        val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
-        Mockito.`when`(learnCardRepository.findById(cardId)).thenReturn(Optional.of(learnCard))
-        val learnCardParameters = LearnCardParameters(cardId)
+        val learnCard = LearnCardEntity.createInitial(cardId, workspace, Instant.now())
+        Mockito.`when`(learnCardRepository.findById(cardId.id)).thenReturn(Optional.of(learnCard))
 
-        learnService.delete(workspaceName, learnCardParameters)
+        learnService.delete(workspace, cardId)
     }
 
     @Test(expected = LearnCardNotFoundException::class)
     fun `given a Workspace name and a Card id, when deleting a LearnCard and the LearnCard does not exist, then throw LearnCardNotFoundException`() {
-        val workspaceName = "workspaceTest"
-        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
-        val card = Card(cardId, workspaceName, "question", "response")
+        val workspace = Workspace("workspaceTest")
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        val card = Card(cardId.id, workspace.name, "question", "response")
         Mockito.`when`(cardService.findById(cardId)).thenReturn(card)
-        Mockito.`when`(learnCardRepository.findById(cardId)).thenReturn(Optional.empty())
-        val learnCardParameters = LearnCardParameters(cardId)
+        Mockito.`when`(learnCardRepository.findById(cardId.id)).thenReturn(Optional.empty())
 
-        learnService.delete(workspaceName, learnCardParameters)
+        learnService.delete(workspace, cardId)
     }
 
     @Test
     fun `given a Workspace name and a Card id, when deleting a LearnCard, then call the method delete of LearnCardRepository`() {
-        val workspaceName = "workspaceTest"
-        val cardId = "9e493dc0-ef75-403f-b5d6-ed510634f8a6"
-        val card = Card(cardId, workspaceName, "question", "response")
+        val workspace = Workspace("workspaceTest")
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        val card = Card(cardId.id, workspace.name, "question", "response")
         Mockito.`when`(cardService.findById(cardId)).thenReturn(card)
-        val learnCard = LearnCard.createInitial(cardId, workspaceName, Instant.now())
-        Mockito.`when`(learnCardRepository.findById(cardId)).thenReturn(Optional.of(learnCard))
-        val learnCardParameters = LearnCardParameters(cardId)
+        val learnCard = LearnCardEntity.createInitial(cardId, workspace, Instant.now())
+        Mockito.`when`(learnCardRepository.findById(cardId.id)).thenReturn(Optional.of(learnCard))
 
-        learnService.delete(workspaceName, learnCardParameters)
+        learnService.delete(workspace, cardId)
 
-        val argumentCaptor = ArgumentCaptor.forClass(LearnCard::class.java)
+        val argumentCaptor = ArgumentCaptor.forClass(LearnCardEntity::class.java)
         Mockito.verify(learnCardRepository).delete(argumentCaptor.capture())
         val deletedLearnCard = argumentCaptor.value
         assertEquals(learnCard, deletedLearnCard)

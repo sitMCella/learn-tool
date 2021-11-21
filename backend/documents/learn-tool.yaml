@@ -48,6 +48,8 @@ paths:
         '422':
           description: >-
             The Workspace name is empty or incorrect. Allowed characters: [a-zA-Z0-9-_].
+        '500':
+          description: An error occured while creating the Workspace.
     get:
       summary: Get all the Workspaces
       operationId: get-workspaces
@@ -133,6 +135,8 @@ paths:
           description: A Card already exists with this id.
         '422':
           description: The Card content fields are null or empty.
+        '500':
+          description: An error occured while creating the Card.
     get:
       summary: Get all the Cards of a Workspace
       operationId: get-cards
@@ -240,6 +244,8 @@ paths:
           description: The Workspace does not exist.
         '422':
           description: Either the Card content fields are null or empty, or the Card does not belong to the provided Workspace name.
+        '500':
+          description: An error occured while updating the Card.
     delete:
       summary: Delete a Card
       operationId: delete-card
@@ -267,6 +273,8 @@ paths:
           description: The Workspace does not exist.
         '422':
           description: The Card does not belong to the provided Workspace name.
+        '500':
+          description: An error occured while deleting the Card.
   /api/workspaces/{workspaceName}/cards/many.csv:
     post:
       summary: Create new Cards
@@ -302,6 +310,8 @@ paths:
         '422':
           description: >-
             CSV fields null or empty, or missing headers.
+        '500':
+          description: An error occured while creating the Cards.
   /api/workspaces/{workspaceName}/learn:
     post:
       summary: Create a new LearnCard
@@ -370,6 +380,8 @@ paths:
           description: The Card does not belong to the Workspace.
         '409':
           description: The LearnCard already exists.
+        '500':
+          description: An error occured while creating the LearnCard.
     get:
       summary: Retrieve a Card from the Workspace
       operationId: retrieve-card
@@ -476,6 +488,8 @@ paths:
           description: The Workspace or the Card do not exist.
         '406':
           description: The Card does not belong to the Workspace or not acceptable evaluation parameters.
+        '500':
+          description: An error occured while evaluating the Card.
     delete:
       summary: Delete a new LearnCard
       operationId: delete-learn-card
@@ -511,6 +525,8 @@ paths:
           description: The Card or the LearnCard do not exist.
         '406':
           description: The Card does not belong to the Workspace.
+        '500':
+          description: An error occured while deleting the LearnCard.
   /api/workspaces/{workspaceName}/expoprt:
     get:
       summary: Export the Workspace backup

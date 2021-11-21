@@ -2,59 +2,66 @@ package de.mcella.spring.learntool.card
 
 import de.mcella.spring.learntool.card.exceptions.CardAlreadyExistsException
 import de.mcella.spring.learntool.card.exceptions.CardNotFoundException
-import de.mcella.spring.learntool.card.storage.Card
+import de.mcella.spring.learntool.card.storage.CardEntity
 import de.mcella.spring.learntool.card.storage.CardRepository
-import de.mcella.spring.learntool.common.toNullable
+import de.mcella.spring.learntool.workspace.Workspace
 import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceNameException
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
+import kotlin.streams.toList
 import org.springframework.stereotype.Service
 
 @Service
-class CardService(private val cardRepository: CardRepository, private val workspaceRepository: WorkspaceRepository) {
+class CardService(private val cardRepository: CardRepository, private val workspaceRepository: WorkspaceRepository, private val cardIdGenerator: CardIdGenerator) {
 
-    fun create(workspaceName: String, cardContent: CardContent): Card {
+    fun create(workspace: Workspace, cardContent: CardContent): Card {
         require(!cardContent.question.isNullOrEmpty()) { "The field 'question' is required." }
         require(!cardContent.response.isNullOrEmpty()) { "The field 'response' is required." }
-        if (!workspaceRepository.existsById(workspaceName)) {
-            throw WorkspaceNotExistsException(workspaceName)
+        if (!workspaceRepository.existsById(workspace.name)) {
+            throw WorkspaceNotExistsException(workspace)
         }
-        val cardId = CardIdGenerator.create()
-        if (cardRepository.existsById(cardId)) {
+        val cardId = cardIdGenerator.create()
+        if (cardRepository.existsById(cardId.id)) {
             throw CardAlreadyExistsException(cardId)
         }
-        val card = Card.create(cardId, workspaceName, cardContent)
-        cardRepository.save(card)
-        return card
+        val cardEntity = CardEntity.create(cardId, workspace, cardContent)
+        return Card.create(cardRepository.save(cardEntity))
     }
 
-    fun update(cardId: String, workspaceName: String, cardContent: CardContent): Card {
+    fun update(cardId: CardId, workspace: Workspace, cardContent: CardContent): Card {
         require(!cardContent.question.isNullOrEmpty()) { "The field 'question' is required." }
         require(!cardContent.response.isNullOrEmpty()) { "The field 'response' is required." }
-        if (!workspaceRepository.existsById(workspaceName)) {
-            throw WorkspaceNotExistsException(workspaceName)
+        if (!workspaceRepository.existsById(workspace.name)) {
+            throw WorkspaceNotExistsException(workspace)
         }
         val card = findById(cardId)
-        if (card.workspaceName != workspaceName) {
+        if (card.workspaceName != workspace.name) {
             throw InvalidWorkspaceNameException("The provided workspaceName does not match with the card workspace")
         }
-        val updatedCard = Card.create(cardId, workspaceName, cardContent)
-        cardRepository.save(updatedCard)
-        return updatedCard
+        val updatedCard = CardEntity.create(cardId, workspace, cardContent)
+        val updatedCardEntity = cardRepository.save(updatedCard)
+        return Card.create(updatedCardEntity)
     }
 
-    fun delete(cardId: String, workspaceName: String) {
-        if (!workspaceRepository.existsById(workspaceName)) {
-            throw WorkspaceNotExistsException(workspaceName)
+    fun delete(cardId: CardId, workspace: Workspace) {
+        if (!workspaceRepository.existsById(workspace.name)) {
+            throw WorkspaceNotExistsException(workspace)
         }
-        val card = findById(cardId)
-        if (card.workspaceName != workspaceName) {
+        val cardEntity = cardRepository.findById(cardId.id).orElseThrow { CardNotFoundException(cardId) }
+        if (cardEntity.workspaceName != workspace.name) {
             throw InvalidWorkspaceNameException("The provided workspaceName does not match with the card workspace")
         }
-        cardRepository.delete(card)
+        cardRepository.delete(cardEntity)
     }
 
-    fun findByWorkspaceName(workspaceName: String): List<Card> = cardRepository.findByWorkspaceName(workspaceName)
+    fun findByWorkspace(workspace: Workspace): List<Card> {
+        return cardRepository.findByWorkspaceName(workspace.name).stream()
+                .map { cardEntity -> Card.create(cardEntity) }
+                .toList()
+    }
 
-    fun findById(cardId: String): Card = cardRepository.findById(cardId).toNullable() ?: throw CardNotFoundException(cardId)
+    fun findById(cardId: CardId): Card {
+        val cardEntity = cardRepository.findById(cardId.id).orElseThrow { CardNotFoundException(cardId) }
+        return Card.create(cardEntity)
+    }
 }
