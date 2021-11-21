@@ -1,5 +1,6 @@
 package de.mcella.spring.learntool.card.storage
 
+import de.mcella.spring.learntool.card.Card
 import de.mcella.spring.learntool.card.CardContent
 import de.mcella.spring.learntool.card.CardId
 import de.mcella.spring.learntool.workspace.Workspace
@@ -25,6 +26,10 @@ data class CardEntity(
     companion object {
         fun create(cardId: CardId, workspace: Workspace, cardContent: CardContent): CardEntity {
             return CardEntity(cardId.id, workspace.name, cardContent.question, cardContent.response)
+        }
+
+        fun create(card: Card): CardEntity {
+            return CardEntity(card.id, card.workspaceName, card.question, card.response)
         }
     }
 }

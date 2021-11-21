@@ -28,6 +28,22 @@ class CardService(private val cardRepository: CardRepository, private val worksp
         return Card.create(cardRepository.save(cardEntity))
     }
 
+    fun create(card: Card): Card {
+        require(!card.id.isNullOrEmpty()) { "The field 'id' is required." }
+        require(!card.workspaceName.isNullOrEmpty()) { "The field 'workspaceName' is required." }
+        require(!card.question.isNullOrEmpty()) { "The field 'question' is required." }
+        require(!card.response.isNullOrEmpty()) { "The field 'response' is required." }
+        if (!workspaceRepository.existsById(card.workspaceName)) {
+            throw WorkspaceNotExistsException(Workspace(card.workspaceName))
+        }
+        val cardId = CardId(card.id)
+        if (cardRepository.existsById(cardId.id)) {
+            throw CardAlreadyExistsException(cardId)
+        }
+        val cardEntity = CardEntity.create(card)
+        return Card.create(cardRepository.save(cardEntity))
+    }
+
     fun update(cardId: CardId, workspace: Workspace, cardContent: CardContent): Card {
         require(!cardContent.question.isNullOrEmpty()) { "The field 'question' is required." }
         require(!cardContent.response.isNullOrEmpty()) { "The field 'response' is required." }

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 class ExportController(private val exportService: ExportService) {
 
     @GetMapping(produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun learn(@PathVariable(value = "workspaceName") workspaceName: String): ResponseEntity<InputStreamResource> {
+    fun export(@PathVariable(value = "workspaceName") workspaceName: String): ResponseEntity<InputStreamResource> {
         val backup = exportService.exportBackup(Workspace(workspaceName))
         val backupStream = InputStreamResource(FileInputStream(backup))
         return ResponseEntity.ok()

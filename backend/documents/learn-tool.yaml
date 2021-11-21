@@ -313,6 +313,44 @@ paths:
         '500':
           description: An error occured while creating the Cards.
   /api/workspaces/{workspaceName}/learn:
+    get:
+      summary: Retrieve a Card from the Workspace
+      operationId: retrieve-card
+      tags:
+        - card
+        - learn
+      parameters:
+        - name: workspaceName
+          in: path
+          description: The name of the Workspace.
+          required: true
+          schema:
+            type: string
+          example: "workspaceTest"
+      responses:
+        '200':
+          description: Card content.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  workspaceName:
+                    type: string
+                  question:
+                    type: string
+                  response:
+                    type: string
+              example:
+                id: "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
+                workspaceName: "workspaceTest"
+                question: "This is a question"
+                response: "This is a response"
+        '404':
+          description: The Workspace or the Card do not exist.
+  /api/workspaces/{workspaceName}/learn/{cardId}:
     post:
       summary: Create a new LearnCard
       operationId: create-learn-card
@@ -327,20 +365,13 @@ paths:
           schema:
             type: string
           example: "workspaceTest"
-      requestBody:
-        description: Card id payload.
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - cardId
-              properties:
-                cardId:
-                  type: string
-            example:
-              cardId: "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
+        - name: cardId
+          in: path
+          description: The Card ID.
+          required: true
+          schema:
+            type: string
+          example: "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
       responses:
         '201':
           description: LearnCard successfully created.
@@ -382,43 +413,6 @@ paths:
           description: The LearnCard already exists.
         '500':
           description: An error occured while creating the LearnCard.
-    get:
-      summary: Retrieve a Card from the Workspace
-      operationId: retrieve-card
-      tags:
-        - card
-        - learn
-      parameters:
-        - name: workspaceName
-          in: path
-          description: The name of the Workspace.
-          required: true
-          schema:
-            type: string
-          example: "workspaceTest"
-      responses:
-        '200':
-          description: Card content.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                  workspaceName:
-                    type: string
-                  question:
-                    type: string
-                  response:
-                    type: string
-              example:
-                id: "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
-                workspaceName: "workspaceTest"
-                question: "This is a question"
-                response: "This is a response"
-        '404':
-          description: The Workspace or the Card do not exist.
     put:
       summary: Evaluate a Card from the Workspace
       operationId: evaluate-card
@@ -433,6 +427,13 @@ paths:
           schema:
             type: string
           example: "workspaceTest"
+        - name: cardId
+          in: path
+          description: The Card ID.
+          required: true
+          schema:
+            type: string
+          example: "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
       requestBody:
         description: Evaluation parameters content payload.
         required: true
@@ -441,11 +442,8 @@ paths:
             schema:
               type: object
               required:
-                - cardId
                 - quality
               properties:
-                cardId:
-                  type: string
                 quality:
                   type: integer
             example:
@@ -504,20 +502,13 @@ paths:
           schema:
             type: string
           example: "workspaceTest"
-      requestBody:
-        description: Card id payload.
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - cardId
-              properties:
-                cardId:
-                  type: string
-            example:
-              cardId: "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
+        - name: cardId
+          in: path
+          description: The Card ID.
+          required: true
+          schema:
+            type: string
+          example: "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
       responses:
         '200':
           description: LearnCard successfully deleted.
@@ -554,3 +545,24 @@ paths:
           description: The Workspace does not exist.
         '500':
           description: An error occured while exporting the Workspace backup file.
+  /api/workspaces/impprt:
+    post:
+      summary: Import the Workspace backup
+      operationId: import-workspace
+      tags:
+        - workspace
+        - import
+      requestBody:
+        description: Workspace backup file payload.
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: The Workspace backup file has been correctly imported.
+        '409':
+          description: A Workspace already exists with this name.
+        '500':
+          description: An error occured while importing the Workspace backup file.
