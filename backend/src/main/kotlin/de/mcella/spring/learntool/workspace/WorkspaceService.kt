@@ -27,5 +27,5 @@ class WorkspaceService(private val workspaceRepository: WorkspaceRepository) {
                 .toList()
     }
 
-    fun exists(workspaceName: String): Boolean = workspaceRepository.existsById(workspaceName)
+    fun exists(workspace: Workspace): Boolean = workspaceRepository.existsById(workspace.name)
 }

@@ -67,20 +67,20 @@ class WorkspaceServiceTest {
 
     @Test
     fun `given a Workspace name, when checking the Workspace existence and the Workspace exists, then call the method existsById of WorkspaceRepository and return true`() {
-        val workspaceName = "workspaceTest"
-        Mockito.`when`(workspaceRepository.existsById(workspaceName)).thenReturn(true)
+        val workspace = Workspace("workspaceTest")
+        Mockito.`when`(workspaceRepository.existsById(workspace.name)).thenReturn(true)
 
-        val workspaceExists = workspaceService.exists(workspaceName)
+        val workspaceExists = workspaceService.exists(workspace)
 
         assertTrue(workspaceExists)
     }
 
     @Test
     fun `given a Workspace name, when checking the Workspace existence and the Workspace does not exist, then call the method existsById of WorkspaceRepository and return false`() {
-        val workspaceName = "workspaceTest"
-        Mockito.`when`(workspaceRepository.existsById(workspaceName)).thenReturn(false)
+        val workspace = Workspace("workspaceTest")
+        Mockito.`when`(workspaceRepository.existsById(workspace.name)).thenReturn(false)
 
-        val workspaceExists = workspaceService.exists(workspaceName)
+        val workspaceExists = workspaceService.exists(workspace)
 
         assertFalse(workspaceExists)
     }

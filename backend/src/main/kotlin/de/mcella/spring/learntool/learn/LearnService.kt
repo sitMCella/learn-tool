@@ -1,7 +1,8 @@
 package de.mcella.spring.learntool.learn
 
+import de.mcella.spring.learntool.card.Card
+import de.mcella.spring.learntool.card.CardId
 import de.mcella.spring.learntool.card.CardService
-import de.mcella.spring.learntool.card.storage.Card
 import de.mcella.spring.learntool.common.toNullable
 import de.mcella.spring.learntool.learn.algorithm.InputValues
 import de.mcella.spring.learntool.learn.algorithm.Sm2Algorithm
@@ -9,54 +10,57 @@ import de.mcella.spring.learntool.learn.exceptions.CardBindingException
 import de.mcella.spring.learntool.learn.exceptions.LearnCardAlreadyExistsException
 import de.mcella.spring.learntool.learn.exceptions.LearnCardNotFoundException
 import de.mcella.spring.learntool.learn.exceptions.LearnCardsNotFoundException
-import de.mcella.spring.learntool.learn.storage.LearnCard
+import de.mcella.spring.learntool.learn.storage.LearnCardEntity
 import de.mcella.spring.learntool.learn.storage.LearnCardRepository
+import de.mcella.spring.learntool.workspace.Workspace
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
+import kotlin.streams.toList
 import org.springframework.stereotype.Service
 
 @Service
 class LearnService(private val cardService: CardService, private val learnCardRepository: LearnCardRepository) {
 
-    fun create(workspaceName: String, learnCardParameters: LearnCardParameters): LearnCard {
+    fun create(workspace: Workspace, learnCardParameters: LearnCardParameters): LearnCard {
         val cardId = learnCardParameters.cardId
-        if (learnCardRepository.existsById(cardId)) {
+        if (learnCardRepository.existsById(cardId.id)) {
             throw LearnCardAlreadyExistsException(cardId)
         }
         val card = cardService.findById(cardId)
-        if (card.workspaceName != workspaceName) throw CardBindingException(workspaceName, cardId)
-        return learnCardRepository.save(LearnCard.createInitial(cardId, workspaceName, Instant.now()))
+        if (card.workspaceName != workspace.name) throw CardBindingException(workspace, cardId)
+        return LearnCard.create(learnCardRepository.save(LearnCardEntity.createInitial(cardId, workspace, Instant.now())))
     }
 
-    fun getCard(workspaceName: String): Card {
+    fun getCard(workspace: Workspace): Card {
         val today = LocalDate.now()
         val end = today.plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC)
-        val learnCard = learnCardRepository.findFirstByWorkspaceNameAndNextReviewBeforeOrderByNextReview(workspaceName, end).toNullable() ?: throw LearnCardsNotFoundException(workspaceName)
-        return cardService.findById(learnCard.id)
+        val learnCard = learnCardRepository.findFirstByWorkspaceNameAndNextReviewBeforeOrderByNextReview(workspace.name, end).toNullable() ?: throw LearnCardsNotFoundException(workspace)
+        return cardService.findById(CardId(learnCard.id))
     }
 
-    fun evaluateCard(workspaceName: String, evaluationParameters: EvaluationParameters): LearnCard {
+    fun evaluateCard(workspace: Workspace, evaluationParameters: EvaluationParameters): LearnCard {
         val cardId = evaluationParameters.cardId
         val card = cardService.findById(cardId)
-        if (card.workspaceName != workspaceName) throw CardBindingException(workspaceName, cardId)
-        val learnCard = learnCardRepository.findById(cardId).toNullable() ?: throw LearnCardNotFoundException(workspaceName, cardId)
+        if (card.workspaceName != workspace.name) throw CardBindingException(workspace, cardId)
+        val learnCard = learnCardRepository.findById(cardId.id).toNullable() ?: throw LearnCardNotFoundException(workspace, cardId)
         val inputValues = InputValues.create(evaluationParameters, learnCard)
         Sm2Algorithm.validate(inputValues)
         val outputValues = Sm2Algorithm.evaluate(inputValues)
-        val updatedLearnCard = LearnCard.create(cardId, workspaceName, outputValues, Instant.now())
-        return learnCardRepository.save(updatedLearnCard)
+        val updatedLearnCard = LearnCardEntity.create(cardId, workspace, outputValues, Instant.now())
+        return LearnCard.create(learnCardRepository.save(updatedLearnCard))
     }
 
-    fun getLearnCardsByWorkspaceName(workspaceName: String): List<LearnCard> {
-        return learnCardRepository.findByWorkspaceName(workspaceName)
+    fun getLearnCardsByWorkspace(workspace: Workspace): List<LearnCard> {
+        return learnCardRepository.findByWorkspaceName(workspace.name).stream()
+                .map { learnCardEntity -> LearnCard.create(learnCardEntity) }
+                .toList()
     }
 
-    fun delete(workspaceName: String, learnCardParameters: LearnCardParameters) {
-        val cardId = learnCardParameters.cardId
+    fun delete(workspace: Workspace, cardId: CardId) {
         val card = cardService.findById(cardId)
-        if (card.workspaceName != workspaceName) throw CardBindingException(workspaceName, cardId)
-        val learnCard = learnCardRepository.findById(cardId).toNullable() ?: throw LearnCardNotFoundException(workspaceName, cardId)
+        if (card.workspaceName != workspace.name) throw CardBindingException(workspace, cardId)
+        val learnCard = learnCardRepository.findById(cardId.id).toNullable() ?: throw LearnCardNotFoundException(workspace, cardId)
         learnCardRepository.delete(learnCard)
     }
 }

@@ -1,10 +1,9 @@
 package de.mcella.spring.learntool.card
 
-import de.mcella.spring.learntool.card.storage.Card
+import de.mcella.spring.learntool.workspace.Workspace
 import java.io.InputStream
 import java.net.URI
 import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -28,7 +27,8 @@ class CardController(private val cardService: CardService, private val cardImpor
         @RequestBody cardContent: CardContent
     ): ResponseEntity<Card> {
         try {
-            val card: Card = cardService.create(workspaceName, cardContent)
+            val workspace = Workspace(workspaceName)
+            val card: Card = cardService.create(workspace, cardContent)
             val bodyBuilder = ResponseEntity.status(HttpStatus.CREATED)
             bodyBuilder.location(URI("/workspaces/$workspaceName/cards/${card.id}"))
             return bodyBuilder.body(card)
@@ -44,7 +44,7 @@ class CardController(private val cardService: CardService, private val cardImpor
         @RequestBody cardContent: CardContent
     ): ResponseEntity<Card> {
         try {
-            val card: Card = cardService.update(cardId, workspaceName, cardContent)
+            val card: Card = cardService.update(CardId(cardId), Workspace(workspaceName), cardContent)
             val bodyBuilder = ResponseEntity.status(HttpStatus.OK)
             bodyBuilder.location(URI("/workspaces/$workspaceName/cards/$cardId"))
             return bodyBuilder.body(card)
@@ -54,13 +54,13 @@ class CardController(private val cardService: CardService, private val cardImpor
     }
 
     @DeleteMapping("/{cardId}")
-    @ResponseStatus(OK)
+    @ResponseStatus(HttpStatus.OK)
     fun delete(
         @PathVariable(value = "workspaceName") workspaceName: String,
         @PathVariable(value = "cardId") cardId: String
     ) {
         try {
-            cardService.delete(cardId, workspaceName)
+            cardService.delete(CardId(cardId), Workspace(workspaceName))
         } catch (e: IllegalArgumentException) {
             throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.message)
         }
@@ -71,9 +71,9 @@ class CardController(private val cardService: CardService, private val cardImpor
     fun createMany(
         @PathVariable(value = "workspaceName") workspaceName: String,
         content: InputStream
-    ) = cardImportService.createMany(workspaceName, content)
+    ) = cardImportService.createMany(Workspace(workspaceName), content)
 
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(HttpStatus.OK)
-    fun getFromWorkspaceName(@PathVariable(value = "workspaceName") workspaceName: String): List<Card> = cardService.findByWorkspaceName(workspaceName)
+    fun getFromWorkspaceName(@PathVariable(value = "workspaceName") workspaceName: String): List<Card> = cardService.findByWorkspace(Workspace(workspaceName))
 }

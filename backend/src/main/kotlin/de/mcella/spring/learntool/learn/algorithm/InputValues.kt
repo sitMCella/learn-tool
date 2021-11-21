@@ -1,7 +1,7 @@
 package de.mcella.spring.learntool.learn.algorithm
 
 import de.mcella.spring.learntool.learn.EvaluationParameters
-import de.mcella.spring.learntool.learn.storage.LearnCard
+import de.mcella.spring.learntool.learn.storage.LearnCardEntity
 
 data class InputValues(
     val quality: Int,
@@ -10,7 +10,7 @@ data class InputValues(
     val interval: Int
 ) {
     companion object {
-        fun create(evaluationParameters: EvaluationParameters, learnCard: LearnCard): InputValues {
+        fun create(evaluationParameters: EvaluationParameters, learnCard: LearnCardEntity): InputValues {
             return InputValues(
                 evaluationParameters.quality,
                 learnCard.repetitions,

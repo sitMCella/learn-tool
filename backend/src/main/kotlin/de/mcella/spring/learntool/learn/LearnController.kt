@@ -1,7 +1,8 @@
 package de.mcella.spring.learntool.learn
 
-import de.mcella.spring.learntool.card.storage.Card
-import de.mcella.spring.learntool.learn.storage.LearnCard
+import de.mcella.spring.learntool.card.Card
+import de.mcella.spring.learntool.card.CardId
+import de.mcella.spring.learntool.workspace.Workspace
 import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType
@@ -25,12 +26,12 @@ class LearnController(private val learnService: LearnService) {
         @PathVariable(value = "workspaceName") workspaceName: String,
         @RequestBody learnCardParameters: LearnCardParameters
     ): LearnCard {
-        return learnService.create(workspaceName, learnCardParameters)
+        return learnService.create(Workspace(workspaceName), learnCardParameters)
     }
 
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(OK)
-    fun learn(@PathVariable(value = "workspaceName") workspaceName: String): Card = learnService.getCard(workspaceName)
+    fun learn(@PathVariable(value = "workspaceName") workspaceName: String): Card = learnService.getCard(Workspace(workspaceName))
 
     @PutMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(OK)
@@ -38,15 +39,15 @@ class LearnController(private val learnService: LearnService) {
         @PathVariable(value = "workspaceName") workspaceName: String,
         @RequestBody evaluationParameters: EvaluationParameters
     ): LearnCard {
-        return learnService.evaluateCard(workspaceName, evaluationParameters)
+        return learnService.evaluateCard(Workspace(workspaceName), evaluationParameters)
     }
 
     @DeleteMapping
     @ResponseStatus(OK)
     fun delete(
         @PathVariable(value = "workspaceName") workspaceName: String,
-        @RequestBody learnCardParameters: LearnCardParameters
+        @RequestBody cardId: CardId
     ) {
-        learnService.delete(workspaceName, learnCardParameters)
+        learnService.delete(Workspace(workspaceName), cardId)
     }
 }

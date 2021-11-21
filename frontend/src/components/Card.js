@@ -95,15 +95,16 @@ function Card(props) {
     const deleteCardHandler = (event) => {
         event.preventDefault();
         const deleteLearnCard = async () => {
+            console.log('delete learnCard with id:' + props.id);
             const response = await fetch('/api/workspaces/' + props.workspaceName + '/learn', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({cardId: props.id})
+                body: JSON.stringify({id: props.id})
             });
             if(!response.ok) {
-                throw new Error("Error while deleting the Card. Error: " + JSON.stringify(response));
+                throw new Error("Error while deleting the LearnCard. Error: " + JSON.stringify(response));
             }
             deleteCard().catch((err) => {
                 throw err;
@@ -111,6 +112,7 @@ function Card(props) {
             props.handleDeleteCardComplete(props.id);
         };
         const deleteCard = async () => {
+            console.log('delete Card with id:' + props.id);
             const response = await fetch('/api/workspaces/' + props.workspaceName + '/cards/' + props.id, {
                 method: 'DELETE',
                 headers: {

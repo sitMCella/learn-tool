@@ -1,10 +1,12 @@
 package de.mcella.spring.learntool.card
 
 import java.util.UUID
+import org.springframework.stereotype.Service
 
-object CardIdGenerator {
+@Service
+class CardIdGenerator {
 
-    fun create(): String {
-        return UUID.randomUUID().toString()
+    fun create(): CardId {
+        return CardId(UUID.randomUUID().toString())
     }
 }
