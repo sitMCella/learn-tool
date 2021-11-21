@@ -7,7 +7,6 @@ import de.mcella.spring.learntool.card.CardId
 import de.mcella.spring.learntool.card.storage.CardEntity
 import de.mcella.spring.learntool.card.storage.CardRepository
 import de.mcella.spring.learntool.learn.EvaluationParameters
-import de.mcella.spring.learntool.learn.LearnCardParameters
 import de.mcella.spring.learntool.learn.algorithm.OutputValues
 import de.mcella.spring.learntool.learn.storage.LearnCardEntity
 import de.mcella.spring.learntool.learn.storage.LearnCardRepository
@@ -105,10 +104,9 @@ class LearnIntegrationTest {
         cardRepository.save(cardEntity)
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
-        val learnCardParameters = LearnCardParameters(cardId)
-        val request = HttpEntity(learnCardParameters, headers)
+        val request = HttpEntity("", headers)
 
-        val responseEntity = testRestTemplate.postForObject(URI("http://localhost:$port/api/workspaces/$workspaceName/learn"), request, LearnCardEntity::class.java)
+        val responseEntity = testRestTemplate.postForObject(URI("http://localhost:$port/api/workspaces/$workspaceName/learn/${cardId.id}"), request, LearnCardEntity::class.java)
 
         val learnCards = learnCardRepository.findAll()
         assertTrue { learnCards.size == 1 }
@@ -179,10 +177,10 @@ class LearnIntegrationTest {
         val instant = Instant.now()
         val learnCard = LearnCardEntity.createInitial(cardId, workspace, instant)
         learnCardRepository.save(learnCard)
-        val evaluationParameters = EvaluationParameters(cardId, 5)
+        val evaluationParameters = EvaluationParameters(5)
         val request = HttpEntity(evaluationParameters)
 
-        val responseEntity = testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/$workspaceName/learn"), HttpMethod.PUT, request, LearnCardEntity::class.java)
+        val responseEntity = testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/$workspaceName/learn/${cardId.id}"), HttpMethod.PUT, request, LearnCardEntity::class.java)
 
         val lastReview = (responseEntity as ResponseEntity<LearnCardEntity>).body?.lastReview
         val expectedLearnCard = LearnCardEntity(cardId.id, workspaceName, lastReview!!, lastReview.plus(Duration.ofDays(1)), 1, 1.4f, 1)
@@ -203,9 +201,8 @@ class LearnIntegrationTest {
         val instant = Instant.now()
         val learnCard = LearnCardEntity.createInitial(cardId, workspace, instant)
         learnCardRepository.save(learnCard)
-        val request = HttpEntity(cardId)
 
-        testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/$workspaceName/learn"), HttpMethod.DELETE, request, LearnCardEntity::class.java)
+        testRestTemplate.delete(URI("http://localhost:$port/api/workspaces/$workspaceName/learn/${cardId.id}"))
 
         val learnCards = learnCardRepository.findAll()
         assertTrue { learnCards.size == 0 }

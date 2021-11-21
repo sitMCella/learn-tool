@@ -22,8 +22,7 @@ import org.springframework.stereotype.Service
 @Service
 class LearnService(private val cardService: CardService, private val learnCardRepository: LearnCardRepository) {
 
-    fun create(workspace: Workspace, learnCardParameters: LearnCardParameters): LearnCard {
-        val cardId = learnCardParameters.cardId
+    fun create(workspace: Workspace, cardId: CardId): LearnCard {
         if (learnCardRepository.existsById(cardId.id)) {
             throw LearnCardAlreadyExistsException(cardId)
         }
@@ -39,8 +38,7 @@ class LearnService(private val cardService: CardService, private val learnCardRe
         return cardService.findById(CardId(learnCard.id))
     }
 
-    fun evaluateCard(workspace: Workspace, evaluationParameters: EvaluationParameters): LearnCard {
-        val cardId = evaluationParameters.cardId
+    fun evaluateCard(workspace: Workspace, cardId: CardId, evaluationParameters: EvaluationParameters): LearnCard {
         val card = cardService.findById(cardId)
         if (card.workspaceName != workspace.name) throw CardBindingException(workspace, cardId)
         val learnCard = learnCardRepository.findById(cardId.id).toNullable() ?: throw LearnCardNotFoundException(workspace, cardId)

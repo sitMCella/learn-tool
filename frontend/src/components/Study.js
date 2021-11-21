@@ -63,13 +63,13 @@ function Study() {
     }
     const evaluateCardHandler = () => {
         const evaluateCard = async () => {
-            const response = await fetch('/api/workspaces/' + params.name + '/learn', {
+            const response = await fetch('/api/workspaces/' + params.name + '/learn/' + cardId, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accepted': 'application/json'
                 },
-                body: JSON.stringify({cardId: cardId, quality: 0})
+                body: JSON.stringify({quality: 0})
             });
             if(!response.ok) {
                 throw new Error("Error while evaluating the Card with Id " + cardId);
