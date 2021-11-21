@@ -99,6 +99,37 @@ class LearnServiceTest {
         assertEquals(expectedLearnCard, learnCard)
     }
 
+    @Test(expected = LearnCardAlreadyExistsException::class)
+    fun `given a LearnCard, when creating a LearnCard and the LearnCard already exists, then throw LearnCardAlreadyExistsException`() {
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        Mockito.`when`(learnCardRepository.existsById(cardId.id)).thenReturn(true)
+        val today = Instant.now()
+        val end = LocalDate.now().plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC)
+        val learnCard = LearnCard(cardId.id, "workspaceTest", today, end, 0, 1.3f, 0)
+
+        learnService.create(learnCard)
+    }
+
+    @Test
+    fun `given a LearnCard, when creating a LearnCard, then call the method save of LearnCardRepository and return the LearnCard`() {
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        val workspace = Workspace("workspaceTest")
+        Mockito.`when`(learnCardRepository.existsById(cardId.id)).thenReturn(false)
+        val today = Instant.now()
+        val end = LocalDate.now().plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC)
+        val originalLearnCard = LearnCard(cardId.id, workspace.name, today, end, 0, 1.3f, 0)
+        val learnCardEntity = LearnCardEntity(cardId.id, workspace.name, today, end, 0, 1.3f, 0)
+        Mockito.`when`(learnCardRepository.save(any(LearnCardEntity::class.java))).thenReturn(learnCardEntity)
+
+        val learnCard = learnService.create(originalLearnCard)
+
+        val argumentCaptor = ArgumentCaptor.forClass(LearnCardEntity::class.java)
+        Mockito.verify(learnCardRepository).save(argumentCaptor.capture())
+        val createdLearnCardEntity = argumentCaptor.value
+        assertEquals(LearnCardEntity(cardId.id, workspace.name, today, end, 0, 1.3f, 0), createdLearnCardEntity)
+        assertEquals(originalLearnCard, learnCard)
+    }
+
     @Test
     fun `given a Workspace name, when retrieving a Card from the Workspace, then call the method findFirstByWorkspaceNameAndNextReviewBeforeOrderByNextReview of LearnCardRepository`() {
         val workspace = Workspace("workspaceTest")

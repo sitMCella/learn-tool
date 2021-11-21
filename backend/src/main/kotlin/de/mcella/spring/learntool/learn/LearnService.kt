@@ -31,6 +31,13 @@ class LearnService(private val cardService: CardService, private val learnCardRe
         return LearnCard.create(learnCardRepository.save(LearnCardEntity.createInitial(cardId, workspace, Instant.now())))
     }
 
+    fun create(learnCard: LearnCard): LearnCard {
+        if (learnCardRepository.existsById(learnCard.id)) {
+            throw LearnCardAlreadyExistsException(CardId(learnCard.id))
+        }
+        return LearnCard.create(learnCardRepository.save(LearnCardEntity.create(learnCard)))
+    }
+
     fun getCard(workspace: Workspace): Card {
         val today = LocalDate.now()
         val end = today.plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC)

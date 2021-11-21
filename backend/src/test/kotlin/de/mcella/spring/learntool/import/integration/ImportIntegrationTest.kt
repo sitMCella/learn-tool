@@ -1,21 +1,17 @@
-package de.mcella.spring.learntool.export.integration
+package de.mcella.spring.learntool.import.integration
 
 import de.mcella.spring.learntool.BackendApplication
 import de.mcella.spring.learntool.IntegrationTest
-import de.mcella.spring.learntool.card.CardId
 import de.mcella.spring.learntool.card.storage.CardEntity
 import de.mcella.spring.learntool.card.storage.CardRepository
-import de.mcella.spring.learntool.learn.algorithm.OutputValues
 import de.mcella.spring.learntool.learn.storage.LearnCardEntity
 import de.mcella.spring.learntool.learn.storage.LearnCardRepository
-import de.mcella.spring.learntool.workspace.Workspace
 import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
+import java.io.File
 import java.net.URI
 import java.time.Instant
-import java.util.zip.ZipInputStream
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import org.junit.Before
 import org.junit.ClassRule
 import org.junit.Test
@@ -25,20 +21,23 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.util.TestPropertyValues
 import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.boot.test.web.client.getForEntity
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
-import org.springframework.core.io.Resource
+import org.springframework.core.io.FileSystemResource
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.util.LinkedMultiValueMap
 import org.testcontainers.containers.PostgreSQLContainer
 
 @RunWith(SpringRunner::class)
 @Category(IntegrationTest::class)
 @SpringBootTest(classes = [BackendApplication::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(initializers = [ExportIntegrationTest.Companion.Initializer::class])
-class ExportIntegrationTest {
+@ContextConfiguration(initializers = [ImportIntegrationTest.Companion.Initializer::class])
+class ImportIntegrationTest {
 
     companion object {
         @ClassRule
@@ -86,51 +85,32 @@ class ExportIntegrationTest {
         workspaceRepository.deleteAll()
     }
 
+    // curl -X POST --header "Content-Type:multipart/form-data" -F backup=@/path/to/backup.zip  http://localhost:8080/api/workspaces/import
     @Test
-    fun `given a Workspace name, when a GET REST request is performed to the export endpoint, then the backup file is created and the response body contains the file`() {
-        val workspace = Workspace("workspaceTest")
-        val workspaceEntity = WorkspaceEntity(workspace.name)
-        workspaceRepository.save(workspaceEntity)
-        val cardId = CardId("a1900ca7-dc58-4360-b41c-537d933bc9c1")
-        val cardEntity = CardEntity(cardId.id, workspace.name, "This is a \"question\"", "This, is a response")
-        cardRepository.save(cardEntity)
-        val outputValues = OutputValues(0, 0, 1.3f)
-        val review = Instant.ofEpochMilli(1637090403000)
-        val learnCard = LearnCardEntity.create(cardId, workspace, outputValues, review)
-        learnCardRepository.save(learnCard)
+    fun `given a backup file, when a POST REST request is performed to the import endpoint, then the data is imported`() {
+        val parameters = LinkedMultiValueMap<String, Any>()
+        parameters.add("backup", FileSystemResource(File("src/test/resources/backup.zip")))
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.MULTIPART_FORM_DATA
+        val entity = HttpEntity(parameters, headers)
 
-        val responseEntity = testRestTemplate.getForEntity<Resource>(URI("http://localhost:$port/api/workspaces/${workspace.name}/export"))
+        testRestTemplate.postForEntity(URI("http://localhost:$port/api/workspaces/import"), entity, String::class.java)
 
-        // Store the zip file
-        // val outputStream: OutputStream = FileOutputStream(File("src/test/resources/backup.zip"))
-        // IOUtils.copy(responseEntity.body!!.inputStream, outputStream)
-
-        val zipInputStream = ZipInputStream(responseEntity.body!!.inputStream)
-        val files = zipInputStream.use { zipInputStream ->
-            generateSequence { zipInputStream.nextEntry }
-                    .filterNot { it.isDirectory }
-                    .map {
-                        UnzippedFile(
-                                filename = it.name,
-                                content = zipInputStream.readAllBytes()
-                        )
-                    }.toList()
-        }
-        val expectedFileNames = listOf("/workspaces.csv", "/cards.csv", "/learn_cards.csv")
-        assertEquals(expectedFileNames.count(), files.count())
-        for (file in files) {
-            assertTrue(expectedFileNames.contains(file.filename))
-            when (file.filename) {
-                "/workspaces.csv" -> {
-                    assertEquals("name\r\nworkspaceTest\r\n", String(file.content))
-                }
-                "/cards.csv" -> {
-                    assertEquals("id,workspace_name,question,response\r\n" + cardId.id + ",workspaceTest,\"This is a \"\"question\"\"\",\"This, is a response\"\r\n", String(file.content))
-                }
-                "/learn_cards.csv" -> {
-                    assertEquals("id,workspace_name,last_review,next_review,repetitions,ease_factor,interval_days\r\n" + cardId.id + ",workspaceTest,2021-11-16T19:20:03Z,2021-11-16T19:20:03Z,0,1.3,0\r\n", String(file.content))
-                }
-            }
-        }
+        val workspaceEntities = workspaceRepository.findAll()
+        assertEquals(1, workspaceEntities.size)
+        val expectedWorkspaceEntity = WorkspaceEntity("workspaceTest")
+        val expectedWorkspaceEntities = listOf(expectedWorkspaceEntity)
+        assertEquals(expectedWorkspaceEntities, workspaceEntities)
+        val cardEntities = cardRepository.findAll()
+        assertEquals(1, cardEntities.size)
+        val expectedCardEntity = CardEntity("a1900ca7-dc58-4360-b41c-537d933bc9c1", "workspaceTest", "This is a \"question\"", "This, is a response")
+        val expectedCardEntities = listOf(expectedCardEntity)
+        assertEquals(expectedCardEntities, cardEntities)
+        val learnCardEntities = learnCardRepository.findAll()
+        assertEquals(1, learnCardEntities.size)
+        val lastReview = Instant.ofEpochMilli(1637090403000)
+        val expectedLearnCardEntity = LearnCardEntity("a1900ca7-dc58-4360-b41c-537d933bc9c1", "workspaceTest", lastReview, lastReview, 0, 1.3f, 0)
+        val expectedLearnCardEntities = listOf(expectedLearnCardEntity)
+        assertEquals(expectedLearnCardEntities, learnCardEntities)
     }
 }

@@ -1,6 +1,7 @@
 package de.mcella.spring.learntool.learn.storage
 
 import de.mcella.spring.learntool.card.CardId
+import de.mcella.spring.learntool.learn.LearnCard
 import de.mcella.spring.learntool.learn.algorithm.MIN_EASE_FACTOR
 import de.mcella.spring.learntool.learn.algorithm.OutputValues
 import de.mcella.spring.learntool.workspace.Workspace
@@ -32,6 +33,10 @@ data class LearnCardEntity(
             val intervalDays = outputValues.interval.toLong()
             val nextReview = reviewTime.plus(Duration.ofDays(intervalDays))
             return LearnCardEntity(cardId.id, workspace.name, reviewTime, nextReview, outputValues.repetitions, outputValues.easeFactor, outputValues.interval)
+        }
+
+        fun create(learnCard: LearnCard): LearnCardEntity {
+            return LearnCardEntity(learnCard.id, learnCard.workspaceName, learnCard.lastReview, learnCard.nextReview, learnCard.repetitions, learnCard.easeFactor, learnCard.intervalDays)
         }
     }
 }

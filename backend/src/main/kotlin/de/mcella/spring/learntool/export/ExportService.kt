@@ -49,7 +49,7 @@ class ExportService(private val workspaceService: WorkspaceService, private val 
         }
         val file = File(tempDirectory.toString(), "workspaces.csv")
         val writer = Files.newBufferedWriter(Paths.get(file.toURI()))
-        val csvPrinter = CSVPrinter(writer, CSVFormat.POSTGRESQL_TEXT
+        val csvPrinter = CSVPrinter(writer, CSVFormat.RFC4180
                 .withHeader("name"))
         csvPrinter.printRecord(workspace.name)
         csvPrinter.flush()
@@ -60,8 +60,8 @@ class ExportService(private val workspaceService: WorkspaceService, private val 
     private fun exportCardsBackup(workspace: Workspace, tempDirectory: Path): File {
         val file = File(tempDirectory.toString(), "cards.csv")
         val writer = Files.newBufferedWriter(Paths.get(file.toURI()))
-        val csvPrinter = CSVPrinter(writer, CSVFormat.POSTGRESQL_TEXT
-                .withHeader("id", "workspace_name", "question", "response"))
+        val csvPrinter = CSVPrinter(writer, CSVFormat.RFC4180
+                .withHeader("id", "workspace_name", "question", "response").withEscape('"'))
         cardService.findByWorkspace(workspace).stream().forEach { card -> csvPrinter.printRecord(card.id, card.workspaceName, card.question, card.response) }
         csvPrinter.flush()
         csvPrinter.close()
@@ -71,7 +71,7 @@ class ExportService(private val workspaceService: WorkspaceService, private val 
     private fun exportLearnCardsBackup(workspace: Workspace, tempDirectory: Path): File {
         val file = File(tempDirectory.toString(), "learn_cards.csv")
         val writer = Files.newBufferedWriter(Paths.get(file.toURI()))
-        val csvPrinter = CSVPrinter(writer, CSVFormat.POSTGRESQL_TEXT
+        val csvPrinter = CSVPrinter(writer, CSVFormat.RFC4180
                 .withHeader("id", "workspace_name", "last_review", "next_review", "repetitions", "ease_factor", "interval_days"))
         learnService.getLearnCardsByWorkspace(workspace).stream().forEach {
             learnCard -> csvPrinter.printRecord(learnCard.id, learnCard.workspaceName, learnCard.lastReview, learnCard.nextReview, learnCard.repetitions, learnCard.easeFactor, learnCard.intervalDays)
