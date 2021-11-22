@@ -25,11 +25,12 @@ function Workspace(props) {
             if(!response.ok) {
                 throw new Error(response.status);
             }
-            const workspace = await response.json();
-            props.handleSubmit(workspace.name);
-            setNewWorkspaceName('');
+            return await response.json();
         };
-        createWorkspace().catch((err) => {
+        createWorkspace().then(() => {
+            props.handleSubmit(newWorkspaceName);
+            setNewWorkspaceName('');
+        }).catch((err) => {
             console.log("Error while creating the Workspace " + newWorkspaceName);
             props.handleError(err.message);
             setNewWorkspaceName('');

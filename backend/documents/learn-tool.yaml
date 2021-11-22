@@ -518,7 +518,7 @@ paths:
           description: The Card does not belong to the Workspace.
         '500':
           description: An error occured while deleting the LearnCard.
-  /api/workspaces/{workspaceName}/expoprt:
+  /api/workspaces/{workspaceName}/export:
     get:
       summary: Export the Workspace backup
       operationId: export-workspace
