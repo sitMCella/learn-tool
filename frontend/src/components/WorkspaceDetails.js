@@ -17,6 +17,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import DashboardIcon from '@material-ui/icons/Dashboard';
+import SaveAltIcon from '@material-ui/icons/SaveAlt';
 
 const WorkspaceDetails = () => {
     const params = useParams();
@@ -101,6 +102,23 @@ const WorkspaceDetails = () => {
     const handleDrawerClose = () => {
         setOpen(false);
     };
+    const handleExport = () => {
+        const exportBackup = async () => {
+            const response = await fetch('/api/workspaces/' + params.name + '/export', {
+                method: 'GET',
+                headers: {
+                    'Accepted': 'application/octet-stream'
+                }
+            });
+            const responseData = await response.blob();
+            let url = window.URL.createObjectURL(responseData);
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = 'backup.zip';
+            a.click();
+        };
+        exportBackup();
+    }
     const useStyles = makeStyles((theme) => ({
         menuButton: {
             marginRight: theme.spacing(2),
@@ -206,6 +224,12 @@ const WorkspaceDetails = () => {
                     <ListItem button key="Workspaces" component={Link} to={'/workspaces'}>
                         <ListItemIcon><DashboardIcon /></ListItemIcon>
                         <ListItemText primary="Workspaces" />
+                    </ListItem>
+                </List>
+                <List>
+                    <ListItem button key="Workspaces" onClick={handleExport}>
+                        <ListItemIcon><SaveAltIcon /></ListItemIcon>
+                        <ListItemText primary="Export" />
                     </ListItem>
                 </List>
             </Drawer>

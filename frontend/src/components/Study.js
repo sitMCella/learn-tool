@@ -21,7 +21,6 @@ import DashboardIcon from '@material-ui/icons/Dashboard';
 import ListItemText from "@material-ui/core/ListItemText";
 import Drawer from "@material-ui/core/Drawer";
 import FilterNoneIcon from '@material-ui/icons/FilterNone';
-import Grid from '@material-ui/core/Grid';
 
 function Study() {
     const params = useParams();
