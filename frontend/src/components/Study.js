@@ -5,20 +5,16 @@ import {default as CardUi} from "@material-ui/core/Card/Card";
 import {Link, useParams} from "react-router-dom";
 import {Button} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
-import {makeStyles, useTheme} from "@material-ui/core/styles";
+import {makeStyles} from "@material-ui/core/styles";
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import AppBar from "@material-ui/core/AppBar";
-import clsx from "clsx";
-import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import Divider from "@material-ui/core/Divider";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import DashboardIcon from '@material-ui/icons/Dashboard';
-import ListItemText from "@material-ui/core/ListItemText";
 import Drawer from "@material-ui/core/Drawer";
 import FilterNoneIcon from '@material-ui/icons/FilterNone';
 
@@ -96,14 +92,6 @@ function Study() {
         });
     }
     const qualityValues = [0, 1, 2, 3, 4, 5];
-    const drawerWidth = 240;
-    const [open, setOpen] = React.useState(false);
-    const handleDrawerToggle = () => {
-        setOpen(!open);
-    };
-    const handleDrawerClose = () => {
-        setOpen(false);
-    };
     const useStyles = makeStyles((theme) => ({
         menuButton: {
             marginRight: theme.spacing(2),
@@ -122,43 +110,12 @@ function Study() {
                 duration: theme.transitions.duration.leavingScreen,
             }),
         },
-        drawer: {
-            width: drawerWidth,
-            flexShrink: 0,
-            whiteSpace: 'nowrap',
-        },
-        drawerOpen: {
-            width: drawerWidth,
-            transition: theme.transitions.create('width', {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.enteringScreen,
-            }),
-        },
-        drawerClose: {
-            transition: theme.transitions.create('width', {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.leavingScreen,
-            }),
-            overflowX: 'hidden',
-            width: theme.spacing(7) + 1,
-            [theme.breakpoints.up('sm')]: {
-                width: theme.spacing(7) + 1,
-            },
-        },
-        hide: {
-            display: 'none',
-        },
         toolbar: {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'flex-end',
             padding: theme.spacing(0, 1),
             ...theme.mixins.toolbar,
-        },
-        drawerCloseButton: {
-            ['@media only screen and (max-width:768px)']: {
-                display: 'none',
-            },
         },
         divider: {
             ['@media only screen and (max-width:768px)']: {
@@ -189,45 +146,27 @@ function Study() {
         },
     }));
     const classes = useStyles();
-    const theme = useTheme();
     return (
         <div>
             <AppBar position="static" className={classes.appBar}>
                 <Toolbar>
-                    <IconButton className={classes.menuButton} edge="start" color="inherit" aria-label="menu" onClick={handleDrawerToggle}>
+                    <IconButton className={classes.menuButton} edge="start" color="inherit" aria-label="menu">
                         <MenuIcon />
                     </IconButton>
                 </Toolbar>
             </AppBar>
-            <Drawer
-                variant="permanent"
-                className={clsx(classes.drawer, {
-                    [classes.drawerOpen]: open,
-                    [classes.drawerClose]: !open,
-                })}
-                classes={{
-                    paper: clsx({
-                        [classes.drawerOpen]: open,
-                        [classes.drawerClose]: !open,
-                    }),
-                }}
-            >
+            <Drawer variant="permanent" anchor="left">
                 <div className={classes.toolbar}>
-                    <IconButton onClick={handleDrawerClose} className={clsx(classes.drawerCloseButton, {
-                        [classes.hide]: !open,
-                    })}>
-                        {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-                    </IconButton>
                 </div>
                 <Divider className={classes.divider} />
                 <List>
                     <ListItem button key="Workspaces" component={Link} to={'/workspaces'}>
                         <ListItemIcon><DashboardIcon /></ListItemIcon>
-                        <ListItemText primary="Workspaces" />
                     </ListItem>
+                </List>
+                <List>
                     <ListItem button key="Workspaces" component={Link} to={'/workspaces/' + params.name + '/cards'}>
                         <ListItemIcon><FilterNoneIcon /></ListItemIcon>
-                        <ListItemText primary="Cards" />
                     </ListItem>
                 </List>
             </Drawer>

@@ -3,15 +3,12 @@ import { useParams, Link } from 'react-router-dom';
 import {Button} from "@material-ui/core";
 import List from "@material-ui/core/List";
 import Card from './Card';
-import clsx from 'clsx';
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import AppBar from "@material-ui/core/AppBar";
 import {makeStyles, useTheme} from "@material-ui/core/styles";
 import Drawer from '@material-ui/core/Drawer';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -94,14 +91,6 @@ const WorkspaceDetails = () => {
         const newCards = [...list.slice(0, index), ...list.slice(index + 1)];
         setList(newCards);
     };
-    const drawerWidth = 240;
-    const [open, setOpen] = React.useState(false);
-    const handleDrawerToggle = () => {
-        setOpen(!open);
-    };
-    const handleDrawerClose = () => {
-        setOpen(false);
-    };
     const handleExport = () => {
         const exportBackup = async () => {
             const response = await fetch('/api/workspaces/' + params.name + '/export', {
@@ -137,43 +126,12 @@ const WorkspaceDetails = () => {
                 duration: theme.transitions.duration.leavingScreen,
             }),
         },
-        drawer: {
-            width: drawerWidth,
-            flexShrink: 0,
-            whiteSpace: 'nowrap',
-        },
-        drawerOpen: {
-            width: drawerWidth,
-            transition: theme.transitions.create('width', {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.enteringScreen,
-            }),
-        },
-        drawerClose: {
-            transition: theme.transitions.create('width', {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.leavingScreen,
-            }),
-            overflowX: 'hidden',
-            width: theme.spacing(7) + 1,
-            [theme.breakpoints.up('sm')]: {
-                width: theme.spacing(7) + 1,
-            },
-        },
-        hide: {
-            display: 'none',
-        },
         toolbar: {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'flex-end',
             padding: theme.spacing(0, 1),
             ...theme.mixins.toolbar,
-        },
-        drawerCloseButton: {
-            ['@media only screen and (max-width:768px)']: {
-                display: 'none',
-            },
         },
         divider: {
             ['@media only screen and (max-width:768px)']: {
@@ -187,49 +145,29 @@ const WorkspaceDetails = () => {
         }
     }));
     const classes = useStyles();
-    const theme = useTheme();
     return (
         <div>
             <AppBar position="static" className={classes.appBar}>
                 <Toolbar>
-                    <IconButton edge="start" color="inherit" aria-label="menu" onClick={handleDrawerToggle} className={classes.menuButton}>
+                    <IconButton className={classes.menuButton} edge="start" color="inherit" aria-label="menu">
                         <MenuIcon />
                     </IconButton>
                     <Button color="inherit" onClick={newCardHandler} disabled={newCardStatus}>New Card</Button>
                     <Button color="inherit" component={Link} to={'/workspaces/' + params.name + '/study'}>Study</Button>
                 </Toolbar>
             </AppBar>
-            <Drawer
-                variant="permanent"
-                className={clsx(classes.drawer, {
-                    [classes.drawerOpen]: open,
-                    [classes.drawerClose]: !open,
-                })}
-                classes={{
-                    paper: clsx({
-                        [classes.drawerOpen]: open,
-                        [classes.drawerClose]: !open,
-                    }),
-                }}
-            >
+            <Drawer variant="permanent" anchor="left">
                 <div className={classes.toolbar}>
-                    <IconButton onClick={handleDrawerClose} className={clsx(classes.drawerCloseButton, {
-                        [classes.hide]: !open,
-                    })}>
-                        {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-                    </IconButton>
                 </div>
                 <Divider className={classes.divider} />
                 <List>
                     <ListItem button key="Workspaces" component={Link} to={'/workspaces'}>
                         <ListItemIcon><DashboardIcon /></ListItemIcon>
-                        <ListItemText primary="Workspaces" />
                     </ListItem>
                 </List>
                 <List>
                     <ListItem button key="Workspaces" onClick={handleExport}>
                         <ListItemIcon><SaveAltIcon /></ListItemIcon>
-                        <ListItemText primary="Export" />
                     </ListItem>
                 </List>
             </Drawer>

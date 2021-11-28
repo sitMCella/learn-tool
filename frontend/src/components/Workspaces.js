@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Workspace from "./Workspace";
-import {makeStyles, useTheme} from '@material-ui/core/styles';
+import {makeStyles} from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import { Button } from '@material-ui/core';
 import MuiAlert from '@material-ui/lab/Alert';
@@ -8,15 +8,11 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
-import clsx from "clsx";
-import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import Divider from "@material-ui/core/Divider";
 import ListItem from "@material-ui/core/ListItem";
 import {Link} from "react-router-dom";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import DashboardIcon from '@material-ui/icons/Dashboard';
-import ListItemText from "@material-ui/core/ListItemText";
 import Drawer from "@material-ui/core/Drawer";
 import UploadIcon from "@material-ui/icons/Publish";
 
@@ -86,14 +82,6 @@ function Workspaces() {
         setList(newWorkspaces);
         setNewWorkspaceStatus(false);
     };
-    const drawerWidth = 240;
-    const [open, setOpen] = React.useState(false);
-    const handleDrawerToggle = () => {
-        setOpen(!open);
-    };
-    const handleDrawerClose = () => {
-        setOpen(false);
-    };
     const handleUploadFileData = (event) => {
         event.preventDefault();
         let data = new FormData();
@@ -145,43 +133,12 @@ function Workspaces() {
                 duration: theme.transitions.duration.leavingScreen,
             }),
         },
-        drawer: {
-            width: drawerWidth,
-            flexShrink: 0,
-            whiteSpace: 'nowrap',
-        },
-        drawerOpen: {
-            width: drawerWidth,
-            transition: theme.transitions.create('width', {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.enteringScreen,
-            }),
-        },
-        drawerClose: {
-            transition: theme.transitions.create('width', {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.leavingScreen,
-            }),
-            overflowX: 'hidden',
-            width: theme.spacing(7),
-            [theme.breakpoints.up('sm')]: {
-                width: theme.spacing(7),
-            },
-        },
-        hide: {
-            display: 'none',
-        },
         toolbar: {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'flex-end',
             padding: theme.spacing(0, 1),
             ...theme.mixins.toolbar,
-        },
-        drawerCloseButton: {
-            ['@media only screen and (max-width:768px)']: {
-                display: 'none',
-            },
         },
         divider: {
             ['@media only screen and (max-width:768px)']: {
@@ -195,42 +152,23 @@ function Workspaces() {
         }
     }));
     const classes = useStyles();
-    const theme = useTheme();
     return (
         <div>
             <AppBar position="static" className={classes.appBar}>
                 <Toolbar>
-                    <IconButton edge="start" color="inherit" aria-label="menu" onClick={handleDrawerToggle} className={classes.menuButton}>
+                    <IconButton className={classes.menuButton} edge="start" color="inherit" aria-label="menu">
                         <MenuIcon />
                     </IconButton>
                     <Button color="inherit" onClick={newWorkspaceHandler} disabled={newWorkspaceStatus}>New Workspace</Button>
                 </Toolbar>
             </AppBar>
-            <Drawer
-                variant="permanent"
-                className={clsx(classes.drawer, {
-                    [classes.drawerOpen]: open,
-                    [classes.drawerClose]: !open,
-                })}
-                classes={{
-                    paper: clsx({
-                        [classes.drawerOpen]: open,
-                        [classes.drawerClose]: !open,
-                    }),
-                }}
-            >
+            <Drawer variant="permanent" anchor="left">
                 <div className={classes.toolbar}>
-                    <IconButton onClick={handleDrawerClose} className={clsx(classes.drawerCloseButton, {
-                        [classes.hide]: !open,
-                    })}>
-                        {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-                    </IconButton>
                 </div>
                 <Divider className={classes.divider} />
                 <List>
                     <ListItem button key="Workspaces" component={Link} to={'/workspaces'}>
                         <ListItemIcon><DashboardIcon /></ListItemIcon>
-                        <ListItemText primary="Workspaces" />
                     </ListItem>
                 </List>
                 <List>
