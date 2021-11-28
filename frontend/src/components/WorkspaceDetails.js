@@ -4,15 +4,12 @@ import {Button} from "@material-ui/core";
 import List from "@material-ui/core/List";
 import Card from './Card';
 import Toolbar from "@material-ui/core/Toolbar";
-import IconButton from "@material-ui/core/IconButton";
-import MenuIcon from "@material-ui/icons/Menu";
 import AppBar from "@material-ui/core/AppBar";
-import {makeStyles, useTheme} from "@material-ui/core/styles";
+import {makeStyles} from "@material-ui/core/styles";
 import Drawer from '@material-ui/core/Drawer';
 import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
 
@@ -149,9 +146,6 @@ const WorkspaceDetails = () => {
         <div>
             <AppBar position="static" className={classes.appBar}>
                 <Toolbar>
-                    <IconButton className={classes.menuButton} edge="start" color="inherit" aria-label="menu">
-                        <MenuIcon />
-                    </IconButton>
                     <Button color="inherit" onClick={newCardHandler} disabled={newCardStatus}>New Card</Button>
                     <Button color="inherit" component={Link} to={'/workspaces/' + params.name + '/study'}>Study</Button>
                 </Toolbar>

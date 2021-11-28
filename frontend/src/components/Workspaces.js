@@ -6,8 +6,6 @@ import { Button } from '@material-ui/core';
 import MuiAlert from '@material-ui/lab/Alert';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
 import Divider from "@material-ui/core/Divider";
 import ListItem from "@material-ui/core/ListItem";
 import {Link} from "react-router-dom";
@@ -156,9 +154,6 @@ function Workspaces() {
         <div>
             <AppBar position="static" className={classes.appBar}>
                 <Toolbar>
-                    <IconButton className={classes.menuButton} edge="start" color="inherit" aria-label="menu">
-                        <MenuIcon />
-                    </IconButton>
                     <Button color="inherit" onClick={newWorkspaceHandler} disabled={newWorkspaceStatus}>New Workspace</Button>
                 </Toolbar>
             </AppBar>
