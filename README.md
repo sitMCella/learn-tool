@@ -38,7 +38,7 @@ Install OpenJDK 11 and Docker (Docker compose).
 ./gradlew clean build integrationTest
 ```
 
-### Klint
+### Backend Linter
 
 #### Klint Check:
 
@@ -50,6 +50,22 @@ Install OpenJDK 11 and Docker (Docker compose).
 
 ```sh
 ./gradlew ktlintFormat
+```
+
+### Frontend Linter
+
+#### Eslint Check:
+
+```sh
+cd ./frontend
+eslint --ext .jsx,.js src/
+```
+
+#### Eslint Format:
+
+```sh
+cd ./frontend
+eslint --fix --ext .jsx,.js src/
 ```
 
 ### Create Docker images
