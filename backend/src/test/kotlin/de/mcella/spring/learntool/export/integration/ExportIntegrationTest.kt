@@ -33,6 +33,7 @@ import org.springframework.core.io.Resource
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringRunner
 import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.utility.DockerImageName
 
 @RunWith(SpringRunner::class)
 @Category(IntegrationTest::class)
@@ -43,7 +44,7 @@ class ExportIntegrationTest {
     companion object {
         @ClassRule
         @JvmField
-        val postgresql = PostgreSQLContainer<Nothing>()
+        val postgresql = PostgreSQLContainer<Nothing>(DockerImageName.parse(PostgreSQLContainer.IMAGE).withTag(PostgreSQLContainer.DEFAULT_TAG))
 
         class Initializer : ApplicationContextInitializer<ConfigurableApplicationContext> {
 
@@ -106,13 +107,13 @@ class ExportIntegrationTest {
         // IOUtils.copy(responseEntity.body!!.inputStream, outputStream)
 
         val zipInputStream = ZipInputStream(responseEntity.body!!.inputStream)
-        val files = zipInputStream.use { zipInputStream ->
-            generateSequence { zipInputStream.nextEntry }
+        val files = zipInputStream.use { zipInputStreamResource ->
+            generateSequence { zipInputStreamResource.nextEntry }
                     .filterNot { it.isDirectory }
                     .map {
                         UnzippedFile(
                                 filename = it.name,
-                                content = zipInputStream.readAllBytes()
+                                content = zipInputStreamResource.readAllBytes()
                         )
                     }.toList()
         }
