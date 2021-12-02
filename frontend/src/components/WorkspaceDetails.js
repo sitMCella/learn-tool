@@ -19,32 +19,41 @@ const WorkspaceDetails = () => {
   const params = useParams()
   const [list, setList] = useState([])
   const [newCardStatus, setNewCardStatus] = useState(false)
-  const [searchParameter, setSearchParameter] = useState([])
-  useEffect(() => {
-    const getCards = async () => {
-      const response = await fetch('/api/workspaces/' + params.name + '/cards', {
-        method: 'GET',
-        headers: {
-          Accepted: 'application/json'
-        }
-      })
-      const responseData = await response.json()
-      const loadedCards = []
-      for (const key in responseData) {
-        loadedCards.push({
-          id: responseData[key].id,
-          question: responseData[key].question,
-          response: responseData[key].response,
-          new: false
-        })
-      }
-      setList(loadedCards)
+
+  const getCards = async (signal) => {
+    const response = await fetch('/api/workspaces/' + params.name + '/cards', {
+      method: 'GET',
+      headers: {
+        Accepted: 'application/json'
+      },
+      signal
+    })
+    if (!response.ok) {
+      throw new Error(JSON.stringify(response))
     }
-    getCards()
-  }, [])
-  const searchParameterChangeHandler = (event) => {
-    setSearchParameter(event.target.value)
+    const responseData = await response.json()
+    const loadedCards = []
+    for (const key in responseData) {
+      loadedCards.push({
+        id: responseData[key].id,
+        question: responseData[key].question,
+        response: responseData[key].response,
+        new: false
+      })
+    }
+    setList(loadedCards)
   }
+
+  useEffect(() => {
+    const controller = new AbortController()
+    const signal = controller.signal
+    getCards(signal)
+      .catch((err) => {
+        console.log('Error while retrieving the cards from the Workspace ' + params.name + ': ' + err.message)
+      })
+    return () => controller.abort()
+  }, [])
+
   const keyPressHandler = (event) => {
     if (event.keyCode === 13) {
       const getSearchCards = async () => {
@@ -55,6 +64,9 @@ const WorkspaceDetails = () => {
             Accepted: 'application/json'
           }
         })
+        if (!response.ok) {
+          throw new Error(JSON.stringify(response))
+        }
         const responseData = await response.json()
         const loadedCards = []
         for (const key in responseData) {
@@ -75,11 +87,16 @@ const WorkspaceDetails = () => {
         setList(newCards)
       }
       getSearchCards()
+        .catch((err) => {
+          console.log('Error while searching the Cards: ' + err.message)
+        })
     }
   }
+
   const verifyIfCardAlreadyExists = (cardId) => {
     return list.some(card => card.id === cardId)
   }
+
   const newCardHandler = () => {
     if (newCardStatus) {
       return
@@ -88,6 +105,7 @@ const WorkspaceDetails = () => {
     setList(newCards)
     setNewCardStatus(true)
   }
+
   const createCardHandler = (id, question, response) => {
     const newCards = [{ id: id, question: question, response: response, new: false, change: false }, ...list.slice(1)]
     setList(newCards)
@@ -128,6 +146,7 @@ const WorkspaceDetails = () => {
     const newCards = [...list.slice(0, index), ...list.slice(index + 1)]
     setList(newCards)
   }
+
   const handleExport = () => {
     const exportBackup = async () => {
       const response = await fetch('/api/workspaces/' + params.name + '/export', {
@@ -136,6 +155,9 @@ const WorkspaceDetails = () => {
           Accepted: 'application/octet-stream'
         }
       })
+      if (!response.ok) {
+        throw new Error(JSON.stringify(response))
+      }
       const responseData = await response.blob()
       const url = window.URL.createObjectURL(responseData)
       const a = document.createElement('a')
@@ -144,7 +166,11 @@ const WorkspaceDetails = () => {
       a.click()
     }
     exportBackup()
+      .catch((err) => {
+        console.log('Error while exporting the backup: ' + err.message)
+      })
   }
+
   const useStyles = makeStyles((theme) => ({
     menuButton: {
       marginRight: theme.spacing(2),
@@ -219,6 +245,7 @@ const WorkspaceDetails = () => {
     }
   }))
   const classes = useStyles()
+
   return (
         <div>
             <AppBar position="static" className={classes.appBar}>
@@ -236,7 +263,7 @@ const WorkspaceDetails = () => {
                             input: classes.inputInput
                           }}
                           inputProps={{ 'aria-label': 'search' }}
-                          onChange={searchParameterChangeHandler} onKeyDown={keyPressHandler}
+                          onKeyDown={keyPressHandler}
                       />
                     </div>
                 </Toolbar>

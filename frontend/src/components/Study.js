@@ -25,35 +25,44 @@ function Study () {
   const [responseVisibility, setResponseVisibility] = useState('none')
   const [evaluationButtonsVisible, setEvaluationButtonsVisible] = useState(false)
   const [noCardsLft, setNoCardsLeft] = useState(false)
-  const getCard = async () => {
+  const qualityValues = [0, 1, 2, 3, 4, 5]
+
+  const getCard = async (signal) => {
     const response = await fetch('/api/workspaces/' + params.name + '/learn', {
       method: 'GET',
       headers: {
         Accepted: 'application/json'
-      }
+      },
+      signal
     })
     if (!response.ok) {
-      throw new Error(response.status)
+      throw new Error(JSON.stringify(response))
     }
     const card = await response.json()
     setCardId(card.id)
     setCardQuestion(card.question)
     setCardResponse(card.response)
   }
+
   useEffect(() => {
-    getCard().catch((err) => {
-      console.log('Error while retrieving a card from the Workspace ' + params.name + ' status: ' + err.message)
+    const controller = new AbortController()
+    const signal = controller.signal
+    getCard(signal).catch((err) => {
+      console.log('Error while retrieving a card from the Workspace ' + params.name + ': ' + err.message)
       setNoCardsLeft(true)
       setCardId('')
       setCardQuestion('')
       setCardResponse('')
     })
+    return () => controller.abort()
   }, [])
+
   const flipCardHandler = () => {
     setFlipButtonVisible(false)
     setResponseVisibility('block')
     setEvaluationButtonsVisible(true)
   }
+
   const evaluateCardHandler = () => {
     const evaluateCard = async () => {
       const response = await fetch('/api/workspaces/' + params.name + '/learn/' + cardId, {
@@ -65,31 +74,34 @@ function Study () {
         body: JSON.stringify({ quality: 0 })
       })
       if (!response.ok) {
-        throw new Error('Error while evaluating the Card with Id ' + cardId)
+        throw new Error(JSON.stringify(response))
       }
       setCardId('')
       setCardQuestion('')
       setCardResponse('')
     }
-    evaluateCard().then(() => {
-      setEvaluationButtonsVisible(false)
-      setResponseVisibility('none')
-      setFlipButtonVisible(true)
-      getCard().catch((err) => {
-        console.log('Error while retrieving a card from the Workspace ' + params.name + ' status: ' + err.message)
-        setNoCardsLeft(true)
+    evaluateCard()
+      .then(() => {
+        setEvaluationButtonsVisible(false)
+        setResponseVisibility('none')
+        setFlipButtonVisible(true)
+        getCard()
+          .catch((err) => {
+            console.log('Error while retrieving a card from the Workspace ' + params.name + ' status: ' + err.message)
+            setNoCardsLeft(true)
+            setCardId('')
+            setCardQuestion('')
+            setCardResponse('')
+          })
+      })
+      .catch((err) => {
+        console.log('Error while evaluating the Card with Id ' + cardId + ': ' + err.message)
         setCardId('')
         setCardQuestion('')
         setCardResponse('')
       })
-    }).catch((err) => {
-      console.log(err)
-      setCardId('')
-      setCardQuestion('')
-      setCardResponse('')
-    })
   }
-  const qualityValues = [0, 1, 2, 3, 4, 5]
+
   const useStyles = makeStyles((theme) => ({
     menuButton: {
       marginRight: theme.spacing(2),
@@ -144,6 +156,7 @@ function Study () {
     }
   }))
   const classes = useStyles()
+
   return (
         <div>
             <AppBar position="static" className={classes.appBar}>

@@ -9,9 +9,11 @@ import { makeStyles } from '@material-ui/core/styles'
 
 function Workspace (props) {
   const [newWorkspaceName, setNewWorkspaceName] = useState('')
+
   const workspaceNameChangeHandler = (event) => {
     setNewWorkspaceName(event.target.value)
   }
+
   const submitHandler = (event) => {
     event.preventDefault()
     const createWorkspace = async () => {
@@ -23,25 +25,29 @@ function Workspace (props) {
         body: JSON.stringify({ name: newWorkspaceName })
       })
       if (!response.ok) {
-        throw new Error(response.status)
+        throw new Error(JSON.stringify(response))
       }
       return await response.json()
     }
-    createWorkspace().then(() => {
-      props.handleSubmit(newWorkspaceName)
-      setNewWorkspaceName('')
-    }).catch((err) => {
-      console.log('Error while creating the Workspace ' + newWorkspaceName)
-      props.handleError(err.message)
-      setNewWorkspaceName('')
-    })
+    createWorkspace()
+      .then(() => {
+        props.handleSubmit(newWorkspaceName)
+        setNewWorkspaceName('')
+      })
+      .catch((err) => {
+        console.log('Error while creating the Workspace ' + newWorkspaceName + ': ' + err.message)
+        props.handleError(err.message)
+        setNewWorkspaceName('')
+      })
   }
+
   const useStyles = makeStyles((theme) => ({
     input: {
       width: 260
     }
   }))
   const classes = useStyles()
+
   if (props.new) {
     return (
             <ListItem button selected={props.selected} >
