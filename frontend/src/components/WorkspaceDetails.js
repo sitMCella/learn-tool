@@ -17,7 +17,7 @@ import SearchIcon from '@material-ui/icons/Search'
 
 const WorkspaceDetails = () => {
   const params = useParams()
-  const [list, setList] = useState([])
+  const [cards, setCards] = useState([])
   const [newCardStatus, setNewCardStatus] = useState(false)
 
   const getCards = async (signal) => {
@@ -41,7 +41,7 @@ const WorkspaceDetails = () => {
         new: false
       })
     }
-    setList(loadedCards)
+    setCards(loadedCards)
   }
 
   useEffect(() => {
@@ -83,8 +83,8 @@ const WorkspaceDetails = () => {
         if (loadedCards.length === 0) {
           return
         }
-        const newCards = [...loadedCards, ...list]
-        setList(newCards)
+        const newCards = [...loadedCards, ...cards]
+        setCards(newCards)
       }
       getSearchCards()
         .catch((err) => {
@@ -94,57 +94,57 @@ const WorkspaceDetails = () => {
   }
 
   const verifyIfCardAlreadyExists = (cardId) => {
-    return list.some(card => card.id === cardId)
+    return cards.some(card => card.id === cardId)
   }
 
   const newCardHandler = () => {
     if (newCardStatus) {
       return
     }
-    const newCards = [{ id: null, question: 'Question', response: 'Response', new: true, change: false }, ...list]
-    setList(newCards)
+    const newCards = [{ id: null, question: 'Question', response: 'Response', new: true, change: false }, ...cards]
+    setCards(newCards)
     setNewCardStatus(true)
   }
 
   const createCardHandler = (id, question, response) => {
-    const newCards = [{ id: id, question: question, response: response, new: false, change: false }, ...list.slice(1)]
-    setList(newCards)
+    const newCards = [{ id: id, question: question, response: response, new: false, change: false }, ...cards.slice(1)]
+    setCards(newCards)
     setNewCardStatus(false)
   }
   const createCardCancelHandler = () => {
-    const newCards = list.slice(1)
-    setList(newCards)
+    const newCards = cards.slice(1)
+    setCards(newCards)
     setNewCardStatus(false)
   }
   const createCardErrorHandler = () => {
-    const newCards = list.slice(1)
-    setList(newCards)
+    const newCards = cards.slice(1)
+    setCards(newCards)
     setNewCardStatus(false)
   }
   const updateCardHandler = (cardId) => {
     setNewCardStatus(true)
-    const newCards = list.map(card => (card.id === cardId ? { ...card, change: true } : card))
-    setList(newCards)
+    const newCards = cards.map(card => (card.id === cardId ? { ...card, change: true } : card))
+    setCards(newCards)
   }
   const updateCardCompleteHandler = (cardId, question, response) => {
     setNewCardStatus(false)
-    const newCards = list.map(card => (card.id === cardId ? { ...card, question: question, response: response, change: false } : card))
-    setList(newCards)
+    const newCards = cards.map(card => (card.id === cardId ? { ...card, question: question, response: response, change: false } : card))
+    setCards(newCards)
   }
   const updateCardCancelHandler = (cardId) => {
     setNewCardStatus(false)
-    const newCards = list.map(card => (card.id === cardId ? { ...card, change: false } : card))
-    setList(newCards)
+    const newCards = cards.map(card => (card.id === cardId ? { ...card, change: false } : card))
+    setCards(newCards)
   }
   const updateCardErrorHandler = (cardId, question, response) => {
     setNewCardStatus(true)
-    const newCards = list.map(card => (card.id === cardId ? { ...card, question: question, response: response, change: false } : card))
-    setList(newCards)
+    const newCards = cards.map(card => (card.id === cardId ? { ...card, question: question, response: response, change: false } : card))
+    setCards(newCards)
   }
   const deleteCardCompleteHandler = (cardId) => {
-    const index = list.map(card => { return card.id }).indexOf(cardId)
-    const newCards = [...list.slice(0, index), ...list.slice(index + 1)]
-    setList(newCards)
+    const index = cards.map(card => { return card.id }).indexOf(cardId)
+    const newCards = [...cards.slice(0, index), ...cards.slice(index + 1)]
+    setCards(newCards)
   }
 
   const handleExport = () => {
@@ -285,7 +285,7 @@ const WorkspaceDetails = () => {
             </Drawer>
             <div className={classes.content}>
                 <List component="nav" aria-label="main mailbox folders">
-                    {list.map(card => <Card key={card.id} workspaceName={params.name} id={card.id} question={card.question} response={card.response} selected={false} new={card.new} change={card.change}
+                    {cards.map(card => <Card key={card.id} workspaceName={params.name} id={card.id} question={card.question} response={card.response} selected={false} new={card.new} change={card.change}
     handleCreateCard={createCardHandler} handleCreateCardCancel={createCardCancelHandler} handleUpdateCard={updateCardHandler} handleCraeteCardError={createCardErrorHandler}
     handleUpdateCardComplete={updateCardCompleteHandler} handleUpdateCardCancel={updateCardCancelHandler} handleUpdateCardError={updateCardErrorHandler}
     handleDeleteCardComplete={deleteCardCompleteHandler}/>)}

@@ -244,11 +244,11 @@ function Card (props) {
                         </Box>
                     </CardContent>
                     <CardActions className={classes.actions}>
-                        <IconButton aria-label="edit">
-                            <EditIcon onClick={() => props.handleUpdateCard(props.id)} className={classes.expand}/>
+                        <IconButton aria-label="edit" onClick={() => props.handleUpdateCard(props.id)}>
+                            <EditIcon className={classes.expand}/>
                         </IconButton>
-                        <IconButton aria-label="delete">
-                            <DeleteIcon onClick={deleteCardHandler}/>
+                        <IconButton aria-label="delete" onClick={deleteCardHandler}>
+                            <DeleteIcon/>
                         </IconButton>
                     </CardActions>
                 </CardUi>
