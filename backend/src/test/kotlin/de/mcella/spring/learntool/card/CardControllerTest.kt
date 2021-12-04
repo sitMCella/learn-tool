@@ -209,4 +209,29 @@ class CardControllerTest {
                 MockMvcRequestBuilders.delete("/api/workspaces/${workspace.name}/cards/${cardId.id}")
         ).andExpect(MockMvcResultMatchers.status().isUnprocessableEntity)
     }
+
+    @Test
+    fun `given a Workspace name, when sending a GET REST request to the cards endpoint, then the findByWorkspace method of CardService is called and the retrieved Cards are returned`() {
+        val workspace = Workspace("workspaceTest")
+        val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspace.name, "question", "response content")
+        val cards = listOf(card)
+        Mockito.`when`(cardService.findByWorkspace(workspace)).thenReturn(cards)
+        val expectedContentBody = objectMapper.writeValueAsString(cards)
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/api/workspaces/${workspace.name}/cards")
+        ).andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(MockMvcResultMatchers.content().json(expectedContentBody))
+    }
+
+    @Test
+    fun `given a Workspace name, when sending a GET REST request to the cards endpoint and the CardService throws WorkspaceNotExistsException exception, then an INTERNAL_SERVER_ERROR http status response is returned`() {
+        val workspace = Workspace("workspaceTest")
+        Mockito.`when`(cardService.findByWorkspace(workspace)).thenThrow(WorkspaceNotExistsException(workspace))
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/api/workspaces/${workspace.name}/cards")
+        ).andExpect(MockMvcResultMatchers.status().isNotFound)
+    }
 }

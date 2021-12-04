@@ -71,6 +71,9 @@ class CardService(private val cardRepository: CardRepository, private val worksp
     }
 
     fun findByWorkspace(workspace: Workspace): List<Card> {
+        if (!workspaceRepository.existsById(workspace.name)) {
+            throw WorkspaceNotExistsException(workspace)
+        }
         return cardRepository.findByWorkspaceName(workspace.name).stream()
                 .map { cardEntity -> Card.create(cardEntity) }
                 .toList()

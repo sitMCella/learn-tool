@@ -518,6 +518,36 @@ paths:
           description: The Card does not belong to the Workspace.
         '500':
           description: An error occured while deleting the LearnCard.
+  /api/workspaces/{workspaceName}/search:
+    post:
+      summary: Search the Cards
+      operationId: search-cards
+      tags:
+        - workspace
+        - search
+        - card
+      parameters:
+        - name: workspaceName
+          in: path
+          description: The name of the Workspace.
+          required: true
+          schema:
+            type: string
+          example: "workspaceTest"
+        - name: content
+          in: query
+          description: The search pattern content.
+          required: true
+          schema:
+            type: string
+          example: "search content"
+      responses:
+        '200':
+          description: The retrieved Cards.
+        '404':
+          description: The Workspace does not exist.
+        '500':
+          description: An error occured while searching the Cards.
   /api/workspaces/{workspaceName}/export:
     get:
       summary: Export the Workspace backup
