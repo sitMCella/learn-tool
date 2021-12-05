@@ -63,7 +63,7 @@ const WorkspaceDetails = () => {
     setSearchPattern('')
   }
 
-  const keyPressHandler = (event) => {
+  const searchOnChangeHandler = (event) => {
     const getSearchCards = async () => {
       const content = encodeURIComponent(event.target.value)
       const response = await fetch('/api/workspaces/' + params.name + '/search?content=' + content, {
@@ -117,6 +117,7 @@ const WorkspaceDetails = () => {
   const createCardHandler = (id, question, response) => {
     const newCards = [{ id: id, question: question, response: response, new: false, change: false }, ...cards.slice(1)]
     setCards(newCards)
+    setBackupCards(newCards)
     setNewCardStatus(false)
   }
   const createCardCancelHandler = () => {
@@ -272,7 +273,7 @@ const WorkspaceDetails = () => {
                           }}
                           inputProps={{ 'aria-label': 'search' }}
                           value={searchPattern}
-                          onChange={keyPressHandler}
+                          onChange={searchOnChangeHandler}
                           endAdornment={<CloseIcon onClick={resetSearchHandler} />}
                       />
                     </div>
