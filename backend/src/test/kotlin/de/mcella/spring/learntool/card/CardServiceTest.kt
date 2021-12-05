@@ -264,6 +264,31 @@ class CardServiceTest {
         Mockito.verify(cardRepository).delete(cardEntity)
     }
 
+    @Test(expected = WorkspaceNotExistsException::class)
+    fun `given a non existent Workspace name, when retrieving the Cards by Workspace, then throw WorkspaceNotExistsException`() {
+        val workspace = Workspace("workspaceTest")
+        Mockito.`when`(workspaceRepository.existsById(workspace.name)).thenReturn(false)
+
+        cardService.findByWorkspace(workspace)
+    }
+
+    @Test
+    fun `given a Workspace name, when retrieving the Cards by Workspace, then call the method findByWorkspaceNameDesc of CardRepository and return the Cards`() {
+        val workspace = Workspace("workspaceTest")
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        val cardEntity = CardEntity(cardId.id, "workspaceTest", "question", "response")
+        val cardEntities = listOf(cardEntity)
+        Mockito.`when`(workspaceRepository.existsById(workspace.name)).thenReturn(true)
+        Mockito.`when`(cardRepository.findByWorkspaceNameOrderByCreationDateDesc(workspace.name)).thenReturn(cardEntities)
+
+        val cards = cardService.findByWorkspace(workspace)
+
+        Mockito.verify(cardRepository).findByWorkspaceNameOrderByCreationDateDesc(workspace.name)
+        val expectedCard = Card(cardId.id, "workspaceTest", "question", "response")
+        val expectedCards = listOf(expectedCard)
+        assertEquals(expectedCards, cards)
+    }
+
     @Test
     fun `given a Card id, when retrieving the Card, then call the method findById of CardRepository and return the Card`() {
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")

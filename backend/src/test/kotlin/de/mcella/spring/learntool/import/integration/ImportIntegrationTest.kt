@@ -104,7 +104,7 @@ class ImportIntegrationTest {
         assertEquals(expectedWorkspaceEntities, workspaceEntities)
         val cardEntities = cardRepository.findAll()
         assertEquals(1, cardEntities.size)
-        val expectedCardEntity = CardEntity("a1900ca7-dc58-4360-b41c-537d933bc9c1", "workspaceTest", "This is a \"question\"", "This, is a response")
+        val expectedCardEntity = CardEntity("a1900ca7-dc58-4360-b41c-537d933bc9c1", "workspaceTest", "This is a \"question\"", "This, is a response", cardEntities[0].creationDate)
         val expectedCardEntities = listOf(expectedCardEntity)
         assertEquals(expectedCardEntities, cardEntities)
         val learnCardEntities = learnCardRepository.findAll()

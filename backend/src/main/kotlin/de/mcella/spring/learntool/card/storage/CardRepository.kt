@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface CardRepository : JpaRepository<CardEntity, String> {
-    fun findByWorkspaceName(workspaceName: String): List<CardEntity>
+    fun findByWorkspaceNameOrderByCreationDateDesc(workspaceName: String): List<CardEntity>
 }

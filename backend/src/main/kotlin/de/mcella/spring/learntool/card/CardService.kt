@@ -50,11 +50,12 @@ class CardService(private val cardRepository: CardRepository, private val worksp
         if (!workspaceRepository.existsById(workspace.name)) {
             throw WorkspaceNotExistsException(workspace)
         }
-        val card = findById(cardId)
-        if (card.workspaceName != workspace.name) {
+        val cardEntity = cardRepository.findById(cardId.id).orElseThrow { CardNotFoundException(cardId) }
+        val cardCreationDate = CardCreationDate.create(cardEntity)
+        if (cardCreationDate.card.workspaceName != workspace.name) {
             throw InvalidWorkspaceNameException("The provided workspaceName does not match with the card workspace")
         }
-        val updatedCard = CardEntity.create(cardId, workspace, cardContent)
+        val updatedCard = CardEntity.create(cardId, workspace, cardContent, cardCreationDate.creationDate)
         val updatedCardEntity = cardRepository.save(updatedCard)
         return Card.create(updatedCardEntity)
     }
@@ -74,7 +75,7 @@ class CardService(private val cardRepository: CardRepository, private val worksp
         if (!workspaceRepository.existsById(workspace.name)) {
             throw WorkspaceNotExistsException(workspace)
         }
-        return cardRepository.findByWorkspaceName(workspace.name).stream()
+        return cardRepository.findByWorkspaceNameOrderByCreationDateDesc(workspace.name).stream()
                 .map { cardEntity -> Card.create(cardEntity) }
                 .toList()
     }

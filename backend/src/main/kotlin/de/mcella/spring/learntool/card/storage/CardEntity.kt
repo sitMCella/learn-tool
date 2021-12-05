@@ -4,6 +4,7 @@ import de.mcella.spring.learntool.card.Card
 import de.mcella.spring.learntool.card.CardContent
 import de.mcella.spring.learntool.card.CardId
 import de.mcella.spring.learntool.workspace.Workspace
+import java.time.Instant
 import javax.persistence.Entity
 import javax.persistence.Id
 import javax.persistence.Table
@@ -28,11 +29,16 @@ data class CardEntity(
     @FullTextField
     @field:NotNull @field:NotEmpty val question: String = "",
     @FullTextField
-    @field:NotNull @field:NotEmpty val response: String = ""
+    @field:NotNull @field:NotEmpty val response: String = "",
+    @field:NotNull val creationDate: Instant = Instant.now()
 ) {
     companion object {
         fun create(cardId: CardId, workspace: Workspace, cardContent: CardContent): CardEntity {
             return CardEntity(cardId.id, workspace.name, cardContent.question, cardContent.response)
+        }
+
+        fun create(cardId: CardId, workspace: Workspace, cardContent: CardContent, creationDate: Instant): CardEntity {
+            return CardEntity(cardId.id, workspace.name, cardContent.question, cardContent.response, creationDate)
         }
 
         fun create(card: Card): CardEntity {
