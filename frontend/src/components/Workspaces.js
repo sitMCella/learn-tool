@@ -2,15 +2,17 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Workspace from './Workspace'
 import AppBar from '@material-ui/core/AppBar'
-import Button from '@material-ui/core/Button'
+import Box from '@material-ui/core/Box'
 import Divider from '@material-ui/core/Divider'
 import Drawer from '@material-ui/core/Drawer'
+import Fab from '@material-ui/core/Fab'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import Toolbar from '@material-ui/core/Toolbar'
 import MuiAlert from '@material-ui/lab/Alert'
 import { makeStyles } from '@material-ui/core/styles'
+import AddIcon from '@material-ui/icons/Add'
 import DashboardIcon from '@material-ui/icons/Dashboard'
 import UploadIcon from '@material-ui/icons/Publish'
 
@@ -131,25 +133,8 @@ function Workspaces () {
   }
 
   const useStyles = makeStyles((theme) => ({
-    menuButton: {
-      marginRight: theme.spacing(2),
-      '@media only screen and (max-width:768px)': {
-        display: 'none'
-      }
-    },
-    title: {
-      marginRight: theme.spacing(10)
-    },
     appBar: {
-      '@media only screen and (max-width:14000px)': {
-        marginLeft: theme.spacing(5)
-      },
-      marginBottom: theme.spacing(2),
-      zIndex: theme.zIndex.drawer + 1,
-      transition: theme.transitions.create(['width', 'margin'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen
-      })
+      marginBottom: theme.spacing(2)
     },
     drawerList: {
       '@media only screen and (max-width:768px)': {
@@ -180,15 +165,28 @@ function Workspaces () {
       '@media only screen and (max-width:14000px)': {
         marginLeft: theme.spacing(5)
       }
+    },
+    title: {
+      display: 'flex',
+      position: 'absolute',
+      alignItems: 'center',
+      fontSize: 'x-large',
+      padding: theme.spacing(0, 1)
+    },
+    addIcon: {
+      display: 'flex',
+      position: 'relative',
+      alignItems: 'center',
+      marginLeft: 'auto',
+      padding: theme.spacing(0, 1)
     }
   }))
   const classes = useStyles()
 
   return (
-        <div>
+        <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static" className={classes.appBar}>
-                <Toolbar>
-                    <Button color="inherit" onClick={newWorkspaceHandler} disabled={newWorkspaceStatus}>New Workspace</Button>
+                <Toolbar variant="dense">
                 </Toolbar>
             </AppBar>
             <Drawer variant="permanent" anchor="left">
@@ -211,11 +209,15 @@ function Workspaces () {
             </Drawer>
             <div className={classes.content}>
                 {workspaceError && (<Alert severity="error">{workspaceErrorMessage}</Alert>)}
+                <div className={classes.title}>Workspaces</div>
+                <Fab size="small" color="primary" className={classes.addIcon} aria-label="add" onClick={newWorkspaceHandler} disabled={newWorkspaceStatus}>
+                    <AddIcon />
+                </Fab>
                 <List component="nav" aria-label="main mailbox folders">
                     {list.map(workspace => <Workspace key={workspace.name} name={workspace.name} selected={false} new={workspace.new} handleSubmit={submitHandler} handleError={createErrorHandler} handleCancel={cancelButtonClickHandler}></Workspace>)}
                 </List>
             </div>
-        </div>
+        </Box>
   )
 }
 

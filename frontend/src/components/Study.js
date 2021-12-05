@@ -103,22 +103,8 @@ function Study () {
   }
 
   const useStyles = makeStyles((theme) => ({
-    menuButton: {
-      marginRight: theme.spacing(2),
-      '@media only screen and (max-width:768px)': {
-        display: 'none'
-      }
-    },
     appBar: {
-      '@media only screen and (max-width:14000px)': {
-        marginLeft: theme.spacing(5)
-      },
-      marginBottom: theme.spacing(2),
-      zIndex: theme.zIndex.drawer + 1,
-      transition: theme.transitions.create(['width', 'margin'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen
-      })
+      marginBottom: theme.spacing(2)
     },
     drawerList: {
       '@media only screen and (max-width:768px)': {
@@ -146,7 +132,6 @@ function Study () {
       }
     },
     content: {
-      width: '100%',
       '@media only screen and (max-width:14000px)': {
         marginLeft: theme.spacing(5)
       }
@@ -171,9 +156,9 @@ function Study () {
   const classes = useStyles()
 
   return (
-        <div>
+        <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static" className={classes.appBar}>
-                <Toolbar>
+                <Toolbar variant="dense">
                 </Toolbar>
             </AppBar>
             <Drawer variant="permanent" anchor="left">
@@ -252,7 +237,7 @@ function Study () {
                     </Box>
                 </div>
                 )}
-        </div>
+        </Box>
   )
 }
 

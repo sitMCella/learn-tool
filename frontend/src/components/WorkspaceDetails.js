@@ -2,17 +2,21 @@ import React, { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import Card from './Card'
 import AppBar from '@material-ui/core/AppBar'
+import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
 import Drawer from '@material-ui/core/Drawer'
 import Divider from '@material-ui/core/Divider'
+import Fab from '@material-ui/core/Fab'
 import InputBase from '@material-ui/core/InputBase'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import Toolbar from '@material-ui/core/Toolbar'
 import { fade, makeStyles } from '@material-ui/core/styles'
+import AddIcon from '@material-ui/icons/Add'
 import DashboardIcon from '@material-ui/icons/Dashboard'
 import CloseIcon from '@material-ui/icons/Close'
+import RocketIcon from '@material-ui/icons/EmojiEvents'
 import SaveAltIcon from '@material-ui/icons/SaveAlt'
 import SearchIcon from '@material-ui/icons/Search'
 
@@ -182,22 +186,8 @@ const WorkspaceDetails = () => {
   }
 
   const useStyles = makeStyles((theme) => ({
-    menuButton: {
-      marginRight: theme.spacing(2),
-      '@media only screen and (max-width:768px)': {
-        display: 'none'
-      }
-    },
     appBar: {
-      '@media only screen and (max-width:14000px)': {
-        marginLeft: theme.spacing(5)
-      },
-      marginBottom: theme.spacing(2),
-      zIndex: theme.zIndex.drawer + 1,
-      transition: theme.transitions.create(['width', 'margin'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen
-      })
+      marginBottom: theme.spacing(2)
     },
     drawerList: {
       '@media only screen and (max-width:768px)': {
@@ -273,16 +263,29 @@ const WorkspaceDetails = () => {
       '@media only screen and (max-width:14000px)': {
         marginLeft: theme.spacing(5)
       }
+    },
+    title: {
+      flex: 0,
+      position: 'absolute',
+      alignItems: 'center',
+      fontSize: 'x-large',
+      padding: theme.spacing(0, 1)
+    },
+    events: {
+      display: 'flex',
+      justifyContent: 'flex-end',
+      paddingRight: 5
+    },
+    eventIcon: {
+      paddingRight: 5
     }
   }))
   const classes = useStyles()
 
   return (
-        <div>
+        <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static" className={classes.appBar}>
-                <Toolbar>
-                    <Button color="inherit" onClick={newCardHandler} disabled={newCardStatus}>New Card</Button>
-                    <Button color="inherit" component={Link} to={'/workspaces/' + params.name + '/study'}>Study</Button>
+                <Toolbar variant="dense">
                     <div className={classes.search}>
                       <div className={classes.searchIcon}>
                         <SearchIcon />
@@ -316,15 +319,28 @@ const WorkspaceDetails = () => {
                     </ListItem>
                 </List>
             </Drawer>
-            <div className={classes.content}>
+            <Box className={classes.content}>
+                <div className={classes.title}>Cards</div>
+                <Box className={classes.events}>
+                  <Box className={classes.eventIcon}>
+                    <Fab size="small" color="primary" aria-label="add" onClick={newCardHandler} disabled={newCardStatus}>
+                        <AddIcon />
+                    </Fab>
+                  </Box>
+                  <Box className={classes.eventIcon}>
+                    <Fab size="small" color="primary" aria-label="add" component={Link} to={'/workspaces/' + params.name + '/study'}>
+                        <RocketIcon />
+                    </Fab>
+                  </Box>
+                </Box>
                 <List component="nav" aria-label="main mailbox folders">
                     {cards.map(card => <Card key={card.id} workspaceName={params.name} id={card.id} question={card.question} response={card.response} selected={false} new={card.new} change={card.change}
     handleCreateCard={createCardHandler} handleCreateCardCancel={createCardCancelHandler} handleUpdateCard={updateCardHandler} handleCraeteCardError={createCardErrorHandler}
     handleUpdateCardComplete={updateCardCompleteHandler} handleUpdateCardCancel={updateCardCancelHandler} handleUpdateCardError={updateCardErrorHandler}
     handleDeleteCardComplete={deleteCardCompleteHandler}/>)}
                 </List>
-            </div>
-        </div>
+            </Box>
+        </Box>
   )
 }
 
