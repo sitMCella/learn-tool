@@ -12,6 +12,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon'
 import Toolbar from '@material-ui/core/Toolbar'
 import { fade, makeStyles } from '@material-ui/core/styles'
 import DashboardIcon from '@material-ui/icons/Dashboard'
+import CloseIcon from '@material-ui/icons/Close'
 import SaveAltIcon from '@material-ui/icons/SaveAlt'
 import SearchIcon from '@material-ui/icons/Search'
 
@@ -19,6 +20,9 @@ const WorkspaceDetails = () => {
   const params = useParams()
   const [cards, setCards] = useState([])
   const [newCardStatus, setNewCardStatus] = useState(false)
+  const [backupCards, setBackupCards] = useState([])
+  const [searchPattern, setSearchPattern] = useState('')
+  const [typingTimeout, setTypingTimeout] = useState()
 
   const getCards = async (signal) => {
     const response = await fetch('/api/workspaces/' + params.name + '/cards', {
@@ -42,6 +46,7 @@ const WorkspaceDetails = () => {
       })
     }
     setCards(loadedCards)
+    setBackupCards(loadedCards)
   }
 
   useEffect(() => {
@@ -54,47 +59,50 @@ const WorkspaceDetails = () => {
     return () => controller.abort()
   }, [])
 
+  const resetSearchHandler = () => {
+    setSearchPattern('')
+  }
+
   const keyPressHandler = (event) => {
-    if (event.keyCode === 13) {
-      const getSearchCards = async () => {
-        const content = encodeURIComponent(event.target.value)
-        const response = await fetch('/api/workspaces/' + params.name + '/search?content=' + content, {
-          method: 'GET',
-          headers: {
-            Accepted: 'application/json'
-          }
+    const getSearchCards = async () => {
+      const content = encodeURIComponent(event.target.value)
+      const response = await fetch('/api/workspaces/' + params.name + '/search?content=' + content, {
+        method: 'GET',
+        headers: {
+          Accepted: 'application/json'
+        }
+      })
+      if (!response.ok) {
+        throw new Error(JSON.stringify(response))
+      }
+      const responseData = await response.json()
+      const loadedCards = []
+      for (const key in responseData) {
+        loadedCards.push({
+          id: responseData[key].id,
+          question: responseData[key].question,
+          response: responseData[key].response,
+          new: false
         })
-        if (!response.ok) {
-          throw new Error(JSON.stringify(response))
-        }
-        const responseData = await response.json()
-        const loadedCards = []
-        for (const key in responseData) {
-          if (verifyIfCardAlreadyExists(responseData[key].id)) {
-            continue
-          }
-          loadedCards.push({
-            id: responseData[key].id,
-            question: responseData[key].question,
-            response: responseData[key].response,
-            new: false
-          })
-        }
-        if (loadedCards.length === 0) {
-          return
-        }
-        const newCards = [...loadedCards, ...cards]
-        setCards(newCards)
+      }
+      setCards(loadedCards)
+    }
+    setSearchPattern(event.target.value)
+    if (event.target.value === '') {
+      setCards(backupCards)
+      return
+    }
+    if (typingTimeout) clearTimeout(typingTimeout)
+    setTypingTimeout(setTimeout(() => {
+      if (event.target.value === '') {
+        setCards(backupCards)
+        return
       }
       getSearchCards()
         .catch((err) => {
           console.log('Error while searching the Cards: ' + err.message)
         })
-    }
-  }
-
-  const verifyIfCardAlreadyExists = (cardId) => {
-    return cards.some(card => card.id === cardId)
+    }, 500))
   }
 
   const newCardHandler = () => {
@@ -263,7 +271,9 @@ const WorkspaceDetails = () => {
                             input: classes.inputInput
                           }}
                           inputProps={{ 'aria-label': 'search' }}
-                          onKeyDown={keyPressHandler}
+                          value={searchPattern}
+                          onChange={keyPressHandler}
+                          endAdornment={<CloseIcon onClick={resetSearchHandler} />}
                       />
                     </div>
                 </Toolbar>
