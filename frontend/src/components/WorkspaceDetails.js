@@ -61,6 +61,7 @@ const WorkspaceDetails = () => {
 
   const resetSearchHandler = () => {
     setSearchPattern('')
+    setCards(backupCards)
   }
 
   const searchOnChangeHandler = (event) => {
@@ -229,6 +230,14 @@ const WorkspaceDetails = () => {
       alignItems: 'center',
       justifyContent: 'center'
     },
+    closeIcon: {
+      height: '100%',
+      pointerEvents: 'all',
+      alignItems: 'center',
+      display: 'flex',
+      justifyContent: 'center',
+      cursor: 'pointer'
+    },
     inputRoot: {
       color: 'inherit'
     },
@@ -274,7 +283,7 @@ const WorkspaceDetails = () => {
                           inputProps={{ 'aria-label': 'search' }}
                           value={searchPattern}
                           onChange={searchOnChangeHandler}
-                          endAdornment={<CloseIcon onClick={resetSearchHandler} />}
+                          endAdornment={<div className={classes.closeIcon}><CloseIcon onClick={resetSearchHandler} /></div>}
                       />
                     </div>
                 </Toolbar>
