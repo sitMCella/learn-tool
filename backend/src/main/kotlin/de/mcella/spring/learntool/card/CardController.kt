@@ -1,6 +1,12 @@
 package de.mcella.spring.learntool.card
 
+import de.mcella.spring.learntool.card.exceptions.CardAlreadyExistsException
+import de.mcella.spring.learntool.card.exceptions.CreateCardException
+import de.mcella.spring.learntool.card.exceptions.DeleteCardException
+import de.mcella.spring.learntool.card.exceptions.UpdateCardException
 import de.mcella.spring.learntool.workspace.Workspace
+import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceNameException
+import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import java.io.InputStream
 import java.net.URI
 import org.springframework.http.HttpStatus
@@ -32,8 +38,13 @@ class CardController(private val cardService: CardService, private val cardImpor
             val bodyBuilder = ResponseEntity.status(HttpStatus.CREATED)
             bodyBuilder.location(URI("/workspaces/$workspaceName/cards/${card.id}"))
             return bodyBuilder.body(card)
-        } catch (e: IllegalArgumentException) {
-            throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.message)
+        } catch (e: Exception) {
+            when (e) {
+                is IllegalArgumentException -> throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.message)
+                is WorkspaceNotExistsException -> throw e
+                is CardAlreadyExistsException -> throw e
+                else -> throw CreateCardException(e)
+            }
         }
     }
 
@@ -48,8 +59,13 @@ class CardController(private val cardService: CardService, private val cardImpor
             val bodyBuilder = ResponseEntity.status(HttpStatus.OK)
             bodyBuilder.location(URI("/workspaces/$workspaceName/cards/$cardId"))
             return bodyBuilder.body(card)
-        } catch (e: IllegalArgumentException) {
-            throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.message)
+        } catch (e: Exception) {
+            when (e) {
+                is IllegalArgumentException -> throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.message)
+                is WorkspaceNotExistsException -> throw e
+                is InvalidWorkspaceNameException -> throw e
+                else -> throw UpdateCardException(CardId(cardId), e)
+            }
         }
     }
 
@@ -61,8 +77,13 @@ class CardController(private val cardService: CardService, private val cardImpor
     ) {
         try {
             cardService.delete(CardId(cardId), Workspace(workspaceName))
-        } catch (e: IllegalArgumentException) {
-            throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.message)
+        } catch (e: Exception) {
+            when (e) {
+                is IllegalArgumentException -> throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.message)
+                is WorkspaceNotExistsException -> throw e
+                is InvalidWorkspaceNameException -> throw e
+                else -> throw DeleteCardException(CardId(cardId), e)
+            }
         }
     }
 

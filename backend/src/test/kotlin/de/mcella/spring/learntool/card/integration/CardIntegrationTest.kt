@@ -30,9 +30,11 @@ import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringRunner
 import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.utility.DockerImageName
 
 @RunWith(SpringRunner::class)
 @Category(IntegrationTest::class)
@@ -43,7 +45,7 @@ class CardIntegrationTest {
     companion object {
         @ClassRule
         @JvmField
-        val postgresql = PostgreSQLContainer<Nothing>()
+        val postgresql = PostgreSQLContainer<Nothing>(DockerImageName.parse(PostgreSQLContainer.IMAGE).withTag(PostgreSQLContainer.DEFAULT_TAG))
 
         class Initializer : ApplicationContextInitializer<ConfigurableApplicationContext> {
 
@@ -161,5 +163,25 @@ class CardIntegrationTest {
             assertEquals("questionTest${i + 1}", createdCard.question)
             assertEquals("responseTest${i + 1}", createdCard.response)
         }
+    }
+
+    @Test
+    fun `given a Workspace named, when a GET REST request is sent to the cards endpoint, then the response HTTP Status is 200 OK and the response body contains the list of Cards`() {
+        val workspace = Workspace("workspaceTest")
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        val cardContent = CardContent("question", "response")
+        val workspaceEntity = WorkspaceEntity(workspace.name)
+        workspaceRepository.save(workspaceEntity)
+        val cardEntity = CardEntity.create(cardId, workspace, cardContent)
+        cardRepository.save(cardEntity)
+
+        val responseEntity = testRestTemplate.getForEntity(URI("http://localhost:$port/api/workspaces/${workspace.name}/cards"), List::class.java)
+
+        val expectedCard = Card(cardId.id, workspace.name, "question", "response")
+        val expectedCards = listOf(expectedCard)
+        val expectedResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedCards)
+        assertEquals(expectedResponseEntity.statusCode, responseEntity.statusCode)
+        val cards = responseEntity.body as List<*>
+        assertTrue { cards.size == 1 }
     }
 }

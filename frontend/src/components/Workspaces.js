@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react'
-import Workspace from './Workspace'
-import { makeStyles } from '@material-ui/core/styles'
-import List from '@material-ui/core/List'
-import { Button } from '@material-ui/core'
-import MuiAlert from '@material-ui/lab/Alert'
-import AppBar from '@material-ui/core/AppBar'
-import Toolbar from '@material-ui/core/Toolbar'
-import Divider from '@material-ui/core/Divider'
-import ListItem from '@material-ui/core/ListItem'
 import { Link } from 'react-router-dom'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
-import DashboardIcon from '@material-ui/icons/Dashboard'
+import Workspace from './Workspace'
+import AppBar from '@material-ui/core/AppBar'
+import Button from '@material-ui/core/Button'
+import Divider from '@material-ui/core/Divider'
 import Drawer from '@material-ui/core/Drawer'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
+import Toolbar from '@material-ui/core/Toolbar'
+import MuiAlert from '@material-ui/lab/Alert'
+import { makeStyles } from '@material-ui/core/styles'
+import DashboardIcon from '@material-ui/icons/Dashboard'
 import UploadIcon from '@material-ui/icons/Publish'
 
 function Alert (props) {
@@ -23,13 +23,18 @@ function Workspaces () {
   const [newWorkspaceStatus, setNewWorkspaceStatus] = useState(false)
   const [workspaceError, setWorkspaceError] = useState(false)
   const [workspaceErrorMessage, setWorkspaceErrorMessage] = useState('')
-  const getWorkspaces = async () => {
+
+  const getWorkspaces = async (signal) => {
     const response = await fetch('/api/workspaces', {
       method: 'GET',
       headers: {
         Accepted: 'application/json'
-      }
+      },
+      signal
     })
+    if (!response.ok) {
+      throw new Error(JSON.stringify(response))
+    }
     const responseData = await response.json()
     const loadedWorkspaces = []
     for (const key in responseData) {
@@ -40,14 +45,20 @@ function Workspaces () {
     }
     setList(loadedWorkspaces)
   }
+
   useEffect(() => {
-    getWorkspaces()
+    const controller = new AbortController()
+    const signal = controller.signal
+    getWorkspaces(signal)
       .then(() => setWorkspaceError(false))
-      .catch(() => {
+      .catch((err) => {
+        console.log('Error while retrieving the Workspaces: ' + err.message)
         setWorkspaceError(true)
         setWorkspaceErrorMessage('Cannot retrieve the Workspaces, please refresh the page.')
       })
+    return () => controller.abort()
   }, [])
+
   const newWorkspaceHandler = () => {
     if (newWorkspaceStatus) {
       return
@@ -57,11 +68,13 @@ function Workspaces () {
     setNewWorkspaceStatus(true)
     setWorkspaceError(false)
   }
+
   const submitHandler = (workspaceName) => {
     const newWorkspaces = [{ name: workspaceName, new: false }, ...list.slice(1)]
     setList(newWorkspaces)
     setNewWorkspaceStatus(false)
   }
+
   const createErrorHandler = (errCode) => {
     const newWorkspaces = list.slice(1)
     setList(newWorkspaces)
@@ -75,11 +88,13 @@ function Workspaces () {
       setWorkspaceErrorMessage('Cannot create the Workspace.')
     }
   }
+
   const cancelButtonClickHandler = () => {
     const newWorkspaces = list.slice(1)
     setList(newWorkspaces)
     setNewWorkspaceStatus(false)
   }
+
   const handleUploadFileData = (event) => {
     event.preventDefault()
     const data = new FormData()
@@ -90,6 +105,7 @@ function Workspaces () {
         body: data
       })
       if (!response.ok) {
+        console.log('Error while importing the backup: ' + JSON.stringify(response))
         setWorkspaceError(true)
         if (response.status === 409) {
           setWorkspaceErrorMessage('Cannot import the Workspace. The Workspace already exists.')
@@ -109,7 +125,11 @@ function Workspaces () {
       await response
     }
     importBackup()
+      .catch((err) => {
+        console.log('Error while importing the backup: ' + err.message)
+      })
   }
+
   const useStyles = makeStyles((theme) => ({
     menuButton: {
       marginRight: theme.spacing(2),
@@ -150,6 +170,7 @@ function Workspaces () {
     }
   }))
   const classes = useStyles()
+
   return (
         <div>
             <AppBar position="static" className={classes.appBar}>

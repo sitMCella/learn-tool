@@ -38,6 +38,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.apache.commons:commons-csv:1.6")
+    implementation("org.hibernate.search:hibernate-search-mapper-orm:6.0.7.Final")
+    implementation("org.hibernate.search:hibernate-search-backend-lucene:6.0.7.Final")
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("org.postgresql:postgresql:$postgresVersion")
     annotationProcessor("org.projectlombok:lombok")
@@ -71,6 +73,7 @@ task<Test>("integrationTest") {
     useJUnit {
         includeCategories("de.mcella.spring.learntool.IntegrationTest")
     }
+    maxParallelForks = 1
 }
 
 tasks.create<org.openapitools.generator.gradle.plugin.tasks.ValidateTask>("validateLearnToolOpenApi") {

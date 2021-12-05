@@ -40,6 +40,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringRunner
 import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.utility.DockerImageName
 
 @RunWith(SpringRunner::class)
 @Category(IntegrationTest::class)
@@ -50,7 +51,7 @@ class LearnIntegrationTest {
     companion object {
         @ClassRule
         @JvmField
-        val postgresql = PostgreSQLContainer<Nothing>()
+        val postgresql = PostgreSQLContainer<Nothing>(DockerImageName.parse(PostgreSQLContainer.IMAGE).withTag(PostgreSQLContainer.DEFAULT_TAG))
 
         class Initializer : ApplicationContextInitializer<ConfigurableApplicationContext> {
 

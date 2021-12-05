@@ -1,17 +1,18 @@
-package de.mcella.spring.learntool.import.integration
+package de.mcella.spring.learntool.search.integration
 
 import de.mcella.spring.learntool.BackendApplication
 import de.mcella.spring.learntool.IntegrationTest
+import de.mcella.spring.learntool.card.Card
+import de.mcella.spring.learntool.card.CardId
 import de.mcella.spring.learntool.card.storage.CardEntity
 import de.mcella.spring.learntool.card.storage.CardRepository
-import de.mcella.spring.learntool.learn.storage.LearnCardEntity
-import de.mcella.spring.learntool.learn.storage.LearnCardRepository
+import de.mcella.spring.learntool.search.SearchPattern
+import de.mcella.spring.learntool.workspace.Workspace
 import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
-import java.io.File
 import java.net.URI
-import java.time.Instant
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import org.junit.Before
 import org.junit.ClassRule
 import org.junit.Test
@@ -24,21 +25,18 @@ import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
-import org.springframework.core.io.FileSystemResource
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringRunner
-import org.springframework.util.LinkedMultiValueMap
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 
 @RunWith(SpringRunner::class)
 @Category(IntegrationTest::class)
 @SpringBootTest(classes = [BackendApplication::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(initializers = [ImportIntegrationTest.Companion.Initializer::class])
-class ImportIntegrationTest {
+@ContextConfiguration(initializers = [SearchIntegrationTest.Companion.Initializer::class])
+class SearchIntegrationTest {
 
     companion object {
         @ClassRule
@@ -71,47 +69,40 @@ class ImportIntegrationTest {
     lateinit var testRestTemplate: TestRestTemplate
 
     @Autowired
-    lateinit var cardRepository: CardRepository
-
-    @Autowired
     lateinit var workspaceRepository: WorkspaceRepository
 
     @Autowired
-    lateinit var learnCardRepository: LearnCardRepository
+    lateinit var cardRepository: CardRepository
 
     @Before
     fun setUp() {
-        learnCardRepository.deleteAll()
         cardRepository.deleteAll()
         workspaceRepository.deleteAll()
     }
 
-    // curl -X POST --header "Content-Type:multipart/form-data" -F backup=@/path/to/backup.zip  http://localhost:8080/api/workspaces/import
     @Test
-    fun `given a backup file, when a POST REST request is performed to the import endpoint, then the data is imported`() {
-        val parameters = LinkedMultiValueMap<String, Any>()
-        parameters.add("backup", FileSystemResource(File("src/test/resources/backup.zip")))
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.MULTIPART_FORM_DATA
-        val entity = HttpEntity(parameters, headers)
+    fun `given a Workspace name and a search content, when a GET REST request is performed to the search endpoint and one Card matches, then the response HTTP Status is 200 OK and the response body contains the retrieved Card`() {
+        val workspace = Workspace("workspaceTest")
+        val workspaceEntity = WorkspaceEntity.create(workspace)
+        workspaceRepository.save(workspaceEntity)
+        val matchingCardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        val matchingCardEntity = CardEntity(matchingCardId.id, workspace.name, "question", "response content")
+        cardRepository.save(matchingCardEntity)
+        val nonMatchingCardId = CardId("a1900ca7-dc58-4360-b41c-537d933bc9c1")
+        val nonMatchingCardEntity = CardEntity(nonMatchingCardId.id, workspace.name, "new question", "new response")
+        cardRepository.save(nonMatchingCardEntity)
+        val searchPattern = SearchPattern("content")
 
-        testRestTemplate.postForEntity(URI("http://localhost:$port/api/workspaces/import"), entity, String::class.java)
+        val responseEntity = testRestTemplate.getForEntity(
+                URI("http://localhost:$port/api/workspaces/${workspace.name}/search?content=${searchPattern.content}"),
+                List::class.java
+        )
 
-        val workspaceEntities = workspaceRepository.findAll()
-        assertEquals(1, workspaceEntities.size)
-        val expectedWorkspaceEntity = WorkspaceEntity("workspaceTest")
-        val expectedWorkspaceEntities = listOf(expectedWorkspaceEntity)
-        assertEquals(expectedWorkspaceEntities, workspaceEntities)
-        val cardEntities = cardRepository.findAll()
-        assertEquals(1, cardEntities.size)
-        val expectedCardEntity = CardEntity("a1900ca7-dc58-4360-b41c-537d933bc9c1", "workspaceTest", "This is a \"question\"", "This, is a response")
-        val expectedCardEntities = listOf(expectedCardEntity)
-        assertEquals(expectedCardEntities, cardEntities)
-        val learnCardEntities = learnCardRepository.findAll()
-        assertEquals(1, learnCardEntities.size)
-        val lastReview = Instant.ofEpochMilli(1637090403000)
-        val expectedLearnCardEntity = LearnCardEntity("a1900ca7-dc58-4360-b41c-537d933bc9c1", "workspaceTest", lastReview, lastReview, 0, 1.3f, 0)
-        val expectedLearnCardEntities = listOf(expectedLearnCardEntity)
-        assertEquals(expectedLearnCardEntities, learnCardEntities)
+        val expectedCard = Card(matchingCardId.id, workspace.name, "question", "response content")
+        val expectedCards = listOf(expectedCard)
+        val expectedResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedCards)
+        assertEquals(expectedResponseEntity.statusCode, responseEntity.statusCode)
+        val cards = responseEntity.body as List<*>
+        assertTrue { cards.size == 1 }
     }
 }
