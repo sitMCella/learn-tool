@@ -120,6 +120,19 @@ function Study () {
         duration: theme.transitions.duration.leavingScreen
       })
     },
+    drawerList: {
+      '@media only screen and (max-width:768px)': {
+        width: 35,
+        paddingLeft: 0
+      },
+      overflowX: 'hidden',
+      width: 60
+    },
+    drawerListItem: {
+      '@media only screen and (max-width:768px)': {
+        paddingLeft: 5
+      }
+    },
     toolbar: {
       display: 'flex',
       alignItems: 'center',
@@ -167,13 +180,13 @@ function Study () {
                 <div className={classes.toolbar}>
                 </div>
                 <Divider className={classes.divider} />
-                <List>
-                    <ListItem button key="Workspaces" component={Link} to={'/workspaces'}>
+                <List className={classes.drawerList}>
+                    <ListItem button key="Workspaces" component={Link} to={'/workspaces'} className={classes.drawerListItem}>
                         <ListItemIcon><DashboardIcon /></ListItemIcon>
                     </ListItem>
                 </List>
-                <List>
-                    <ListItem button key="Workspaces" component={Link} to={'/workspaces/' + params.name + '/cards'}>
+                <List className={classes.drawerList}>
+                    <ListItem button key="Workspaces" component={Link} to={'/workspaces/' + params.name + '/cards'} className={classes.drawerListItem}>
                         <ListItemIcon><FilterNoneIcon /></ListItemIcon>
                     </ListItem>
                 </List>

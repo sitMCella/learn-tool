@@ -151,6 +151,19 @@ function Workspaces () {
         duration: theme.transitions.duration.leavingScreen
       })
     },
+    drawerList: {
+      '@media only screen and (max-width:768px)': {
+        width: 35,
+        paddingLeft: 0
+      },
+      overflowX: 'hidden',
+      width: 60
+    },
+    drawerListItem: {
+      '@media only screen and (max-width:768px)': {
+        paddingLeft: 5
+      }
+    },
     toolbar: {
       display: 'flex',
       alignItems: 'center',
@@ -182,13 +195,13 @@ function Workspaces () {
                 <div className={classes.toolbar}>
                 </div>
                 <Divider className={classes.divider} />
-                <List>
-                    <ListItem button key="Workspaces" component={Link} to={'/workspaces'}>
+                <List className={classes.drawerList}>
+                    <ListItem button key="Workspaces" component={Link} to={'/workspaces'} className={classes.drawerListItem}>
                         <ListItemIcon><DashboardIcon /></ListItemIcon>
                     </ListItem>
                 </List>
-                <List>
-                    <ListItem button key="Workspaces">
+                <List className={classes.drawerList}>
+                    <ListItem button key="Workspaces" className={classes.drawerListItem}>
                         <input style={{ display: 'none' }} id="import" type="file" onChange={handleUploadFileData} />
                         <label htmlFor="import">
                             <ListItemIcon><UploadIcon/></ListItemIcon>
