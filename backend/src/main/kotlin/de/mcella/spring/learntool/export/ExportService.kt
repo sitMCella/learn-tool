@@ -2,8 +2,8 @@ package de.mcella.spring.learntool.export
 
 import de.mcella.spring.learntool.card.CardService
 import de.mcella.spring.learntool.learn.LearnService
-import de.mcella.spring.learntool.workspace.Workspace
 import de.mcella.spring.learntool.workspace.WorkspaceService
+import de.mcella.spring.learntool.workspace.dto.Workspace
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream

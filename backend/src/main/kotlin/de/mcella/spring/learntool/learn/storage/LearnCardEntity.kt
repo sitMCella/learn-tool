@@ -1,10 +1,10 @@
 package de.mcella.spring.learntool.learn.storage
 
-import de.mcella.spring.learntool.card.CardId
-import de.mcella.spring.learntool.learn.LearnCard
+import de.mcella.spring.learntool.card.dto.CardId
 import de.mcella.spring.learntool.learn.algorithm.MIN_EASE_FACTOR
 import de.mcella.spring.learntool.learn.algorithm.OutputValues
-import de.mcella.spring.learntool.workspace.Workspace
+import de.mcella.spring.learntool.learn.dto.LearnCard
+import de.mcella.spring.learntool.workspace.dto.Workspace
 import java.time.Duration
 import java.time.Instant
 import javax.persistence.Entity

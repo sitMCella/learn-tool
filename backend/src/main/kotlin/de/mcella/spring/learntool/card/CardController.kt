@@ -1,6 +1,9 @@
 package de.mcella.spring.learntool.card
 
-import de.mcella.spring.learntool.workspace.Workspace
+import de.mcella.spring.learntool.card.dto.Card
+import de.mcella.spring.learntool.card.dto.CardContent
+import de.mcella.spring.learntool.card.dto.CardId
+import de.mcella.spring.learntool.workspace.dto.Workspace
 import java.io.InputStream
 import java.net.URI
 import org.springframework.http.HttpStatus
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
@@ -60,5 +64,9 @@ class CardController(private val cardService: CardService, private val cardImpor
 
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(HttpStatus.OK)
-    fun getFromWorkspaceName(@PathVariable(value = "workspaceName") workspaceName: String): List<Card> = cardService.findByWorkspace(Workspace(workspaceName))
+    fun getFromWorkspaceName(
+        @PathVariable(value = "workspaceName") workspaceName: String,
+        @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
+        @RequestParam(value = "size", required = false, defaultValue = "20") size: Int
+    ): List<Card> = cardService.findByWorkspace(Workspace(workspaceName))
 }

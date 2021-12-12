@@ -1,6 +1,6 @@
 package de.mcella.spring.learntool.learn.algorithm
 
-import de.mcella.spring.learntool.learn.EvaluationParameters
+import de.mcella.spring.learntool.learn.dto.EvaluationParameters
 import de.mcella.spring.learntool.learn.storage.LearnCardEntity
 
 data class InputValues(

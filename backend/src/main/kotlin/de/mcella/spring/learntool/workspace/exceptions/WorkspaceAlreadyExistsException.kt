@@ -1,6 +1,6 @@
 package de.mcella.spring.learntool.workspace.exceptions
 
-import de.mcella.spring.learntool.workspace.Workspace
+import de.mcella.spring.learntool.workspace.dto.Workspace
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 

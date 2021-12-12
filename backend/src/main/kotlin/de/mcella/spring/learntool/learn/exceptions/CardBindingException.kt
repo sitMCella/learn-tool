@@ -1,7 +1,7 @@
 package de.mcella.spring.learntool.learn.exceptions
 
-import de.mcella.spring.learntool.card.CardId
-import de.mcella.spring.learntool.workspace.Workspace
+import de.mcella.spring.learntool.card.dto.CardId
+import de.mcella.spring.learntool.workspace.dto.Workspace
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 

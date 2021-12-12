@@ -1,5 +1,6 @@
 package de.mcella.spring.learntool.card
 
+import de.mcella.spring.learntool.card.dto.Card
 import de.mcella.spring.learntool.card.storage.CardEntity
 import java.time.Instant
 import javax.validation.constraints.NotNull

@@ -1,12 +1,12 @@
 package de.mcella.spring.learntool.import
 
-import de.mcella.spring.learntool.card.Card
-import de.mcella.spring.learntool.card.CardId
 import de.mcella.spring.learntool.card.CardService
-import de.mcella.spring.learntool.learn.LearnCard
+import de.mcella.spring.learntool.card.dto.Card
+import de.mcella.spring.learntool.card.dto.CardId
 import de.mcella.spring.learntool.learn.LearnService
-import de.mcella.spring.learntool.workspace.Workspace
+import de.mcella.spring.learntool.learn.dto.LearnCard
 import de.mcella.spring.learntool.workspace.WorkspaceService
+import de.mcella.spring.learntool.workspace.dto.Workspace
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceAlreadyExistsException
 import java.io.BufferedInputStream
 import java.io.StringReader

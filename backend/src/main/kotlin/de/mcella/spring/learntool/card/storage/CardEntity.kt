@@ -1,9 +1,9 @@
 package de.mcella.spring.learntool.card.storage
 
-import de.mcella.spring.learntool.card.Card
-import de.mcella.spring.learntool.card.CardContent
-import de.mcella.spring.learntool.card.CardId
-import de.mcella.spring.learntool.workspace.Workspace
+import de.mcella.spring.learntool.card.dto.Card
+import de.mcella.spring.learntool.card.dto.CardContent
+import de.mcella.spring.learntool.card.dto.CardId
+import de.mcella.spring.learntool.workspace.dto.Workspace
 import java.time.Instant
 import javax.persistence.Entity
 import javax.persistence.Id
