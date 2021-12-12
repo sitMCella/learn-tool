@@ -89,6 +89,13 @@ class CardService(private val cardRepository: CardRepository, private val worksp
                 .toList()
     }
 
+    fun countByWorkspace(workspace: Workspace): Long {
+        if (!workspaceRepository.existsById(workspace.name)) {
+            throw WorkspaceNotExistsException(workspace)
+        }
+        return cardRepository.countByWorkspaceName(workspace.name)
+    }
+
     fun findById(cardId: CardId): Card {
         val cardEntity = cardRepository.findById(cardId.id).orElseThrow { CardNotFoundException(cardId) }
         return Card.create(cardEntity)

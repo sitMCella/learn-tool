@@ -3,7 +3,6 @@ import { useParams, Link } from 'react-router-dom'
 import Card from './Card'
 import AppBar from '@material-ui/core/AppBar'
 import Box from '@material-ui/core/Box'
-import Button from '@material-ui/core/Button'
 import Drawer from '@material-ui/core/Drawer'
 import Divider from '@material-ui/core/Divider'
 import Fab from '@material-ui/core/Fab'
@@ -11,6 +10,7 @@ import InputBase from '@material-ui/core/InputBase'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
+import Pagination from '@material-ui/lab/Pagination'
 import Toolbar from '@material-ui/core/Toolbar'
 import { fade, makeStyles } from '@material-ui/core/styles'
 import AddIcon from '@material-ui/icons/Add'
@@ -23,13 +23,19 @@ import SearchIcon from '@material-ui/icons/Search'
 const WorkspaceDetails = () => {
   const params = useParams()
   const [cards, setCards] = useState([])
+  const [pagesCount, setPagesCount] = useState(0)
   const [newCardStatus, setNewCardStatus] = useState(false)
   const [backupCards, setBackupCards] = useState([])
   const [searchPattern, setSearchPattern] = useState('')
   const [typingTimeout, setTypingTimeout] = useState()
+  const paginationSize = 5
+
+  const getPagesCount = (cardsCount) => {
+    return Math.ceil(cardsCount / paginationSize)
+  }
 
   const getCards = async (signal) => {
-    const response = await fetch('/api/workspaces/' + params.name + '/cards', {
+    const response = await fetch('/api/workspaces/' + params.name + '/cards?page=0&size=' + paginationSize, {
       method: 'GET',
       headers: {
         Accepted: 'application/json'
@@ -40,6 +46,9 @@ const WorkspaceDetails = () => {
       throw new Error(JSON.stringify(response))
     }
     const responseData = await response.json()
+    const cardsCount = response.headers.get('count')
+    const pagesCount = getPagesCount(cardsCount)
+    setPagesCount(pagesCount)
     const loadedCards = []
     for (const key in responseData) {
       loadedCards.push({
@@ -62,6 +71,40 @@ const WorkspaceDetails = () => {
       })
     return () => controller.abort()
   }, [])
+
+  const handlePaginationChange = (event, value) => {
+    const getCards = async () => {
+      const page = value - 1
+      const response = await fetch('/api/workspaces/' + params.name + '/cards?page=' + page + '&size=' + paginationSize, {
+        method: 'GET',
+        headers: {
+          Accepted: 'application/json'
+        }
+      })
+      if (!response.ok) {
+        throw new Error(JSON.stringify(response))
+      }
+      const responseData = await response.json()
+      const cardsCount = response.headers.get('count')
+      const pagesCount = getPagesCount(cardsCount)
+      setPagesCount(pagesCount)
+      const loadedCards = []
+      for (const key in responseData) {
+        loadedCards.push({
+          id: responseData[key].id,
+          question: responseData[key].question,
+          response: responseData[key].response,
+          new: false
+        })
+      }
+      setCards(loadedCards)
+      setBackupCards(loadedCards)
+    }
+    getCards()
+      .catch((err) => {
+        console.log('Error while retrieving the cards from the Workspace ' + params.name + ': ' + err.message)
+      })
+  }
 
   const resetSearchHandler = () => {
     setSearchPattern('')
@@ -339,6 +382,7 @@ const WorkspaceDetails = () => {
     handleUpdateCardComplete={updateCardCompleteHandler} handleUpdateCardCancel={updateCardCancelHandler} handleUpdateCardError={updateCardErrorHandler}
     handleDeleteCardComplete={deleteCardCompleteHandler}/>)}
                 </List>
+                <Pagination count={pagesCount} defaultPage={1} siblingCount={0} boundaryCount={2} onChange={handlePaginationChange} />
             </Box>
         </Box>
   )

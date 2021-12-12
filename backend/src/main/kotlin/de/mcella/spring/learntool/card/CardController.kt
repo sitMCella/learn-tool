@@ -69,5 +69,11 @@ class CardController(private val cardService: CardService, private val cardImpor
         @PathVariable(value = "workspaceName") workspaceName: String,
         @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
         @RequestParam(value = "size", required = false, defaultValue = "20") size: Int
-    ): List<Card> = cardService.findByWorkspace(Workspace(workspaceName), CardPagination(page, size))
+    ): ResponseEntity<List<Card>> {
+        val workspace = Workspace(workspaceName)
+        val cards = cardService.findByWorkspace(workspace, CardPagination(page, size))
+        val bodyBuilder = ResponseEntity.status(HttpStatus.OK)
+        bodyBuilder.header("count", cardService.countByWorkspace(workspace).toString())
+        return bodyBuilder.body(cards)
+    }
 }

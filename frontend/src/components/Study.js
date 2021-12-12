@@ -153,7 +153,7 @@ function Study () {
     },
     questionCard: {
       width: '95%',
-      backgroundColor: '#fff8dc'
+      backgroundColor: '#F7CAC9'
     },
     responseCard: {
       paddingTop: 10,
