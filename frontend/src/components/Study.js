@@ -10,11 +10,13 @@ import Drawer from '@material-ui/core/Drawer'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
+import Rating from '@material-ui/lab/Rating'
 import Typography from '@material-ui/core/Typography'
 import Toolbar from '@material-ui/core/Toolbar'
 import { makeStyles } from '@material-ui/core/styles'
 import DashboardIcon from '@material-ui/icons/Dashboard'
 import FilterNoneIcon from '@material-ui/icons/FilterNone'
+import StarIcon from '@material-ui/icons/Star'
 
 function Study () {
   const params = useParams()
@@ -25,7 +27,7 @@ function Study () {
   const [responseVisibility, setResponseVisibility] = useState('none')
   const [evaluationButtonsVisible, setEvaluationButtonsVisible] = useState(false)
   const [noCardsLft, setNoCardsLeft] = useState(false)
-  const qualityValues = [0, 1, 2, 3, 4, 5]
+  const [qualityValue, setQualityValue] = React.useState(3)
 
   const getCard = async (signal) => {
     const response = await fetch('/api/workspaces/' + params.name + '/learn', {
@@ -132,9 +134,6 @@ function Study () {
       }
     },
     content: {
-      '@media only screen and (max-width:14000px)': {
-        marginLeft: theme.spacing(5)
-      }
     },
     title: {
       marginRight: theme.spacing(10)
@@ -151,6 +150,14 @@ function Study () {
     appbarBottom: {
       alignItems: 'center',
       width: '100%'
+    },
+    questionCard: {
+      width: '95%',
+      backgroundColor: '#fff8dc'
+    },
+    responseCard: {
+      paddingTop: 10,
+      width: '95%'
     }
   }))
   const classes = useStyles()
@@ -181,25 +188,15 @@ function Study () {
                 <div className={classes.content}>
                     <CardUi className={classes.card}>
                         <CardContent className={classes.cardContent}>
-                            <Box display="flex" flexWrap="wrap" p={0} m={1}>
-                                <Box pr={2}>
-                                    <Typography variant="body1" color="textSecondary" component="p" gutterBottom >
-                                        <b>Question:</b>
-                                    </Typography>
-                                </Box>
-                                <Box p={0}>
+                            <Box display="flex" flexWrap="wrap" p={0} m={0}>
+                                <Box display="flex" flexWrap="wrap" p={1} className={classes.questionCard}>
                                     <Typography variant="body1" color="textSecondary" component="p" gutterBottom >
                                         {cardQuestion}
                                     </Typography>
                                 </Box>
                             </Box>
                             <Box display={responseVisibility}>
-                                <Box display="flex" flexWrap="wrap" p={0} m={1}>
-                                    <Box pr={2}>
-                                        <Typography variant="body1" color="textSecondary" component="p" gutterBottom >
-                                            <b>Response:</b>
-                                        </Typography>
-                                    </Box>
+                                <Box display="flex" flexWrap="wrap" p={0} m={1} className={classes.responseCard}>
                                     <Box p={0}>
                                         <Typography variant="body1" color="textSecondary" component="p" gutterBottom >
                                             {cardResponse}
@@ -214,9 +211,16 @@ function Study () {
                             {flipButtonVisible && (<Button color="inherit" style={{ maxWidth: '50vh', minWidth: '50vh' }} onClick={flipCardHandler}>Flip</Button>)}
                             {evaluationButtonsVisible && (
                                 <Box component="span" display={responseVisibility}>
-                                    {qualityValues.map((value) => {
-                                      return <Button key={value} color="inherit" onClick={() => evaluateCardHandler({ value })}>{value}</Button>
-                                    })}
+                                  <Rating display={responseVisibility}
+                                      name="hover-feedback"
+                                      value={qualityValue}
+                                      precision={1}
+                                      onChange={(event, newQualityValue) => {
+                                        setQualityValue(newQualityValue)
+                                        evaluateCardHandler({ newQualityValue })
+                                      }}
+                                      emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
+                                  />
                                 </Box>
                             )}
                         </Toolbar>

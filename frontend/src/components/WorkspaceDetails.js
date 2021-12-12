@@ -187,7 +187,8 @@ const WorkspaceDetails = () => {
 
   const useStyles = makeStyles((theme) => ({
     appBar: {
-      marginBottom: theme.spacing(2)
+      marginBottom: theme.spacing(2),
+      marginLeft: theme.spacing(2)
     },
     drawerList: {
       '@media only screen and (max-width:768px)': {
@@ -218,7 +219,6 @@ const WorkspaceDetails = () => {
       },
       marginRight: theme.spacing(2),
       marginLeft: 0,
-      width: '100%',
       [theme.breakpoints.up('sm')]: {
         marginLeft: theme.spacing(3),
         width: 'auto'
@@ -286,7 +286,7 @@ const WorkspaceDetails = () => {
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static" className={classes.appBar}>
                 <Toolbar variant="dense">
-                    <div className={classes.search}>
+                    <Box className={classes.search}>
                       <div className={classes.searchIcon}>
                         <SearchIcon />
                       </div>
@@ -301,7 +301,7 @@ const WorkspaceDetails = () => {
                           onChange={searchOnChangeHandler}
                           endAdornment={<div className={classes.closeIcon}><CloseIcon onClick={resetSearchHandler} /></div>}
                       />
-                    </div>
+                    </Box>
                 </Toolbar>
             </AppBar>
             <Drawer variant="permanent" anchor="left">
