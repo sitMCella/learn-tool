@@ -12,6 +12,7 @@ import java.io.File
 import java.net.URI
 import java.time.Instant
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import org.junit.Before
 import org.junit.ClassRule
 import org.junit.Test
@@ -102,11 +103,13 @@ class ImportIntegrationTest {
         val expectedWorkspaceEntity = WorkspaceEntity("workspaceTest")
         val expectedWorkspaceEntities = listOf(expectedWorkspaceEntity)
         assertEquals(expectedWorkspaceEntities, workspaceEntities)
+        assertTrue { cardRepository.count() == 1L }
         val cardEntities = cardRepository.findAll()
-        assertEquals(1, cardEntities.size)
-        val expectedCardEntity = CardEntity("a1900ca7-dc58-4360-b41c-537d933bc9c1", "workspaceTest", "This is a \"question\"", "This, is a response", cardEntities[0].creationDate)
-        val expectedCardEntities = listOf(expectedCardEntity)
-        assertEquals(expectedCardEntities, cardEntities)
+        cardRepository.findAll().forEach {
+            val expectedCardEntity = CardEntity("a1900ca7-dc58-4360-b41c-537d933bc9c1", "workspaceTest", "This is a \"question\"", "This, is a response", it.creationDate)
+            val expectedCardEntities = listOf(expectedCardEntity)
+            assertEquals(expectedCardEntities, cardEntities)
+        }
         val learnCardEntities = learnCardRepository.findAll()
         assertEquals(1, learnCardEntities.size)
         val lastReview = Instant.ofEpochMilli(1637090403000)

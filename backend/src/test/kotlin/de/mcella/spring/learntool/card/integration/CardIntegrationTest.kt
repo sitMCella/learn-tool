@@ -93,15 +93,16 @@ class CardIntegrationTest {
 
         val responseEntity = testRestTemplate.postForObject(URI("http://localhost:$port/api/workspaces/${workspace.name}/cards"), request, Card::class.java)
 
-        val cards = cardRepository.findAll()
-        assertTrue { cards.size == 1 }
-        val createdCard = cards[0]
-        assertNotNull(createdCard.id)
-        assertEquals(workspace.name, createdCard.workspaceName)
-        assertEquals("question", createdCard.question)
-        assertEquals("response", createdCard.response)
-        val expectedCard = Card(createdCard.id, workspace.name, "question", "response")
-        assertEquals(expectedCard, responseEntity)
+        assertTrue { cardRepository.count() == 1L }
+        cardRepository.findAll().forEach {
+            val createdCard = it
+            assertNotNull(createdCard.id)
+            assertEquals(workspace.name, createdCard.workspaceName)
+            assertEquals("question", createdCard.question)
+            assertEquals("response", createdCard.response)
+            val expectedCard = Card(createdCard.id, workspace.name, "question", "response")
+            assertEquals(expectedCard, responseEntity)
+        }
     }
 
     @Test
@@ -118,14 +119,15 @@ class CardIntegrationTest {
 
         var responseEntity = testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/${workspace.name}/cards/${cardId.id}"), HttpMethod.PUT, request, Card::class.java)
 
-        val cards = cardRepository.findAll()
-        assertTrue { cards.size == 1 }
-        val updatedCard = cards[0]
-        assertEquals(cardId.id, updatedCard.id)
-        assertEquals(workspace.name, updatedCard.workspaceName)
-        assertEquals("updated question", updatedCard.question)
-        assertEquals("updated response", updatedCard.response)
-        assertEquals(HttpStatus.OK, responseEntity.statusCode)
+        assertTrue { cardRepository.count() == 1L }
+        cardRepository.findAll().forEach {
+            val updatedCard = it
+            assertEquals(cardId.id, updatedCard.id)
+            assertEquals(workspace.name, updatedCard.workspaceName)
+            assertEquals("updated question", updatedCard.question)
+            assertEquals("updated response", updatedCard.response)
+            assertEquals(HttpStatus.OK, responseEntity.statusCode)
+        }
     }
 
     @Test
@@ -140,8 +142,7 @@ class CardIntegrationTest {
 
         testRestTemplate.delete(URI("http://localhost:$port/api/workspaces/${workspace.name}/cards/${cardId.id}"))
 
-        val cards = cardRepository.findAll()
-        assertTrue { cards.size == 0 }
+        assertTrue { cardRepository.count() == 0L }
     }
 
     @Test
@@ -154,14 +155,15 @@ class CardIntegrationTest {
 
         testRestTemplate.postForObject(URI("http://localhost:$port/api/workspaces/${workspace.name}/cards/many.csv"), request, String::class.java)
 
-        val cards = cardRepository.findAll()
-        assertTrue { cards.size == 2 }
-        for (i in 0 until 1) {
-            val createdCard = cards[i]
+        assertTrue { cardRepository.count() == 2L }
+        var i = 0
+        cardRepository.findAll().forEach {
+            val createdCard = it
+            i = i.inc()
             assertNotNull(createdCard.id)
             assertEquals(workspace.name, createdCard.workspaceName)
-            assertEquals("questionTest${i + 1}", createdCard.question)
-            assertEquals("responseTest${i + 1}", createdCard.response)
+            assertEquals("questionTest$i", createdCard.question)
+            assertEquals("responseTest$i", createdCard.response)
         }
     }
 

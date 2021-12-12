@@ -4,6 +4,7 @@ import de.mcella.spring.learntool.UnitTest
 import de.mcella.spring.learntool.card.dto.Card
 import de.mcella.spring.learntool.card.dto.CardContent
 import de.mcella.spring.learntool.card.dto.CardId
+import de.mcella.spring.learntool.card.dto.CardPagination
 import de.mcella.spring.learntool.card.exceptions.CardAlreadyExistsException
 import de.mcella.spring.learntool.card.exceptions.CardNotFoundException
 import de.mcella.spring.learntool.card.storage.CardEntity
@@ -19,6 +20,7 @@ import org.junit.experimental.categories.Category
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito
+import org.springframework.data.domain.PageRequest
 
 @Category(UnitTest::class)
 class CardServiceTest {
@@ -270,23 +272,26 @@ class CardServiceTest {
     @Test(expected = WorkspaceNotExistsException::class)
     fun `given a non existent Workspace name, when retrieving the Cards by Workspace, then throw WorkspaceNotExistsException`() {
         val workspace = Workspace("workspaceTest")
+        val cardPagination = CardPagination(0, 20)
         Mockito.`when`(workspaceRepository.existsById(workspace.name)).thenReturn(false)
 
-        cardService.findByWorkspace(workspace)
+        cardService.findByWorkspace(workspace, cardPagination)
     }
 
     @Test
     fun `given a Workspace name, when retrieving the Cards by Workspace, then call the method findByWorkspaceNameDesc of CardRepository and return the Cards`() {
         val workspace = Workspace("workspaceTest")
+        val cardPagination = CardPagination(0, 20)
+        val pageRequest = PageRequest.of(cardPagination.page, cardPagination.size)
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val cardEntity = CardEntity(cardId.id, "workspaceTest", "question", "response")
         val cardEntities = listOf(cardEntity)
         Mockito.`when`(workspaceRepository.existsById(workspace.name)).thenReturn(true)
-        Mockito.`when`(cardRepository.findByWorkspaceNameOrderByCreationDateDesc(workspace.name)).thenReturn(cardEntities)
+        Mockito.`when`(cardRepository.findByWorkspaceNameOrderByCreationDateDesc(workspace.name, pageRequest)).thenReturn(cardEntities)
 
-        val cards = cardService.findByWorkspace(workspace)
+        val cards = cardService.findByWorkspace(workspace, cardPagination)
 
-        Mockito.verify(cardRepository).findByWorkspaceNameOrderByCreationDateDesc(workspace.name)
+        Mockito.verify(cardRepository).findByWorkspaceNameOrderByCreationDateDesc(workspace.name, pageRequest)
         val expectedCard = Card(cardId.id, "workspaceTest", "question", "response")
         val expectedCards = listOf(expectedCard)
         assertEquals(expectedCards, cards)

@@ -3,6 +3,7 @@ package de.mcella.spring.learntool.card
 import de.mcella.spring.learntool.card.dto.Card
 import de.mcella.spring.learntool.card.dto.CardContent
 import de.mcella.spring.learntool.card.dto.CardId
+import de.mcella.spring.learntool.card.dto.CardPagination
 import de.mcella.spring.learntool.card.exceptions.CardAlreadyExistsException
 import de.mcella.spring.learntool.card.exceptions.CardNotFoundException
 import de.mcella.spring.learntool.card.storage.CardEntity
@@ -12,6 +13,8 @@ import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceNameExcep
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import kotlin.streams.toList
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 @Service
@@ -74,11 +77,14 @@ class CardService(private val cardRepository: CardRepository, private val worksp
         cardRepository.delete(cardEntity)
     }
 
-    fun findByWorkspace(workspace: Workspace): List<Card> {
+    fun findByWorkspace(workspace: Workspace, cardPagination: CardPagination?): List<Card> {
         if (!workspaceRepository.existsById(workspace.name)) {
             throw WorkspaceNotExistsException(workspace)
         }
-        return cardRepository.findByWorkspaceNameOrderByCreationDateDesc(workspace.name).stream()
+        val pageRequest = cardPagination?.let {
+            PageRequest.of(cardPagination.page, cardPagination.size)
+        } ?: Pageable.unpaged()
+        return cardRepository.findByWorkspaceNameOrderByCreationDateDesc(workspace.name, pageRequest).stream()
                 .map { cardEntity -> Card.create(cardEntity) }
                 .toList()
     }

@@ -5,6 +5,7 @@ import de.mcella.spring.learntool.UnitTest
 import de.mcella.spring.learntool.card.dto.Card
 import de.mcella.spring.learntool.card.dto.CardContent
 import de.mcella.spring.learntool.card.dto.CardId
+import de.mcella.spring.learntool.card.dto.CardPagination
 import de.mcella.spring.learntool.card.exceptions.CardAlreadyExistsException
 import de.mcella.spring.learntool.workspace.dto.Workspace
 import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceNameException
@@ -214,11 +215,12 @@ class CardControllerTest {
     }
 
     @Test
-    fun `given a Workspace name, when sending a GET REST request to the cards endpoint, then the findByWorkspace method of CardService is called and the retrieved Cards are returned`() {
+    fun `given a Workspace name, when sending a GET REST request to the cards endpoint without pagination query parameters, then the findByWorkspace method of CardService is called and the retrieved Cards are returned`() {
         val workspace = Workspace("workspaceTest")
+        val cardPagination = CardPagination(0, 20)
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspace.name, "question", "response content")
         val cards = listOf(card)
-        Mockito.`when`(cardService.findByWorkspace(workspace)).thenReturn(cards)
+        Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination)).thenReturn(cards)
         val expectedContentBody = objectMapper.writeValueAsString(cards)
 
         mockMvc.perform(
@@ -231,10 +233,43 @@ class CardControllerTest {
     @Test
     fun `given a Workspace name, when sending a GET REST request to the cards endpoint and the CardService throws WorkspaceNotExistsException exception, then an INTERNAL_SERVER_ERROR http status response is returned`() {
         val workspace = Workspace("workspaceTest")
-        Mockito.`when`(cardService.findByWorkspace(workspace)).thenThrow(WorkspaceNotExistsException(workspace))
+        val cardPagination = CardPagination(0, 20)
+        Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination)).thenThrow(WorkspaceNotExistsException(workspace))
 
         mockMvc.perform(
                 MockMvcRequestBuilders.get("/api/workspaces/${workspace.name}/cards")
         ).andExpect(MockMvcResultMatchers.status().isNotFound)
+    }
+
+    @Test
+    fun `given a Workspace name, when sending a GET REST request to the cards endpoint with page query parameter, then the findByWorkspace method of CardService is called and the retrieved Cards are returned`() {
+        val workspace = Workspace("workspaceTest")
+        val cardPagination = CardPagination(2, 20)
+        val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspace.name, "question", "response content")
+        val cards = listOf(card)
+        Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination)).thenReturn(cards)
+        val expectedContentBody = objectMapper.writeValueAsString(cards)
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/api/workspaces/${workspace.name}/cards?page=2")
+        ).andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(MockMvcResultMatchers.content().json(expectedContentBody))
+    }
+
+    @Test
+    fun `given a Workspace name, when sending a GET REST request to the cards endpoint with size query parameter, then the findByWorkspace method of CardService is called and the retrieved Cards are returned`() {
+        val workspace = Workspace("workspaceTest")
+        val cardPagination = CardPagination(0, 50)
+        val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspace.name, "question", "response content")
+        val cards = listOf(card)
+        Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination)).thenReturn(cards)
+        val expectedContentBody = objectMapper.writeValueAsString(cards)
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/api/workspaces/${workspace.name}/cards?size=50")
+        ).andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(MockMvcResultMatchers.content().json(expectedContentBody))
     }
 }
