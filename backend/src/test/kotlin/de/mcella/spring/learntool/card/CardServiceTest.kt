@@ -279,7 +279,7 @@ class CardServiceTest {
     }
 
     @Test
-    fun `given a Workspace name, when retrieving the Cards by Workspace, then call the method findByWorkspaceNameDesc of CardRepository and return the Cards`() {
+    fun `given a Workspace name and a CardPagination, when retrieving the Cards by Workspace, then call the method findByWorkspaceNameDesc of CardRepository and return the Cards`() {
         val workspace = Workspace("workspaceTest")
         val cardPagination = CardPagination(0, 20)
         val pageRequest = PageRequest.of(cardPagination.page, cardPagination.size)
@@ -295,6 +295,26 @@ class CardServiceTest {
         val expectedCard = Card(cardId.id, "workspaceTest", "question", "response")
         val expectedCards = listOf(expectedCard)
         assertEquals(expectedCards, cards)
+    }
+
+    @Test(expected = WorkspaceNotExistsException::class)
+    fun `given a non existent Workspace name, when retrieving the count of Cards by Workspace, then throw WorkspaceNotExistsException`() {
+        val workspace = Workspace("workspaceTest")
+        Mockito.`when`(workspaceRepository.existsById(workspace.name)).thenReturn(false)
+
+        cardService.countByWorkspace(workspace)
+    }
+
+    @Test
+    fun `given a Workspace name, when retrieving the count of Cards by Workspace, then call the method countByWorkspaceName of CardRepository and return the count of Cards`() {
+        val workspace = Workspace("workspaceTest")
+        Mockito.`when`(workspaceRepository.existsById(workspace.name)).thenReturn(true)
+        Mockito.`when`(cardRepository.countByWorkspaceName(workspace.name)).thenReturn(1L)
+
+        val cardsCount = cardService.countByWorkspace(workspace)
+
+        Mockito.verify(cardRepository).countByWorkspaceName(workspace.name)
+        assertEquals(1L, cardsCount)
     }
 
     @Test

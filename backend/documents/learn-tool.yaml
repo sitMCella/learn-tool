@@ -189,6 +189,12 @@ paths:
                     workspaceName: "workspaceTest"
                     question: "Question"
                     response: "Response"
+          headers:
+            count:
+              description: The total count of Cards.
+              schema:
+                type: integer
+                format: int64
         '404':
           description: The Workspace does not exist.
   /api/workspaces/{workspaceName}/cards/{cardId}:

@@ -12,6 +12,7 @@ import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import org.junit.Before
@@ -168,7 +169,7 @@ class CardIntegrationTest {
     }
 
     @Test
-    fun `given a Workspace named, when a GET REST request is sent to the cards endpoint, then the response HTTP Status is 200 OK and the response body contains the list of Cards`() {
+    fun `given a Workspace named, when a GET REST request is sent to the cards endpoint, then the response HTTP Status is 200 OK and the response body contains the list of Cards and the count Header the count of Cards`() {
         val workspace = Workspace("workspaceTest")
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val cardContent = CardContent("question", "response")
@@ -185,5 +186,8 @@ class CardIntegrationTest {
         assertEquals(expectedResponseEntity.statusCode, responseEntity.statusCode)
         val cards = responseEntity.body as List<*>
         assertTrue { cards.size == 1 }
+        val count = responseEntity.headers["count"]
+        assertFalse(count.isNullOrEmpty())
+        assertEquals("1", count[0])
     }
 }

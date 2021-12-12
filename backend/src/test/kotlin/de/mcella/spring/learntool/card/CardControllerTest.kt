@@ -260,16 +260,33 @@ class CardControllerTest {
     @Test
     fun `given a Workspace name, when sending a GET REST request to the cards endpoint with size query parameter, then the findByWorkspace method of CardService is called and the retrieved Cards are returned`() {
         val workspace = Workspace("workspaceTest")
-        val cardPagination = CardPagination(0, 50)
+        val cardPagination = CardPagination(0, 10)
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspace.name, "question", "response content")
         val cards = listOf(card)
         Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination)).thenReturn(cards)
+        Mockito.`when`(cardService.countByWorkspace(workspace)).thenReturn(1L)
         val expectedContentBody = objectMapper.writeValueAsString(cards)
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/api/workspaces/${workspace.name}/cards?size=50")
+                MockMvcRequestBuilders.get("/api/workspaces/${workspace.name}/cards?page=0&size=10")
         ).andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.content().json(expectedContentBody))
+    }
+
+    @Test
+    fun `given a Workspace name, when sending a GET REST request to the cards endpoint with size query parameter, then the countByWorkspace method of CardService is called and the count of Cards is returned as Header`() {
+        val workspace = Workspace("workspaceTest")
+        val cardPagination = CardPagination(0, 10)
+        val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspace.name, "question", "response content")
+        val cards = listOf(card)
+        Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination)).thenReturn(cards)
+        Mockito.`when`(cardService.countByWorkspace(workspace)).thenReturn(1L)
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/api/workspaces/${workspace.name}/cards?page=0&size=10")
+        ).andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(MockMvcResultMatchers.header().longValue("count", 1L))
     }
 }
