@@ -230,8 +230,12 @@ const WorkspaceDetails = () => {
 
   const useStyles = makeStyles((theme) => ({
     appBar: {
+      '@media only screen and (max-width:768px)': {
+        marginLeft: 20
+      },
       marginBottom: theme.spacing(2),
-      marginLeft: theme.spacing(2)
+      marginLeft: 30,
+      marginRight: 0
     },
     drawerList: {
       '@media only screen and (max-width:768px)': {
@@ -305,7 +309,8 @@ const WorkspaceDetails = () => {
     content: {
       '@media only screen and (max-width:14000px)': {
         marginLeft: theme.spacing(5)
-      }
+      },
+      marginRight: 0
     },
     title: {
       flex: 0,
@@ -326,8 +331,8 @@ const WorkspaceDetails = () => {
   const classes = useStyles()
 
   return (
-        <Box sx={{ flexGrow: 1 }}>
-            <AppBar position="static" className={classes.appBar}>
+        <Box sx={{ flexGrow: 0 }}>
+            <AppBar position="relative" className={classes.appBar}>
                 <Toolbar variant="dense">
                     <Box className={classes.search}>
                       <div className={classes.searchIcon}>
@@ -376,7 +381,7 @@ const WorkspaceDetails = () => {
                     </Fab>
                   </Box>
                 </Box>
-                <List component="nav" aria-label="main mailbox folders">
+                <List component="nav" aria-label="cards">
                     {cards.map(card => <Card key={card.id} workspaceName={params.name} id={card.id} question={card.question} response={card.response} selected={false} new={card.new} change={card.change}
     handleCreateCard={createCardHandler} handleCreateCardCancel={createCardCancelHandler} handleUpdateCard={updateCardHandler} handleCraeteCardError={createCardErrorHandler}
     handleUpdateCardComplete={updateCardCompleteHandler} handleUpdateCardCancel={updateCardCancelHandler} handleUpdateCardError={updateCardErrorHandler}

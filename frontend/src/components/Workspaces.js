@@ -134,7 +134,12 @@ function Workspaces () {
 
   const useStyles = makeStyles((theme) => ({
     appBar: {
-      marginBottom: theme.spacing(2)
+      '@media only screen and (max-width:768px)': {
+        marginLeft: 20
+      },
+      marginBottom: theme.spacing(2),
+      marginLeft: 30,
+      marginRight: 0
     },
     drawerList: {
       '@media only screen and (max-width:768px)': {
@@ -164,9 +169,11 @@ function Workspaces () {
     content: {
       '@media only screen and (max-width:14000px)': {
         marginLeft: theme.spacing(5)
-      }
+      },
+      marginRight: 0
     },
     title: {
+      flex: 0,
       display: 'flex',
       position: 'absolute',
       alignItems: 'center',
@@ -179,13 +186,21 @@ function Workspaces () {
       alignItems: 'center',
       marginLeft: 'auto',
       padding: theme.spacing(0, 1)
+    },
+    events: {
+      display: 'flex',
+      justifyContent: 'flex-end',
+      paddingRight: 5
+    },
+    eventIcon: {
+      paddingRight: 5
     }
   }))
   const classes = useStyles()
 
   return (
         <Box sx={{ flexGrow: 1 }}>
-            <AppBar position="static" className={classes.appBar}>
+            <AppBar position="relative" className={classes.appBar}>
                 <Toolbar variant="dense">
                 </Toolbar>
             </AppBar>
@@ -210,9 +225,13 @@ function Workspaces () {
             <div className={classes.content}>
                 {workspaceError && (<Alert severity="error">{workspaceErrorMessage}</Alert>)}
                 <div className={classes.title}>Workspaces</div>
-                <Fab size="small" color="primary" className={classes.addIcon} aria-label="add" onClick={newWorkspaceHandler} disabled={newWorkspaceStatus}>
-                    <AddIcon />
-                </Fab>
+                <Box className={classes.events}>
+                  <Box className={classes.eventIcon}>
+                    <Fab size="small" color="primary" aria-label="add" onClick={newWorkspaceHandler} disabled={newWorkspaceStatus}>
+                      <AddIcon />
+                    </Fab>
+                  </Box>
+                </Box>
                 <List component="nav" aria-label="main mailbox folders">
                     {list.map(workspace => <Workspace key={workspace.name} name={workspace.name} selected={false} new={workspace.new} handleSubmit={submitHandler} handleError={createErrorHandler} handleCancel={cancelButtonClickHandler}></Workspace>)}
                 </List>
