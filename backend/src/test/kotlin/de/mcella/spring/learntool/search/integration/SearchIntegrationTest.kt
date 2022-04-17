@@ -2,12 +2,12 @@ package de.mcella.spring.learntool.search.integration
 
 import de.mcella.spring.learntool.BackendApplication
 import de.mcella.spring.learntool.IntegrationTest
-import de.mcella.spring.learntool.card.Card
-import de.mcella.spring.learntool.card.CardId
+import de.mcella.spring.learntool.card.dto.Card
+import de.mcella.spring.learntool.card.dto.CardId
 import de.mcella.spring.learntool.card.storage.CardEntity
 import de.mcella.spring.learntool.card.storage.CardRepository
 import de.mcella.spring.learntool.search.SearchPattern
-import de.mcella.spring.learntool.workspace.Workspace
+import de.mcella.spring.learntool.workspace.dto.Workspace
 import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI

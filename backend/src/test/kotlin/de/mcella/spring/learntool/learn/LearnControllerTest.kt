@@ -2,16 +2,18 @@ package de.mcella.spring.learntool.learn
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import de.mcella.spring.learntool.UnitTest
-import de.mcella.spring.learntool.card.Card
-import de.mcella.spring.learntool.card.CardId
+import de.mcella.spring.learntool.card.dto.Card
+import de.mcella.spring.learntool.card.dto.CardId
 import de.mcella.spring.learntool.card.exceptions.CardNotFoundException
+import de.mcella.spring.learntool.learn.dto.EvaluationParameters
+import de.mcella.spring.learntool.learn.dto.LearnCard
 import de.mcella.spring.learntool.learn.exceptions.CardBindingException
 import de.mcella.spring.learntool.learn.exceptions.InputValuesNotAcceptableException
 import de.mcella.spring.learntool.learn.exceptions.LearnCardAlreadyExistsException
 import de.mcella.spring.learntool.learn.exceptions.LearnCardNotFoundException
 import de.mcella.spring.learntool.learn.exceptions.LearnCardsNotFoundException
 import de.mcella.spring.learntool.learn.storage.LearnCardEntity
-import de.mcella.spring.learntool.workspace.Workspace
+import de.mcella.spring.learntool.workspace.dto.Workspace
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import java.time.Instant
 import org.junit.Test

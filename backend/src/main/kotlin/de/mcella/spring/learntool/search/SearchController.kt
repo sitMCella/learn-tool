@@ -1,8 +1,8 @@
 package de.mcella.spring.learntool.search
 
-import de.mcella.spring.learntool.card.Card
+import de.mcella.spring.learntool.card.dto.Card
 import de.mcella.spring.learntool.search.exceptions.CardSearchException
-import de.mcella.spring.learntool.workspace.Workspace
+import de.mcella.spring.learntool.workspace.dto.Workspace
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType

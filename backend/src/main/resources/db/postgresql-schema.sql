@@ -7,6 +7,7 @@ CREATE TABLE if not exists cards (
   workspace_name varchar (255),
   question text NOT NULL,
   response text NOT NULL,
+  creation_date timestamp NOT NULL,
   CONSTRAINT fkWorkspaceName FOREIGN KEY (workspace_name) REFERENCES workspaces(name)
 );
 

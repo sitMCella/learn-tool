@@ -138,7 +138,7 @@ paths:
         '500':
           description: An error occured while creating the Card.
     get:
-      summary: Get all the Cards of a Workspace
+      summary: Get the Cards of a Workspace
       operationId: get-cards
       tags:
         - card
@@ -150,6 +150,22 @@ paths:
           schema:
             type: string
           example: "workspaceTest"
+        - name: page
+          in: query
+          description: The page parameter of the pagination.
+          required: false
+          schema:
+            type: integer
+            format: int32
+          example: 0
+        - name: size
+          in: query
+          description: The size parameter of the pagination.
+          required: false
+          schema:
+            type: integer
+            format: int32
+          example: 20
       responses:
         '200':
           description: The list of Cards.
@@ -173,6 +189,14 @@ paths:
                     workspaceName: "workspaceTest"
                     question: "Question"
                     response: "Response"
+          headers:
+            count:
+              description: The total count of Cards.
+              schema:
+                type: integer
+                format: int64
+        '404':
+          description: The Workspace does not exist.
   /api/workspaces/{workspaceName}/cards/{cardId}:
     put:
       summary: Update a Card

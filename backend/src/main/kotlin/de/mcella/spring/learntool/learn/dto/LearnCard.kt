@@ -1,4 +1,4 @@
-package de.mcella.spring.learntool.learn
+package de.mcella.spring.learntool.learn.dto
 
 import de.mcella.spring.learntool.learn.storage.LearnCardEntity
 import java.time.Instant

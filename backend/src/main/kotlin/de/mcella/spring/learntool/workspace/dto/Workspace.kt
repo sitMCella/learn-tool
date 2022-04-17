@@ -1,4 +1,4 @@
-package de.mcella.spring.learntool.workspace
+package de.mcella.spring.learntool.workspace.dto
 
 import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import javax.validation.constraints.NotEmpty

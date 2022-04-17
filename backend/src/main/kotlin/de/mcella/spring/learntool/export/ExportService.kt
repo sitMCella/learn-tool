@@ -2,8 +2,8 @@ package de.mcella.spring.learntool.export
 
 import de.mcella.spring.learntool.card.CardService
 import de.mcella.spring.learntool.learn.LearnService
-import de.mcella.spring.learntool.workspace.Workspace
 import de.mcella.spring.learntool.workspace.WorkspaceService
+import de.mcella.spring.learntool.workspace.dto.Workspace
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
@@ -62,7 +62,7 @@ class ExportService(private val workspaceService: WorkspaceService, private val 
         val writer = Files.newBufferedWriter(Paths.get(file.toURI()))
         val csvPrinter = CSVPrinter(writer, CSVFormat.RFC4180
                 .withHeader("id", "workspace_name", "question", "response").withEscape('"'))
-        cardService.findByWorkspace(workspace).stream().forEach { card -> csvPrinter.printRecord(card.id, card.workspaceName, card.question, card.response) }
+        cardService.findByWorkspace(workspace, null).stream().forEach { card -> csvPrinter.printRecord(card.id, card.workspaceName, card.question, card.response) }
         csvPrinter.flush()
         csvPrinter.close()
         return file

@@ -2,15 +2,17 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Workspace from './Workspace'
 import AppBar from '@material-ui/core/AppBar'
-import Button from '@material-ui/core/Button'
+import Box from '@material-ui/core/Box'
 import Divider from '@material-ui/core/Divider'
 import Drawer from '@material-ui/core/Drawer'
+import Fab from '@material-ui/core/Fab'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import Toolbar from '@material-ui/core/Toolbar'
 import MuiAlert from '@material-ui/lab/Alert'
 import { makeStyles } from '@material-ui/core/styles'
+import AddIcon from '@material-ui/icons/Add'
 import DashboardIcon from '@material-ui/icons/Dashboard'
 import UploadIcon from '@material-ui/icons/Publish'
 
@@ -131,25 +133,26 @@ function Workspaces () {
   }
 
   const useStyles = makeStyles((theme) => ({
-    menuButton: {
-      marginRight: theme.spacing(2),
-      '@media only screen and (max-width:768px)': {
-        display: 'none'
-      }
-    },
-    title: {
-      marginRight: theme.spacing(10)
-    },
     appBar: {
-      '@media only screen and (max-width:14000px)': {
-        marginLeft: theme.spacing(5)
+      '@media only screen and (max-width:768px)': {
+        marginLeft: 20
       },
       marginBottom: theme.spacing(2),
-      zIndex: theme.zIndex.drawer + 1,
-      transition: theme.transitions.create(['width', 'margin'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen
-      })
+      marginLeft: 30,
+      marginRight: 0
+    },
+    drawerList: {
+      '@media only screen and (max-width:768px)': {
+        width: 35,
+        paddingLeft: 0
+      },
+      overflowX: 'hidden',
+      width: 60
+    },
+    drawerListItem: {
+      '@media only screen and (max-width:768px)': {
+        paddingLeft: 5
+      }
     },
     toolbar: {
       display: 'flex',
@@ -166,29 +169,52 @@ function Workspaces () {
     content: {
       '@media only screen and (max-width:14000px)': {
         marginLeft: theme.spacing(5)
-      }
+      },
+      marginRight: 0
+    },
+    title: {
+      flex: 0,
+      display: 'flex',
+      position: 'absolute',
+      alignItems: 'center',
+      fontSize: 'x-large',
+      padding: theme.spacing(0, 1)
+    },
+    addIcon: {
+      display: 'flex',
+      position: 'relative',
+      alignItems: 'center',
+      marginLeft: 'auto',
+      padding: theme.spacing(0, 1)
+    },
+    events: {
+      display: 'flex',
+      justifyContent: 'flex-end',
+      paddingRight: 5
+    },
+    eventIcon: {
+      paddingRight: 5
     }
   }))
   const classes = useStyles()
 
   return (
-        <div>
-            <AppBar position="static" className={classes.appBar}>
-                <Toolbar>
-                    <Button color="inherit" onClick={newWorkspaceHandler} disabled={newWorkspaceStatus}>New Workspace</Button>
+        <Box sx={{ flexGrow: 1 }}>
+            <AppBar position="relative" className={classes.appBar}>
+                <Toolbar variant="dense">
                 </Toolbar>
             </AppBar>
             <Drawer variant="permanent" anchor="left">
                 <div className={classes.toolbar}>
                 </div>
                 <Divider className={classes.divider} />
-                <List>
-                    <ListItem button key="Workspaces" component={Link} to={'/workspaces'}>
+                <List className={classes.drawerList}>
+                    <ListItem button key="Workspaces" component={Link} to={'/workspaces'} className={classes.drawerListItem}>
                         <ListItemIcon><DashboardIcon /></ListItemIcon>
                     </ListItem>
                 </List>
-                <List>
-                    <ListItem button key="Workspaces">
+                <List className={classes.drawerList}>
+                    <ListItem button key="Workspaces" className={classes.drawerListItem}>
                         <input style={{ display: 'none' }} id="import" type="file" onChange={handleUploadFileData} />
                         <label htmlFor="import">
                             <ListItemIcon><UploadIcon/></ListItemIcon>
@@ -198,11 +224,19 @@ function Workspaces () {
             </Drawer>
             <div className={classes.content}>
                 {workspaceError && (<Alert severity="error">{workspaceErrorMessage}</Alert>)}
+                <div className={classes.title}>Workspaces</div>
+                <Box className={classes.events}>
+                  <Box className={classes.eventIcon}>
+                    <Fab size="small" color="primary" aria-label="add" onClick={newWorkspaceHandler} disabled={newWorkspaceStatus}>
+                      <AddIcon />
+                    </Fab>
+                  </Box>
+                </Box>
                 <List component="nav" aria-label="main mailbox folders">
                     {list.map(workspace => <Workspace key={workspace.name} name={workspace.name} selected={false} new={workspace.new} handleSubmit={submitHandler} handleError={createErrorHandler} handleCancel={cancelButtonClickHandler}></Workspace>)}
                 </List>
             </div>
-        </div>
+        </Box>
   )
 }
 

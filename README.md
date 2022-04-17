@@ -6,7 +6,7 @@ Learn Tool consists mainly of an active recall learning tool, but offers a whole
 
 ## Development
 
-Learn Tool is a web application that uses Spring Boot 2 framework and Kotlin language on the backend, and React JS framework on the frontend.
+Learn Tool is a web application built using Spring Boot 2 framework and Kotlin language on the backend, and React JS framework on the frontend.
 
 ### Setup
 

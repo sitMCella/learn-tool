@@ -2,30 +2,40 @@ import React, { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import Card from './Card'
 import AppBar from '@material-ui/core/AppBar'
-import Button from '@material-ui/core/Button'
+import Box from '@material-ui/core/Box'
 import Drawer from '@material-ui/core/Drawer'
 import Divider from '@material-ui/core/Divider'
+import Fab from '@material-ui/core/Fab'
 import InputBase from '@material-ui/core/InputBase'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
+import Pagination from '@material-ui/lab/Pagination'
 import Toolbar from '@material-ui/core/Toolbar'
 import { fade, makeStyles } from '@material-ui/core/styles'
+import AddIcon from '@material-ui/icons/Add'
 import DashboardIcon from '@material-ui/icons/Dashboard'
 import CloseIcon from '@material-ui/icons/Close'
+import RocketIcon from '@material-ui/icons/EmojiEvents'
 import SaveAltIcon from '@material-ui/icons/SaveAlt'
 import SearchIcon from '@material-ui/icons/Search'
 
 const WorkspaceDetails = () => {
   const params = useParams()
   const [cards, setCards] = useState([])
+  const [pagesCount, setPagesCount] = useState(0)
   const [newCardStatus, setNewCardStatus] = useState(false)
   const [backupCards, setBackupCards] = useState([])
   const [searchPattern, setSearchPattern] = useState('')
   const [typingTimeout, setTypingTimeout] = useState()
+  const paginationSize = 5
+
+  const getPagesCount = (cardsCount) => {
+    return Math.ceil(cardsCount / paginationSize)
+  }
 
   const getCards = async (signal) => {
-    const response = await fetch('/api/workspaces/' + params.name + '/cards', {
+    const response = await fetch('/api/workspaces/' + params.name + '/cards?page=0&size=' + paginationSize, {
       method: 'GET',
       headers: {
         Accepted: 'application/json'
@@ -36,6 +46,9 @@ const WorkspaceDetails = () => {
       throw new Error(JSON.stringify(response))
     }
     const responseData = await response.json()
+    const cardsCount = response.headers.get('count')
+    const pagesCount = getPagesCount(cardsCount)
+    setPagesCount(pagesCount)
     const loadedCards = []
     for (const key in responseData) {
       loadedCards.push({
@@ -59,11 +72,46 @@ const WorkspaceDetails = () => {
     return () => controller.abort()
   }, [])
 
-  const resetSearchHandler = () => {
-    setSearchPattern('')
+  const handlePaginationChange = (event, value) => {
+    const getCards = async () => {
+      const page = value - 1
+      const response = await fetch('/api/workspaces/' + params.name + '/cards?page=' + page + '&size=' + paginationSize, {
+        method: 'GET',
+        headers: {
+          Accepted: 'application/json'
+        }
+      })
+      if (!response.ok) {
+        throw new Error(JSON.stringify(response))
+      }
+      const responseData = await response.json()
+      const cardsCount = response.headers.get('count')
+      const pagesCount = getPagesCount(cardsCount)
+      setPagesCount(pagesCount)
+      const loadedCards = []
+      for (const key in responseData) {
+        loadedCards.push({
+          id: responseData[key].id,
+          question: responseData[key].question,
+          response: responseData[key].response,
+          new: false
+        })
+      }
+      setCards(loadedCards)
+      setBackupCards(loadedCards)
+    }
+    getCards()
+      .catch((err) => {
+        console.log('Error while retrieving the cards from the Workspace ' + params.name + ': ' + err.message)
+      })
   }
 
-  const keyPressHandler = (event) => {
+  const resetSearchHandler = () => {
+    setSearchPattern('')
+    setCards(backupCards)
+  }
+
+  const searchOnChangeHandler = (event) => {
     const getSearchCards = async () => {
       const content = encodeURIComponent(event.target.value)
       const response = await fetch('/api/workspaces/' + params.name + '/search?content=' + content, {
@@ -117,6 +165,7 @@ const WorkspaceDetails = () => {
   const createCardHandler = (id, question, response) => {
     const newCards = [{ id: id, question: question, response: response, new: false, change: false }, ...cards.slice(1)]
     setCards(newCards)
+    setBackupCards(newCards)
     setNewCardStatus(false)
   }
   const createCardCancelHandler = () => {
@@ -180,22 +229,26 @@ const WorkspaceDetails = () => {
   }
 
   const useStyles = makeStyles((theme) => ({
-    menuButton: {
-      marginRight: theme.spacing(2),
-      '@media only screen and (max-width:768px)': {
-        display: 'none'
-      }
-    },
     appBar: {
-      '@media only screen and (max-width:14000px)': {
-        marginLeft: theme.spacing(5)
+      '@media only screen and (max-width:768px)': {
+        marginLeft: 20
       },
       marginBottom: theme.spacing(2),
-      zIndex: theme.zIndex.drawer + 1,
-      transition: theme.transitions.create(['width', 'margin'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen
-      })
+      marginLeft: 30,
+      marginRight: 0
+    },
+    drawerList: {
+      '@media only screen and (max-width:768px)': {
+        width: 35,
+        paddingLeft: 0
+      },
+      overflowX: 'hidden',
+      width: 60
+    },
+    drawerListItem: {
+      '@media only screen and (max-width:768px)': {
+        paddingLeft: 5
+      }
     },
     toolbar: {
       display: 'flex',
@@ -213,7 +266,6 @@ const WorkspaceDetails = () => {
       },
       marginRight: theme.spacing(2),
       marginLeft: 0,
-      width: '100%',
       [theme.breakpoints.up('sm')]: {
         marginLeft: theme.spacing(3),
         width: 'auto'
@@ -227,6 +279,14 @@ const WorkspaceDetails = () => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center'
+    },
+    closeIcon: {
+      height: '100%',
+      pointerEvents: 'all',
+      alignItems: 'center',
+      display: 'flex',
+      justifyContent: 'center',
+      cursor: 'pointer'
     },
     inputRoot: {
       color: 'inherit'
@@ -249,18 +309,32 @@ const WorkspaceDetails = () => {
     content: {
       '@media only screen and (max-width:14000px)': {
         marginLeft: theme.spacing(5)
-      }
+      },
+      marginRight: 0
+    },
+    title: {
+      flex: 0,
+      position: 'absolute',
+      alignItems: 'center',
+      fontSize: 'x-large',
+      padding: theme.spacing(0, 1)
+    },
+    events: {
+      display: 'flex',
+      justifyContent: 'flex-end',
+      paddingRight: 5
+    },
+    eventIcon: {
+      paddingRight: 5
     }
   }))
   const classes = useStyles()
 
   return (
-        <div>
-            <AppBar position="static" className={classes.appBar}>
-                <Toolbar>
-                    <Button color="inherit" onClick={newCardHandler} disabled={newCardStatus}>New Card</Button>
-                    <Button color="inherit" component={Link} to={'/workspaces/' + params.name + '/study'}>Study</Button>
-                    <div className={classes.search}>
+        <Box sx={{ flexGrow: 0 }}>
+            <AppBar position="relative" className={classes.appBar}>
+                <Toolbar variant="dense">
+                    <Box className={classes.search}>
                       <div className={classes.searchIcon}>
                         <SearchIcon />
                       </div>
@@ -272,36 +346,50 @@ const WorkspaceDetails = () => {
                           }}
                           inputProps={{ 'aria-label': 'search' }}
                           value={searchPattern}
-                          onChange={keyPressHandler}
-                          endAdornment={<CloseIcon onClick={resetSearchHandler} />}
+                          onChange={searchOnChangeHandler}
+                          endAdornment={<div className={classes.closeIcon}><CloseIcon onClick={resetSearchHandler} /></div>}
                       />
-                    </div>
+                    </Box>
                 </Toolbar>
             </AppBar>
             <Drawer variant="permanent" anchor="left">
                 <div className={classes.toolbar}>
                 </div>
                 <Divider className={classes.divider} />
-                <List>
-                    <ListItem button key="Workspaces" component={Link} to={'/workspaces'}>
+                <List className={classes.drawerList}>
+                    <ListItem button key="Workspaces" component={Link} to={'/workspaces'} className={classes.drawerListItem}>
                         <ListItemIcon><DashboardIcon /></ListItemIcon>
                     </ListItem>
                 </List>
-                <List>
-                    <ListItem button key="Workspaces" onClick={handleExport}>
+                <List className={classes.drawerList}>
+                    <ListItem button key="Workspaces" onClick={handleExport} className={classes.drawerListItem}>
                         <ListItemIcon><SaveAltIcon /></ListItemIcon>
                     </ListItem>
                 </List>
             </Drawer>
-            <div className={classes.content}>
-                <List component="nav" aria-label="main mailbox folders">
+            <Box className={classes.content}>
+                <div className={classes.title}>Cards</div>
+                <Box className={classes.events}>
+                  <Box className={classes.eventIcon}>
+                    <Fab size="small" color="primary" aria-label="add" onClick={newCardHandler} disabled={newCardStatus}>
+                        <AddIcon />
+                    </Fab>
+                  </Box>
+                  <Box className={classes.eventIcon}>
+                    <Fab size="small" color="primary" aria-label="add" component={Link} to={'/workspaces/' + params.name + '/study'}>
+                        <RocketIcon />
+                    </Fab>
+                  </Box>
+                </Box>
+                <List component="nav" aria-label="cards">
                     {cards.map(card => <Card key={card.id} workspaceName={params.name} id={card.id} question={card.question} response={card.response} selected={false} new={card.new} change={card.change}
     handleCreateCard={createCardHandler} handleCreateCardCancel={createCardCancelHandler} handleUpdateCard={updateCardHandler} handleCraeteCardError={createCardErrorHandler}
     handleUpdateCardComplete={updateCardCompleteHandler} handleUpdateCardCancel={updateCardCancelHandler} handleUpdateCardError={updateCardErrorHandler}
     handleDeleteCardComplete={deleteCardCompleteHandler}/>)}
                 </List>
-            </div>
-        </div>
+                <Pagination count={pagesCount} defaultPage={1} siblingCount={0} boundaryCount={2} onChange={handlePaginationChange} />
+            </Box>
+        </Box>
   )
 }
 

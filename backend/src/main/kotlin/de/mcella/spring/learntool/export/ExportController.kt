@@ -1,6 +1,6 @@
 package de.mcella.spring.learntool.export
 
-import de.mcella.spring.learntool.workspace.Workspace
+import de.mcella.spring.learntool.workspace.dto.Workspace
 import java.io.FileInputStream
 import org.springframework.core.io.InputStreamResource
 import org.springframework.http.HttpHeaders

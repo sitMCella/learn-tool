@@ -1,14 +1,20 @@
 package de.mcella.spring.learntool.card
 
+import de.mcella.spring.learntool.card.dto.Card
+import de.mcella.spring.learntool.card.dto.CardContent
+import de.mcella.spring.learntool.card.dto.CardId
+import de.mcella.spring.learntool.card.dto.CardPagination
 import de.mcella.spring.learntool.card.exceptions.CardAlreadyExistsException
 import de.mcella.spring.learntool.card.exceptions.CardNotFoundException
 import de.mcella.spring.learntool.card.storage.CardEntity
 import de.mcella.spring.learntool.card.storage.CardRepository
-import de.mcella.spring.learntool.workspace.Workspace
+import de.mcella.spring.learntool.workspace.dto.Workspace
 import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceNameException
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import kotlin.streams.toList
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 @Service
@@ -50,11 +56,12 @@ class CardService(private val cardRepository: CardRepository, private val worksp
         if (!workspaceRepository.existsById(workspace.name)) {
             throw WorkspaceNotExistsException(workspace)
         }
-        val card = findById(cardId)
-        if (card.workspaceName != workspace.name) {
+        val cardEntity = cardRepository.findById(cardId.id).orElseThrow { CardNotFoundException(cardId) }
+        val cardCreationDate = CardCreationDate.create(cardEntity)
+        if (cardCreationDate.card.workspaceName != workspace.name) {
             throw InvalidWorkspaceNameException("The provided workspaceName does not match with the card workspace")
         }
-        val updatedCard = CardEntity.create(cardId, workspace, cardContent)
+        val updatedCard = CardEntity.create(cardId, workspace, cardContent, cardCreationDate.creationDate)
         val updatedCardEntity = cardRepository.save(updatedCard)
         return Card.create(updatedCardEntity)
     }
@@ -70,13 +77,23 @@ class CardService(private val cardRepository: CardRepository, private val worksp
         cardRepository.delete(cardEntity)
     }
 
-    fun findByWorkspace(workspace: Workspace): List<Card> {
+    fun findByWorkspace(workspace: Workspace, cardPagination: CardPagination?): List<Card> {
         if (!workspaceRepository.existsById(workspace.name)) {
             throw WorkspaceNotExistsException(workspace)
         }
-        return cardRepository.findByWorkspaceName(workspace.name).stream()
+        val pageRequest = cardPagination?.let {
+            PageRequest.of(cardPagination.page, cardPagination.size)
+        } ?: Pageable.unpaged()
+        return cardRepository.findByWorkspaceNameOrderByCreationDateDesc(workspace.name, pageRequest).stream()
                 .map { cardEntity -> Card.create(cardEntity) }
                 .toList()
+    }
+
+    fun countByWorkspace(workspace: Workspace): Long {
+        if (!workspaceRepository.existsById(workspace.name)) {
+            throw WorkspaceNotExistsException(workspace)
+        }
+        return cardRepository.countByWorkspaceName(workspace.name)
     }
 
     fun findById(cardId: CardId): Card {

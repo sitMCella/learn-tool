@@ -1,8 +1,10 @@
 package de.mcella.spring.learntool.learn
 
-import de.mcella.spring.learntool.card.Card
-import de.mcella.spring.learntool.card.CardId
-import de.mcella.spring.learntool.workspace.Workspace
+import de.mcella.spring.learntool.card.dto.Card
+import de.mcella.spring.learntool.card.dto.CardId
+import de.mcella.spring.learntool.learn.dto.EvaluationParameters
+import de.mcella.spring.learntool.learn.dto.LearnCard
+import de.mcella.spring.learntool.workspace.dto.Workspace
 import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType

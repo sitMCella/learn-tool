@@ -1,9 +1,10 @@
 package de.mcella.spring.learntool.card
 
+import de.mcella.spring.learntool.card.dto.CardContent
 import de.mcella.spring.learntool.card.exceptions.CsvContentParseException
 import de.mcella.spring.learntool.card.storage.QUESTION
 import de.mcella.spring.learntool.card.storage.RESPONSE
-import de.mcella.spring.learntool.workspace.Workspace
+import de.mcella.spring.learntool.workspace.dto.Workspace
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader

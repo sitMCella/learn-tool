@@ -1,4 +1,4 @@
-package de.mcella.spring.learntool.card
+package de.mcella.spring.learntool.card.dto
 
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.NotNull

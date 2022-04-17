@@ -4,7 +4,7 @@ The frontend application is developed using ReactJS and makes use of Material De
 
 ## Material Design Components
 
-https://mui.com/components/
+https://v4.mui.com/components/rating/#rating
 
 ## Icons
 

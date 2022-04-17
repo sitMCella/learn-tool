@@ -2,8 +2,8 @@ package de.mcella.spring.learntool.search
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import de.mcella.spring.learntool.UnitTest
-import de.mcella.spring.learntool.card.Card
-import de.mcella.spring.learntool.workspace.Workspace
+import de.mcella.spring.learntool.card.dto.Card
+import de.mcella.spring.learntool.workspace.dto.Workspace
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import org.hibernate.search.util.common.SearchException
 import org.junit.Test

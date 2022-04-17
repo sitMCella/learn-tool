@@ -1,8 +1,8 @@
 package de.mcella.spring.learntool.search
 
 import de.mcella.spring.learntool.UnitTest
-import de.mcella.spring.learntool.workspace.Workspace
 import de.mcella.spring.learntool.workspace.WorkspaceService
+import de.mcella.spring.learntool.workspace.dto.Workspace
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import javax.persistence.EntityManager
 import org.junit.Test
