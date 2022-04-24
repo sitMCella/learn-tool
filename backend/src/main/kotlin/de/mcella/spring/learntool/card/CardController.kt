@@ -10,6 +10,7 @@ import java.net.URI
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController
 class CardController(private val cardService: CardService, private val cardImportService: CardImportService) {
 
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @PreAuthorize("hasRole('USER')")
     fun create(
         @PathVariable(value = "workspaceName") workspaceName: String,
         @RequestBody cardContent: CardContent
@@ -38,6 +40,7 @@ class CardController(private val cardService: CardService, private val cardImpor
     }
 
     @PutMapping("/{cardId}", consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @PreAuthorize("hasRole('USER')")
     fun update(
         @PathVariable(value = "workspaceName") workspaceName: String,
         @PathVariable(value = "cardId") cardId: String,
@@ -50,6 +53,7 @@ class CardController(private val cardService: CardService, private val cardImpor
     }
 
     @DeleteMapping("/{cardId}")
+    @PreAuthorize("hasRole('USER')")
     @ResponseStatus(HttpStatus.OK)
     fun delete(
         @PathVariable(value = "workspaceName") workspaceName: String,
@@ -57,6 +61,7 @@ class CardController(private val cardService: CardService, private val cardImpor
     ) = cardService.delete(CardId(cardId), Workspace(workspaceName))
 
     @PostMapping("many.csv", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
+    @PreAuthorize("hasRole('USER')")
     @ResponseStatus(HttpStatus.CREATED)
     fun createMany(
         @PathVariable(value = "workspaceName") workspaceName: String,
@@ -64,6 +69,7 @@ class CardController(private val cardService: CardService, private val cardImpor
     ) = cardImportService.createMany(Workspace(workspaceName), content)
 
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PreAuthorize("hasRole('USER')")
     @ResponseStatus(HttpStatus.OK)
     fun get(
         @PathVariable(value = "workspaceName") workspaceName: String,

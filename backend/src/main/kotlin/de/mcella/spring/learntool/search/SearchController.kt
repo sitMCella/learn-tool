@@ -6,6 +6,7 @@ import de.mcella.spring.learntool.workspace.dto.Workspace
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController
 class SearchController(private val cardSearchService: CardSearchService) {
 
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PreAuthorize("hasRole('USER')")
     @ResponseStatus(HttpStatus.OK)
     fun search(@PathVariable(value = "workspaceName") workspaceName: String, @RequestParam(value = "content") content: String): List<Card> {
         try {

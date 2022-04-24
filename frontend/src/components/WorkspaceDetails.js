@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { ACCESS_TOKEN } from '../constants'
 import Card from './Card'
 import AppBar from '@material-ui/core/AppBar'
 import Box from '@material-ui/core/Box'
@@ -35,11 +36,15 @@ const WorkspaceDetails = () => {
   }
 
   const getCards = async (signal) => {
+    const headers = {
+      Accepted: 'application/json'
+    }
+    if (localStorage.getItem(ACCESS_TOKEN)) {
+      headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
+    }
     const response = await fetch('/api/workspaces/' + params.name + '/cards?page=0&size=' + paginationSize, {
       method: 'GET',
-      headers: {
-        Accepted: 'application/json'
-      },
+      headers: headers,
       signal
     })
     if (!response.ok) {
@@ -74,12 +79,16 @@ const WorkspaceDetails = () => {
 
   const handlePaginationChange = (event, value) => {
     const getCards = async () => {
+      const headers = {
+        Accepted: 'application/json'
+      }
+      if (localStorage.getItem(ACCESS_TOKEN)) {
+        headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
+      }
       const page = value - 1
       const response = await fetch('/api/workspaces/' + params.name + '/cards?page=' + page + '&size=' + paginationSize, {
         method: 'GET',
-        headers: {
-          Accepted: 'application/json'
-        }
+        headers: headers
       })
       if (!response.ok) {
         throw new Error(JSON.stringify(response))
@@ -113,12 +122,16 @@ const WorkspaceDetails = () => {
 
   const searchOnChangeHandler = (event) => {
     const getSearchCards = async () => {
+      const headers = {
+        Accepted: 'application/json'
+      }
+      if (localStorage.getItem(ACCESS_TOKEN)) {
+        headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
+      }
       const content = encodeURIComponent(event.target.value)
       const response = await fetch('/api/workspaces/' + params.name + '/search?content=' + content, {
         method: 'GET',
-        headers: {
-          Accepted: 'application/json'
-        }
+        headers: headers
       })
       if (!response.ok) {
         throw new Error(JSON.stringify(response))
@@ -206,11 +219,15 @@ const WorkspaceDetails = () => {
 
   const handleExport = () => {
     const exportBackup = async () => {
+      const headers = {
+        Accepted: 'application/octet-stream'
+      }
+      if (localStorage.getItem(ACCESS_TOKEN)) {
+        headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
+      }
       const response = await fetch('/api/workspaces/' + params.name + '/export', {
         method: 'GET',
-        headers: {
-          Accepted: 'application/octet-stream'
-        }
+        headers: headers
       })
       if (!response.ok) {
         throw new Error(JSON.stringify(response))

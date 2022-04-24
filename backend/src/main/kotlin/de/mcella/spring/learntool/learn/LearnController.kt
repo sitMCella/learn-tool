@@ -8,6 +8,7 @@ import de.mcella.spring.learntool.workspace.dto.Workspace
 import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController
 class LearnController(private val learnService: LearnService) {
 
     @PostMapping("/{cardId}", consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PreAuthorize("hasRole('USER')")
     @ResponseStatus(CREATED)
     fun create(
         @PathVariable(value = "workspaceName") workspaceName: String,
@@ -32,10 +34,12 @@ class LearnController(private val learnService: LearnService) {
     }
 
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PreAuthorize("hasRole('USER')")
     @ResponseStatus(OK)
     fun learn(@PathVariable(value = "workspaceName") workspaceName: String): Card = learnService.getCard(Workspace(workspaceName))
 
     @PutMapping("/{cardId}", consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PreAuthorize("hasRole('USER')")
     @ResponseStatus(OK)
     fun evaluate(
         @PathVariable(value = "workspaceName") workspaceName: String,
@@ -46,6 +50,7 @@ class LearnController(private val learnService: LearnService) {
     }
 
     @DeleteMapping("/{cardId}")
+    @PreAuthorize("hasRole('USER')")
     @ResponseStatus(OK)
     fun delete(
         @PathVariable(value = "workspaceName") workspaceName: String,

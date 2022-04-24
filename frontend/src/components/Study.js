@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { ACCESS_TOKEN } from '../constants'
 import AppBar from '@material-ui/core/AppBar'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
@@ -32,11 +33,15 @@ function Study () {
   const [qualityValue, setQualityValue] = React.useState(3)
 
   const getCard = async (signal) => {
+    const headers = {
+      Accepted: 'application/json'
+    }
+    if (localStorage.getItem(ACCESS_TOKEN)) {
+      headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
+    }
     const response = await fetch('/api/workspaces/' + params.name + '/learn', {
       method: 'GET',
-      headers: {
-        Accepted: 'application/json'
-      },
+      headers: headers,
       signal
     })
     if (!response.ok) {
@@ -69,12 +74,16 @@ function Study () {
 
   const evaluateCardHandler = () => {
     const evaluateCard = async () => {
+      const headers = {
+        'Content-Type': 'application/json',
+        Accepted: 'application/json'
+      }
+      if (localStorage.getItem(ACCESS_TOKEN)) {
+        headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
+      }
       const response = await fetch('/api/workspaces/' + params.name + '/learn/' + cardId, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Accepted: 'application/json'
-        },
+        headers: headers,
         body: JSON.stringify({ quality: 0 })
       })
       if (!response.ok) {

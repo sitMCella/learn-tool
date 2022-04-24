@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { ACCESS_TOKEN } from '../constants'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
 import CardUi from '@material-ui/core/Card'
@@ -26,11 +27,15 @@ function Card (props) {
   const createCardSubmitHandler = (event) => {
     event.preventDefault()
     const createCard = async () => {
+      const headers = {
+        'Content-Type': 'application/json'
+      }
+      if (localStorage.getItem(ACCESS_TOKEN)) {
+        headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
+      }
       const response = await fetch('/api/workspaces/' + props.workspaceName + '/cards', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: headers,
         body: JSON.stringify({ workspaceName: props.workspaceName, question: newQuestion, response: newResponse })
       })
       if (!response.ok) {
@@ -40,11 +45,15 @@ function Card (props) {
       return card
     }
     const createLearnCard = async (cardId) => {
+      const headers = {
+        'Content-Type': 'application/json'
+      }
+      if (localStorage.getItem(ACCESS_TOKEN)) {
+        headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
+      }
       const response = await fetch('/api/workspaces/' + props.workspaceName + '/learn/' + cardId, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        headers: headers
       })
       if (!response.ok) {
         throw new Error(JSON.stringify(response))
@@ -74,11 +83,15 @@ function Card (props) {
       if (props.question === newQuestion && props.response === newResponse) {
         return
       }
+      const headers = {
+        'Content-Type': 'application/json'
+      }
+      if (localStorage.getItem(ACCESS_TOKEN)) {
+        headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
+      }
       const response = await fetch('/api/workspaces/' + props.workspaceName + '/cards/' + props.id, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: headers,
         body: JSON.stringify({ question: newQuestion, response: newResponse })
       })
       if (!response.ok) {
@@ -109,22 +122,30 @@ function Card (props) {
   const deleteCardHandler = (event) => {
     event.preventDefault()
     const deleteLearnCard = async () => {
+      const headers = {
+        'Content-Type': 'application/json'
+      }
+      if (localStorage.getItem(ACCESS_TOKEN)) {
+        headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
+      }
       const response = await fetch('/api/workspaces/' + props.workspaceName + '/learn/' + props.id, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        headers: headers
       })
       if (!response.ok) {
         throw new Error(JSON.stringify(response))
       }
     }
     const deleteCard = async () => {
+      const headers = {
+        'Content-Type': 'application/json'
+      }
+      if (localStorage.getItem(ACCESS_TOKEN)) {
+        headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
+      }
       const response = await fetch('/api/workspaces/' + props.workspaceName + '/cards/' + props.id, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        headers: headers
       })
       if (!response.ok) {
         throw new Error(JSON.stringify(response))

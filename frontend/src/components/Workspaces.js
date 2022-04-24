@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { ACCESS_TOKEN } from '../constants'
 import Workspace from './Workspace'
 import AppBar from '@material-ui/core/AppBar'
 import Box from '@material-ui/core/Box'
@@ -27,11 +28,15 @@ function Workspaces () {
   const [workspaceErrorMessage, setWorkspaceErrorMessage] = useState('')
 
   const getWorkspaces = async (signal) => {
+    const headers = {
+      Accepted: 'application/json'
+    }
+    if (localStorage.getItem(ACCESS_TOKEN)) {
+      headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
+    }
     const response = await fetch('/api/workspaces', {
       method: 'GET',
-      headers: {
-        Accepted: 'application/json'
-      },
+      headers: headers,
       signal
     })
     if (!response.ok) {
@@ -102,8 +107,13 @@ function Workspaces () {
     const data = new FormData()
     data.append('backup', event.target.files[0])
     const importBackup = async () => {
+      const headers = {}
+      if (localStorage.getItem(ACCESS_TOKEN)) {
+        headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
+      }
       const response = await fetch('/api/workspaces/import', {
         method: 'POST',
+        headers: headers,
         body: data
       })
       if (!response.ok) {

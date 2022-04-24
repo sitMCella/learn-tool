@@ -1,0 +1,43 @@
+logging:
+  level:
+    root: DEBUG
+    com:
+      baeldung:
+        testloglevel: TRACE
+hibernate:
+  search:
+    default:
+      directory_provider: local-heap
+    backend:
+      directory:
+        type: local-heap
+    Rules:
+      directory_provider: local-heap
+spring:
+  jpa:
+    properties:
+      hibernate:
+        search:
+          backend:
+            directory:
+              type: local-heap
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            clientId: 419530630047-0j4ua734u6aag7vk0r6ea61ino1aaqvi.apps.googleusercontent.com
+            clientSecret: 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
+            redirectUri: "{baseUrl}/oauth2/callback/{registrationId}"
+            scope:
+              - email
+              - profile
+app:
+  auth:
+    tokenSecret: 04ca023b39512e46d0c2cf4b48d5aac61d34302994c87ed4eff225dcf3b0a218739f3897051a057f9b846a69ea2927a587044164b7bae5e1306219d50b588cb1
+    tokenExpirationMsec: 864000000
+  cors:
+    allowedOrigins: http://localhost:3000,http://localhost:80
+  oauth2:
+    authorizedRedirectUris:
+      - http://localhost:3000/oauth2/redirect

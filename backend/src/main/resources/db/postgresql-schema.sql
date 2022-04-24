@@ -19,4 +19,15 @@ CREATE TABLE if not exists learn_cards (
   repetitions integer NOT NULL,
   ease_factor real NOT NULL,
   interval_days integer NOT NULL
-)
+);
+
+CREATE TABLE if not exists users (
+    id bigserial primary key,
+    name varchar (255),
+    email varchar (36) NOT NULL,
+    image_url varchar (255),
+    email_verified boolean,
+    password varchar (255) NOT NULL,
+    auth_provider varchar (36) NOT NULL,
+    auth_provider_id varchar (36) NOT NULL
+);

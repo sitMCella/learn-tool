@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ACCESS_TOKEN } from '../constants'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
 import ListItem from '@material-ui/core/ListItem'
@@ -17,11 +18,15 @@ function Workspace (props) {
   const submitHandler = (event) => {
     event.preventDefault()
     const createWorkspace = async () => {
+      const headers = {
+        'Content-Type': 'application/json'
+      }
+      if (localStorage.getItem(ACCESS_TOKEN)) {
+        headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
+      }
       const response = await fetch('/api/workspaces', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: headers,
         body: JSON.stringify({ name: newWorkspaceName })
       })
       if (!response.ok) {
@@ -68,7 +73,7 @@ function Workspace (props) {
     )
   } else {
     return (
-            <ListItem button selected={props.selected} component={Link} to={'/workspaces/' + props.name} >
+            <ListItem button selected={props.selected} component={Link} to={'/workspaces/' + props.name + '/cards'} >
                 <ListItemText primary={props.name} />
             </ListItem>
     )
