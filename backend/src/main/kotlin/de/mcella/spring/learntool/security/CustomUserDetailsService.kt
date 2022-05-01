@@ -1,7 +1,7 @@
 package de.mcella.spring.learntool.security
 
 import de.mcella.spring.learntool.common.toNullable
-import de.mcella.spring.learntool.user.UserRepository
+import de.mcella.spring.learntool.user.storage.UserRepository
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException

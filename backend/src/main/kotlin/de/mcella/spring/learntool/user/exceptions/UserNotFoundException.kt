@@ -1,4 +1,4 @@
-package de.mcella.spring.learntool.user
+package de.mcella.spring.learntool.user.exceptions
 
 import de.mcella.spring.learntool.security.UserPrincipal
 import org.springframework.http.HttpStatus

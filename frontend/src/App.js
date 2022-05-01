@@ -8,9 +8,9 @@ import NotFound from './components/NotFound'
 import OAuth2RedirectHandler from './components/OAuth2RedirectHandler'
 import Workspaces from './components/Workspaces'
 import WorkspaceDetails from './components/WorkspaceDetails'
-import PrivateRedirect from './components/PrivateRedirect'
 import PrivateRoute from './components/PrivateRoute'
 import Profile from './components/Profile'
+import Signup from './components/Signup'
 import Study from './components/Study'
 import Container from '@material-ui/core/Container'
 
@@ -32,7 +32,6 @@ class App extends Component {
       // eslint-disable-next-line prefer-promise-reject-errors
       return Promise.reject('No access token set.')
     }
-
     return executeRequest({
       url: '/api/user/me',
       method: 'GET'
@@ -79,14 +78,15 @@ class App extends Component {
 
     return (
       <div className="App">
-          <Container >
+          <Container>
               <BrowserRouter>
                   <Switch>
                       <Redirect exact from="/" to="/workspaces" />
                       <Route path="/login" render={(props) => <Login authenticated={this.state.authenticated} {...props} />} />
                       <Route path="/oauth2/redirect" component={OAuth2RedirectHandler} />
+                      <Route path="/signup" render={(props) => <Signup authenticated={this.state.authenticated} {...props} />}/>
                       <PrivateRoute path="/profile" authenticated={this.state.authenticated} currentUser={this.state.currentUser} component={Profile}/>
-                      <Route exact path="/workspaces" component={Workspaces} />
+                      <Route exact path="/workspaces" render={(props) => <Workspaces key={Math.random()} {...props} />} />
                       <Route path="/workspaces/:name/cards">
                           <WorkspaceDetails />
                       </Route>

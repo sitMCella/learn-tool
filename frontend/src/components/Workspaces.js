@@ -21,7 +21,7 @@ function Alert (props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />
 }
 
-function Workspaces () {
+function Workspaces (props) {
   const [list, setList] = useState([])
   const [newWorkspaceStatus, setNewWorkspaceStatus] = useState(false)
   const [workspaceError, setWorkspaceError] = useState(false)
@@ -62,6 +62,9 @@ function Workspaces () {
         console.log('Error while retrieving the Workspaces: ' + err.message)
         setWorkspaceError(true)
         setWorkspaceErrorMessage('Cannot retrieve the Workspaces, please refresh the page.')
+        props.history.push({
+          pathname: '/login'
+        })
       })
     return () => controller.abort()
   }, [])

@@ -5,8 +5,8 @@ import de.mcella.spring.learntool.security.oauth2.user.OAuth2UserInfo
 import de.mcella.spring.learntool.security.oauth2.user.OAuth2UserInfoFactory
 import de.mcella.spring.learntool.security.oauth2.user.exceptions.OAuth2AuthenticationProcessingException
 import de.mcella.spring.learntool.user.AuthProvider
-import de.mcella.spring.learntool.user.UserEntity
-import de.mcella.spring.learntool.user.UserRepository
+import de.mcella.spring.learntool.user.storage.UserEntity
+import de.mcella.spring.learntool.user.storage.UserRepository
 import org.springframework.security.authentication.InternalAuthenticationServiceException
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService

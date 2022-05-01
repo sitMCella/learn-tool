@@ -1,13 +1,18 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { GOOGLE_AUTH_URL } from '../constants'
-import googleLogo from '../img/google-logo.png'
+import Grid from '@material-ui/core/Grid'
+import { GoogleLoginButton } from 'react-social-login-buttons'
 
 function SocialLogin () {
   return (
-        <div className="social-login">
-            <a className="btn btn-block social-btn google" href={GOOGLE_AUTH_URL}>
-                <img src={googleLogo} alt="Google" /> Log in with Google</a>
-        </div>
+    <Grid container spacing={1} justify="center" direction="row">
+        <Grid item>
+            <Link to={GOOGLE_AUTH_URL} style={{ textDecoration: 'none' }}>
+                <GoogleLoginButton />
+            </Link>
+        </Grid>
+    </Grid>
   )
 }
 

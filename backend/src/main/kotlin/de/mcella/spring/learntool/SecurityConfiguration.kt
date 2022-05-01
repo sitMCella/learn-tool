@@ -20,6 +20,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 @Configuration
@@ -40,7 +41,12 @@ class SecurityConfiguration @Autowired constructor(
     override fun configure(authenticationManagerBuilder: AuthenticationManagerBuilder) {
         authenticationManagerBuilder
                 .userDetailsService<UserDetailsService>(customUserDetailsService)
-                .passwordEncoder(BCryptPasswordEncoder())
+                .passwordEncoder(passwordEncoder())
+    }
+
+    @Bean
+    fun passwordEncoder(): PasswordEncoder {
+        return BCryptPasswordEncoder()
     }
 
     @Bean(BeanIds.AUTHENTICATION_MANAGER)
@@ -76,7 +82,7 @@ class SecurityConfiguration @Autowired constructor(
                     "/**/*.css",
                     "/**/*.js")
             .permitAll()
-            .antMatchers("/auth/**", "/oauth2/**")
+            .antMatchers("/api/auth/**", "/oauth2/**")
             .permitAll()
             .anyRequest()
             .authenticated()

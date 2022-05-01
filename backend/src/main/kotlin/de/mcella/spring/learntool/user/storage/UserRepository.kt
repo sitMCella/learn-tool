@@ -1,4 +1,4 @@
-package de.mcella.spring.learntool.user
+package de.mcella.spring.learntool.user.storage
 
 import java.util.Optional
 import org.springframework.data.jpa.repository.JpaRepository

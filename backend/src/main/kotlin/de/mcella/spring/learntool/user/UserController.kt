@@ -2,6 +2,9 @@ package de.mcella.spring.learntool.user
 
 import de.mcella.spring.learntool.security.CurrentUser
 import de.mcella.spring.learntool.security.UserPrincipal
+import de.mcella.spring.learntool.user.exceptions.UserNotFoundException
+import de.mcella.spring.learntool.user.storage.UserEntity
+import de.mcella.spring.learntool.user.storage.UserRepository
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping

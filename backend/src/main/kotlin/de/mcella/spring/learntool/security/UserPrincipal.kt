@@ -1,6 +1,6 @@
 package de.mcella.spring.learntool.security
 
-import de.mcella.spring.learntool.user.UserEntity
+import de.mcella.spring.learntool.user.storage.UserEntity
 import java.util.Collections
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.NotNull
