@@ -8,6 +8,7 @@ import de.mcella.spring.learntool.security.oauth2.HttpCookieOAuth2AuthorizationR
 import de.mcella.spring.learntool.security.oauth2.OAuth2AuthenticationFailureHandler
 import de.mcella.spring.learntool.security.oauth2.OAuth2AuthenticationSuccessHandler
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
@@ -30,6 +31,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
         jsr250Enabled = true,
         prePostEnabled = true
 )
+@ConditionalOnProperty(prefix = "service", name = ["mock"], havingValue = "false")
 class SecurityConfiguration @Autowired constructor(
     private val customUserDetailsService: CustomUserDetailsService,
     private val customOAuth2UserService: CustomOAuth2UserService,

@@ -21,12 +21,6 @@ class HttpCookieOAuth2AuthorizationRequestRepository(val cookieUtils: CookieUtil
     }
 
     override fun saveAuthorizationRequest(authorizationRequest: OAuth2AuthorizationRequest, request: HttpServletRequest, response: HttpServletResponse) {
-        if (authorizationRequest == null) {
-            cookieUtils.deleteCookie(request, response, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME)
-            cookieUtils.deleteCookie(request, response, REDIRECT_URI_PARAM_COOKIE_NAME)
-            return
-        }
-
         val authorizationRequestCookie = cookieUtils.serialize(authorizationRequest)
         if (authorizationRequestCookie != null) {
             cookieUtils.addCookie(response, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME, authorizationRequestCookie, COOKIE_EXPIRE_SECONDS)

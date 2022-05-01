@@ -6,7 +6,10 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.MalformedJwtException
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.UnsupportedJwtException
+import io.jsonwebtoken.io.Decoders
+import io.jsonwebtoken.security.Keys
 import io.jsonwebtoken.security.SignatureException
+import java.security.Key
 import java.util.Date
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.Authentication
@@ -18,17 +21,20 @@ class TokenProvider(val appProperties: AppProperties) {
         val userPrincipal: UserPrincipal = authentication.principal as UserPrincipal
         val now = Date()
         val expiryDate = Date(now.time + appProperties.auth.tokenExpirationMsec)
+        val keyBytes = Decoders.BASE64.decode(appProperties.auth.tokenSecret)
+        val key: Key = Keys.hmacShaKeyFor(keyBytes)
         return Jwts.builder()
                 .setSubject((userPrincipal.id!!).toString())
                 .setIssuedAt(Date())
                 .setExpiration(expiryDate)
-                .signWith(SignatureAlgorithm.HS512, appProperties.auth.tokenSecret)
+                .signWith(key, SignatureAlgorithm.HS512)
                 .compact()
     }
 
     fun getUserIdFromToken(token: String): String? {
-        val claims = Jwts.parser()
+        val claims = Jwts.parserBuilder()
                 .setSigningKey(appProperties.auth.tokenSecret)
+                .build()
                 .parseClaimsJws(token)
                 .body
         return claims.subject
@@ -36,7 +42,10 @@ class TokenProvider(val appProperties: AppProperties) {
 
     fun validateToken(authToken: String): Boolean {
         try {
-            Jwts.parser().setSigningKey(appProperties.auth.tokenSecret).parseClaimsJws(authToken)
+            Jwts.parserBuilder()
+                    .setSigningKey(appProperties.auth.tokenSecret)
+                    .build()
+                    .parseClaimsJws(authToken)
             return true
         } catch (e: SignatureException) {
             logger.error("Invalid JWT signature.", e)

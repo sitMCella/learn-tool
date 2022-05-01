@@ -38,3 +38,5 @@ app:
     authorizedRedirectUris:
       - http://localhost:80/oauth2/redirect
       - http://localhost:3000/oauth2/redirect
+service:
+  mock: false

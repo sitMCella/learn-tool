@@ -23,6 +23,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.servlet.MockMvc
@@ -35,7 +36,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 @AutoConfigureWebClient
 @AutoConfigureMockMvc(addFilters = false)
 @EnableConfigurationProperties(AppProperties::class)
-@TestPropertySource(properties = ["app.auth.tokenSecret=aaa", "app.auth.tokenExpirationMsec=123"])
+@TestPropertySource(properties = ["app.auth.tokenSecret=test", "app.auth.tokenExpirationMsec=123"])
+@WithMockUser("roles='USER'")
 class ExportControllerTest {
 
     @Autowired
