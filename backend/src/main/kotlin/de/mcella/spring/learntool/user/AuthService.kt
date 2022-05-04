@@ -2,10 +2,12 @@ package de.mcella.spring.learntool.user
 
 import de.mcella.spring.learntool.security.Token
 import de.mcella.spring.learntool.security.TokenProvider
+import de.mcella.spring.learntool.security.UserPrincipal
 import de.mcella.spring.learntool.user.dto.LoginRequest
 import de.mcella.spring.learntool.user.dto.SignUpRequest
 import de.mcella.spring.learntool.user.dto.User
 import de.mcella.spring.learntool.user.exceptions.EmailAddressAlreadyInUseException
+import de.mcella.spring.learntool.user.exceptions.UserNotFoundException
 import de.mcella.spring.learntool.user.storage.UserEntity
 import de.mcella.spring.learntool.user.storage.UserRepository
 import org.springframework.security.authentication.AuthenticationManager
@@ -40,5 +42,11 @@ class AuthService(
         val password = passwordEncoder.encode(signUpRequest.password)
         val userEntity = UserEntity.create(signUpRequest, password)
         return User.create(userRepository.save(userEntity))
+    }
+
+    fun getUser(user: UserPrincipal): User {
+        val userId = user.id ?: throw UserNotFoundException(user)
+        return userRepository.findById(userId).map { User.create(it) }
+                .orElseThrow { UserNotFoundException(user) }
     }
 }

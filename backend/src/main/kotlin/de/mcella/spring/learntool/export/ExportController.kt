@@ -1,6 +1,6 @@
 package de.mcella.spring.learntool.export
 
-import de.mcella.spring.learntool.workspace.dto.Workspace
+import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import java.io.FileInputStream
 import org.springframework.core.io.InputStreamResource
 import org.springframework.http.HttpHeaders
@@ -19,7 +19,7 @@ class ExportController(private val exportService: ExportService) {
     @GetMapping(produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     @PreAuthorize("hasRole('USER')")
     fun export(@PathVariable(value = "workspaceName") workspaceName: String): ResponseEntity<InputStreamResource> {
-        val backup = exportService.exportBackup(Workspace(workspaceName))
+        val backup = exportService.exportBackup(WorkspaceRequest(workspaceName))
         val backupStream = InputStreamResource(FileInputStream(backup))
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + backup.name + "\"")

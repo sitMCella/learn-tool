@@ -8,7 +8,7 @@ import de.mcella.spring.learntool.card.dto.CardId
 import de.mcella.spring.learntool.card.storage.CardEntity
 import de.mcella.spring.learntool.card.storage.CardRepository
 import de.mcella.spring.learntool.search.SearchPattern
-import de.mcella.spring.learntool.workspace.dto.Workspace
+import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
@@ -83,23 +83,23 @@ class SearchIntegrationTest {
 
     @Test
     fun `given a Workspace name and a search content, when a GET REST request is performed to the search endpoint and one Card matches, then the response HTTP Status is 200 OK and the response body contains the retrieved Card`() {
-        val workspace = Workspace("workspaceTest")
-        val workspaceEntity = WorkspaceEntity.create(workspace)
+        val workspaceRequest = WorkspaceRequest("workspaceTest")
+        val workspaceEntity = WorkspaceEntity(workspaceRequest.name)
         workspaceRepository.save(workspaceEntity)
         val matchingCardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
-        val matchingCardEntity = CardEntity(matchingCardId.id, workspace.name, "question", "response content")
+        val matchingCardEntity = CardEntity(matchingCardId.id, workspaceRequest.name, "question", "response content")
         cardRepository.save(matchingCardEntity)
         val nonMatchingCardId = CardId("a1900ca7-dc58-4360-b41c-537d933bc9c1")
-        val nonMatchingCardEntity = CardEntity(nonMatchingCardId.id, workspace.name, "new question", "new response")
+        val nonMatchingCardEntity = CardEntity(nonMatchingCardId.id, workspaceRequest.name, "new question", "new response")
         cardRepository.save(nonMatchingCardEntity)
         val searchPattern = SearchPattern("content")
 
         val responseEntity = testRestTemplate.getForEntity(
-                URI("http://localhost:$port/api/workspaces/${workspace.name}/search?content=${searchPattern.content}"),
+                URI("http://localhost:$port/api/workspaces/${workspaceRequest.name}/search?content=${searchPattern.content}"),
                 List::class.java
         )
 
-        val expectedCard = Card(matchingCardId.id, workspace.name, "question", "response content")
+        val expectedCard = Card(matchingCardId.id, workspaceRequest.name, "question", "response content")
         val expectedCards = listOf(expectedCard)
         val expectedResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedCards)
         assertEquals(expectedResponseEntity.statusCode, responseEntity.statusCode)

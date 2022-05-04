@@ -3,10 +3,14 @@ package de.mcella.spring.learntool.workspace.integration
 import de.mcella.spring.learntool.BackendApplication
 import de.mcella.spring.learntool.IntegrationTest
 import de.mcella.spring.learntool.TestSecurityConfiguration
+import de.mcella.spring.learntool.WithMockUser
+import de.mcella.spring.learntool.security.UserPrincipal
 import de.mcella.spring.learntool.workspace.dto.Workspace
+import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
+import java.util.Collections
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.junit.Before
@@ -23,6 +27,7 @@ import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringRunner
 import org.testcontainers.containers.PostgreSQLContainer
@@ -73,15 +78,18 @@ class WorkspaceIntegrationTest {
     }
 
     @Test
+    @WithMockUser
     fun `given a Workspace name, when a POST REST request is sent to the workspaces endpoint, then a Workspace is created and the http response body contains the Workspace`() {
-        val workspace = Workspace("workspace1")
-        val request = HttpEntity(workspace)
+        val workspaceRequest = WorkspaceRequest("workspace1")
+        val request = HttpEntity(workspaceRequest)
 
         val responseEntity = testRestTemplate.postForObject(URI("http://localhost:$port/api/workspaces"), request, Workspace::class.java)
 
         val workspaces = workspaceRepository.findAll()
         val workspaceEntity = WorkspaceEntity("workspace1")
         assertTrue { workspaces.contains(workspaceEntity) }
+        val user = UserPrincipal(123L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val workspace = Workspace.create(workspaceRequest, user)
         assertEquals(workspace, responseEntity)
     }
 

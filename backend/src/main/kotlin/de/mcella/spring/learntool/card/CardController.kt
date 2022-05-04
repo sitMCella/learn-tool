@@ -4,7 +4,7 @@ import de.mcella.spring.learntool.card.dto.Card
 import de.mcella.spring.learntool.card.dto.CardContent
 import de.mcella.spring.learntool.card.dto.CardId
 import de.mcella.spring.learntool.card.dto.CardPagination
-import de.mcella.spring.learntool.workspace.dto.Workspace
+import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import java.io.InputStream
 import java.net.URI
 import org.springframework.http.HttpStatus
@@ -32,7 +32,7 @@ class CardController(private val cardService: CardService, private val cardImpor
         @PathVariable(value = "workspaceName") workspaceName: String,
         @RequestBody cardContent: CardContent
     ): ResponseEntity<Card> {
-        val workspace = Workspace(workspaceName)
+        val workspace = WorkspaceRequest(workspaceName)
         val card: Card = cardService.create(workspace, cardContent)
         val bodyBuilder = ResponseEntity.status(HttpStatus.CREATED)
         bodyBuilder.location(URI("/workspaces/$workspaceName/cards/${card.id}"))
@@ -46,7 +46,7 @@ class CardController(private val cardService: CardService, private val cardImpor
         @PathVariable(value = "cardId") cardId: String,
         @RequestBody cardContent: CardContent
     ): ResponseEntity<Card> {
-        val card: Card = cardService.update(CardId(cardId), Workspace(workspaceName), cardContent)
+        val card: Card = cardService.update(CardId(cardId), WorkspaceRequest(workspaceName), cardContent)
         val bodyBuilder = ResponseEntity.status(HttpStatus.OK)
         bodyBuilder.location(URI("/workspaces/$workspaceName/cards/$cardId"))
         return bodyBuilder.body(card)
@@ -58,7 +58,7 @@ class CardController(private val cardService: CardService, private val cardImpor
     fun delete(
         @PathVariable(value = "workspaceName") workspaceName: String,
         @PathVariable(value = "cardId") cardId: String
-    ) = cardService.delete(CardId(cardId), Workspace(workspaceName))
+    ) = cardService.delete(CardId(cardId), WorkspaceRequest(workspaceName))
 
     @PostMapping("many.csv", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     @PreAuthorize("hasRole('USER')")
@@ -66,7 +66,7 @@ class CardController(private val cardService: CardService, private val cardImpor
     fun createMany(
         @PathVariable(value = "workspaceName") workspaceName: String,
         content: InputStream
-    ) = cardImportService.createMany(Workspace(workspaceName), content)
+    ) = cardImportService.createMany(WorkspaceRequest(workspaceName), content)
 
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     @PreAuthorize("hasRole('USER')")
@@ -76,7 +76,7 @@ class CardController(private val cardService: CardService, private val cardImpor
         @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
         @RequestParam(value = "size", required = false, defaultValue = "20") size: Int
     ): ResponseEntity<List<Card>> {
-        val workspace = Workspace(workspaceName)
+        val workspace = WorkspaceRequest(workspaceName)
         val cards = cardService.findByWorkspace(workspace, CardPagination(page, size))
         val bodyBuilder = ResponseEntity.status(HttpStatus.OK)
         bodyBuilder.header("count", cardService.countByWorkspace(workspace).toString())

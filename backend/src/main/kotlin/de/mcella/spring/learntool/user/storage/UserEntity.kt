@@ -13,9 +13,9 @@ import javax.persistence.Table
 @Table(name = "users")
 data class UserEntity(
     @Id
-@Column(name = "id", nullable = false)
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-val id: Long?,
+    @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long?,
     val name: String,
     val email: String,
     val imageUrl: String,

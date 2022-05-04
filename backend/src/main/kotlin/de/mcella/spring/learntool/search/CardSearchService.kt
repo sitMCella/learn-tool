@@ -3,7 +3,7 @@ package de.mcella.spring.learntool.search
 import de.mcella.spring.learntool.card.dto.Card
 import de.mcella.spring.learntool.card.storage.CardEntity
 import de.mcella.spring.learntool.workspace.WorkspaceService
-import de.mcella.spring.learntool.workspace.dto.Workspace
+import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import javax.persistence.EntityManager
 import kotlin.streams.toList
@@ -15,16 +15,16 @@ import org.springframework.transaction.annotation.Transactional
 class CardSearchService(private val entityManager: EntityManager, private val workspaceService: WorkspaceService) {
 
     @Transactional
-    fun searchCards(workspace: Workspace, searchPattern: SearchPattern): List<Card> {
-        if (!workspaceService.exists(workspace)) {
-            throw WorkspaceNotExistsException(workspace)
+    fun searchCards(workspaceRequest: WorkspaceRequest, searchPattern: SearchPattern): List<Card> {
+        if (!workspaceService.exists(workspaceRequest)) {
+            throw WorkspaceNotExistsException(workspaceRequest)
         }
         val searchSession = Search.session(entityManager)
         val result = searchSession.search(CardEntity::class.java)
                 .where { f -> f.bool { b ->
                         run {
                             b.must(f.matchAll())
-                            b.must(f.match().fields("workspaceName").matching(workspace.name))
+                            b.must(f.match().fields("workspaceName").matching(workspaceRequest.name))
                             b.must(f.match().fields("question", "response").matching(searchPattern.content))
                         }
                     }

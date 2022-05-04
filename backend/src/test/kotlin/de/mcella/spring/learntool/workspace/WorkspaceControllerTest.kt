@@ -2,16 +2,21 @@ package de.mcella.spring.learntool.workspace
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import de.mcella.spring.learntool.UnitTest
+import de.mcella.spring.learntool.WithMockUser
 import de.mcella.spring.learntool.config.AppProperties
 import de.mcella.spring.learntool.security.CustomUserDetailsService
 import de.mcella.spring.learntool.security.TokenAuthenticationFilter
+import de.mcella.spring.learntool.security.UserPrincipal
 import de.mcella.spring.learntool.security.oauth2.CustomOAuth2UserService
 import de.mcella.spring.learntool.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository
 import de.mcella.spring.learntool.security.oauth2.OAuth2AuthenticationFailureHandler
 import de.mcella.spring.learntool.security.oauth2.OAuth2AuthenticationSuccessHandler
+import de.mcella.spring.learntool.user.dto.UserId
 import de.mcella.spring.learntool.workspace.dto.Workspace
+import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceNameException
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceAlreadyExistsException
+import java.util.Collections
 import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
@@ -24,8 +29,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
-import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.servlet.MockMvc
@@ -39,7 +43,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 @AutoConfigureMockMvc(addFilters = false)
 @EnableConfigurationProperties(AppProperties::class)
 @TestPropertySource(properties = ["app.auth.tokenSecret=test", "app.auth.tokenExpirationMsec=123"])
-@WithMockUser("roles='USER'")
 class WorkspaceControllerTest {
 
     @Autowired
@@ -64,17 +67,15 @@ class WorkspaceControllerTest {
     private lateinit var tokenAuthenticationFilter: TokenAuthenticationFilter
 
     @MockBean
-    private lateinit var clientRegistrationRepository: ClientRegistrationRepository
-
-    @MockBean
     private lateinit var workspaceService: WorkspaceService
 
     private val objectMapper = ObjectMapper()
 
     @Test
+    @WithMockUser
     fun `given a Workspace, when sending a POST REST request to workspaces endpoint, then the create method of WorkspaceService is called`() {
-        val workspace = Workspace("workspaceTest")
-        val contentBody = objectMapper.writeValueAsString(workspace)
+        val workspaceRequest = WorkspaceRequest("workspaceTest")
+        val contentBody = objectMapper.writeValueAsString(workspaceRequest)
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/workspaces")
@@ -84,14 +85,17 @@ class WorkspaceControllerTest {
             .andExpect(MockMvcResultMatchers.header().exists(HttpHeaders.LOCATION))
             .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.LOCATION, "/api/workspaces/workspaceTest"))
 
-        Mockito.verify(workspaceService).create(workspace)
+        val user = UserPrincipal(123L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        Mockito.verify(workspaceService).create(workspaceRequest, user)
     }
 
     @Test
+    @WithMockUser
     fun `given a Workspace with invalid name, when sending a POST REST request to the workspaces endpoint, then an UNPROCESSABLE_ENTITY http status response is returned`() {
-        val workspace = Workspace("workspace-invalid-Test")
-        val contentBody = objectMapper.writeValueAsString(workspace)
-        Mockito.`when`(workspaceService.create(workspace)).thenThrow(InvalidWorkspaceNameException(""))
+        val workspaceRequest = WorkspaceRequest("workspace-invalid-Test")
+        val user = UserPrincipal(123L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val contentBody = objectMapper.writeValueAsString(workspaceRequest)
+        Mockito.`when`(workspaceService.create(workspaceRequest, user)).thenThrow(InvalidWorkspaceNameException(""))
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/workspaces")
@@ -101,10 +105,12 @@ class WorkspaceControllerTest {
     }
 
     @Test
+    @WithMockUser
     fun `given a Workspace, when sending a POST REST request to the workspaces endpoint and the Workspace already exists, then a CONFLICT http status response is returned`() {
-        val workspace = Workspace("workspaceTest")
-        val contentBody = objectMapper.writeValueAsString(workspace)
-        Mockito.`when`(workspaceService.create(workspace)).thenThrow(WorkspaceAlreadyExistsException(workspace))
+        val workspaceRequest = WorkspaceRequest("workspaceTest")
+        val user = UserPrincipal(123L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val contentBody = objectMapper.writeValueAsString(workspaceRequest)
+        Mockito.`when`(workspaceService.create(workspaceRequest, user)).thenThrow(WorkspaceAlreadyExistsException(workspaceRequest))
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/workspaces")
@@ -115,8 +121,9 @@ class WorkspaceControllerTest {
 
     @Test
     fun `when sending a GET REST request to workspaces endpoint, then the getAll method of WorkspaceService is called and a list of Workspaces is returned`() {
-        val workspace1 = Workspace("workspaceTest1")
-        val workspace2 = Workspace("workspaceTest2")
+        val userId = UserId(1L)
+        val workspace1 = Workspace("workspaceTest1", userId)
+        val workspace2 = Workspace("workspaceTest2", userId)
         val workspaces = listOf(workspace1, workspace2)
         Mockito.`when`(workspaceService.getAll()).thenReturn(workspaces)
         val expectedContentBody = objectMapper.writeValueAsString(workspaces)

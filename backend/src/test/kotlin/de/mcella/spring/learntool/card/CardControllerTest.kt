@@ -14,7 +14,7 @@ import de.mcella.spring.learntool.security.oauth2.CustomOAuth2UserService
 import de.mcella.spring.learntool.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository
 import de.mcella.spring.learntool.security.oauth2.OAuth2AuthenticationFailureHandler
 import de.mcella.spring.learntool.security.oauth2.OAuth2AuthenticationSuccessHandler
-import de.mcella.spring.learntool.workspace.dto.Workspace
+import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceNameException
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import java.lang.IllegalArgumentException
@@ -82,7 +82,7 @@ class CardControllerTest {
 
     @Test
     fun `given a Workspace name and a CardContent, when sending a POST REST request to the cards endpoint, then the create method of CardService is called`() {
-        val workspace = Workspace("workspaceTest")
+        val workspace = WorkspaceRequest("workspaceTest")
         val cardContent = CardContent("question", "response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspace.name, "question", "response")
@@ -101,7 +101,7 @@ class CardControllerTest {
 
     @Test
     fun `given a Workspace name and a CardContent, when sending a POST REST request to the cards endpoint and the create method of CardService throws IllegalArgumentException, then an UNPROCESSABLE_ENTITY http status response is returned`() {
-        val workspace = Workspace("workspaceTest")
+        val workspace = WorkspaceRequest("workspaceTest")
         val cardContent = CardContent("", "response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
         Mockito.`when`(cardService.create(workspace, cardContent)).thenThrow(IllegalArgumentException::class.java)
@@ -115,7 +115,7 @@ class CardControllerTest {
 
     @Test
     fun `given a Workspace name and a CardContent, when sending a POST REST request to the cards endpoint and the Workspace does not exist, then a NOT_FOUND http status response is returned`() {
-        val workspace = Workspace("workspaceTest")
+        val workspace = WorkspaceRequest("workspaceTest")
         val cardContent = CardContent("request", "response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
         Mockito.`when`(cardService.create(workspace, cardContent)).thenThrow(WorkspaceNotExistsException(workspace))
@@ -129,7 +129,7 @@ class CardControllerTest {
 
     @Test
     fun `given a Workspace name and a CardContent, when sending a POST REST request to the cards endpoint and the Card already exists, then a CONFLICT http status response is returned`() {
-        val workspace = Workspace("workspaceTest")
+        val workspace = WorkspaceRequest("workspaceTest")
         val cardContent = CardContent("request", "response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
         Mockito.`when`(cardService.create(workspace, cardContent)).thenThrow(CardAlreadyExistsException(CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")))
@@ -143,7 +143,7 @@ class CardControllerTest {
 
     @Test
     fun `given a Workspace name, a Card Id and a CardContent, when sending a PUT REST request to the cards endpoint, then the update method of CardService is called`() {
-        val workspace = Workspace("workspaceTest")
+        val workspace = WorkspaceRequest("workspaceTest")
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val cardContent = CardContent("updated question", "updated response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
@@ -163,7 +163,7 @@ class CardControllerTest {
 
     @Test
     fun `given a Workspace name, a Card Id, and a CardContent, when sending a PUT REST request to the cards endpoint and the CardService update method throws IllegalArgumentException, then an UNPROCESSABLE_ENTITY http status response is returned`() {
-        val workspace = Workspace("workspaceTest")
+        val workspace = WorkspaceRequest("workspaceTest")
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val cardContent = CardContent("", "response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
@@ -178,7 +178,7 @@ class CardControllerTest {
 
     @Test
     fun `given a Workspace name, a Card Id, and a CardContent, when sending a PUT REST request to the cards endpoint and the Workspace does not exist, then a NOT_FOUND http status response is returned`() {
-        val workspace = Workspace("workspaceTest")
+        val workspace = WorkspaceRequest("workspaceTest")
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val cardContent = CardContent("request", "response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
@@ -193,7 +193,7 @@ class CardControllerTest {
 
     @Test
     fun `given a Workspace name, a Card Id, and a CardContent, when sending a PUT REST request to the cards endpoint and the cardService update method throws InvalidWorkspaceNameException, then an UNPROCESSABLE_ENTITY http status response is returned`() {
-        val workspace = Workspace("workspaceTest")
+        val workspace = WorkspaceRequest("workspaceTest")
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val cardContent = CardContent("request", "response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
@@ -208,7 +208,7 @@ class CardControllerTest {
 
     @Test
     fun `given a Workspace name and a Card Id, when sending a DELETE REST request to the cards endpoint, then the delete method of CardService is called`() {
-        val workspace = Workspace("workspaceTest")
+        val workspace = WorkspaceRequest("workspaceTest")
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
 
         mockMvc.perform(
@@ -220,7 +220,7 @@ class CardControllerTest {
 
     @Test
     fun `given a Workspace name and a Card Id, when sending a DELETE REST request to the cards endpoint and the CardService delete method throws IllegalArgumentException, then an UNPROCESSABLE_ENTITY http status response is returned`() {
-        val workspace = Workspace("workspaceTest")
+        val workspace = WorkspaceRequest("workspaceTest")
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         Mockito.`when`(cardService.delete(cardId, workspace)).thenThrow(IllegalArgumentException::class.java)
 
@@ -231,7 +231,7 @@ class CardControllerTest {
 
     @Test
     fun `given a Workspace name and a Card Id, when sending a DELETE REST request to the cards endpoint and the Workspace does not exist, then a NOT_FOUND http status response is returned`() {
-        val workspace = Workspace("workspaceTest")
+        val workspace = WorkspaceRequest("workspaceTest")
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         Mockito.`when`(cardService.delete(cardId, workspace)).thenThrow(WorkspaceNotExistsException(workspace))
 
@@ -242,7 +242,7 @@ class CardControllerTest {
 
     @Test
     fun `given a Workspace name and a Card Id, when sending a DELETE REST request to the cards endpoint and the cardService update method throws InvalidWorkspaceNameException, then an UNPROCESSABLE_ENTITY http status response is returned`() {
-        val workspace = Workspace("workspaceTest")
+        val workspace = WorkspaceRequest("workspaceTest")
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         Mockito.`when`(cardService.delete(cardId, workspace)).thenThrow(InvalidWorkspaceNameException("The provided workspaceName does not match with the card workspace"))
 
@@ -253,7 +253,7 @@ class CardControllerTest {
 
     @Test
     fun `given a Workspace name, when sending a GET REST request to the cards endpoint without pagination query parameters, then the findByWorkspace method of CardService is called and the retrieved Cards are returned`() {
-        val workspace = Workspace("workspaceTest")
+        val workspace = WorkspaceRequest("workspaceTest")
         val cardPagination = CardPagination(0, 20)
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspace.name, "question", "response content")
         val cards = listOf(card)
@@ -269,7 +269,7 @@ class CardControllerTest {
 
     @Test
     fun `given a Workspace name, when sending a GET REST request to the cards endpoint and the CardService throws WorkspaceNotExistsException exception, then an INTERNAL_SERVER_ERROR http status response is returned`() {
-        val workspace = Workspace("workspaceTest")
+        val workspace = WorkspaceRequest("workspaceTest")
         val cardPagination = CardPagination(0, 20)
         Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination)).thenThrow(WorkspaceNotExistsException(workspace))
 
@@ -280,7 +280,7 @@ class CardControllerTest {
 
     @Test
     fun `given a Workspace name, when sending a GET REST request to the cards endpoint with page query parameter, then the findByWorkspace method of CardService is called and the retrieved Cards are returned`() {
-        val workspace = Workspace("workspaceTest")
+        val workspace = WorkspaceRequest("workspaceTest")
         val cardPagination = CardPagination(2, 20)
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspace.name, "question", "response content")
         val cards = listOf(card)
@@ -296,7 +296,7 @@ class CardControllerTest {
 
     @Test
     fun `given a Workspace name, when sending a GET REST request to the cards endpoint with size query parameter, then the findByWorkspace method of CardService is called and the retrieved Cards are returned`() {
-        val workspace = Workspace("workspaceTest")
+        val workspace = WorkspaceRequest("workspaceTest")
         val cardPagination = CardPagination(0, 10)
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspace.name, "question", "response content")
         val cards = listOf(card)
@@ -313,7 +313,7 @@ class CardControllerTest {
 
     @Test
     fun `given a Workspace name, when sending a GET REST request to the cards endpoint with size query parameter, then the countByWorkspace method of CardService is called and the count of Cards is returned as Header`() {
-        val workspace = Workspace("workspaceTest")
+        val workspace = WorkspaceRequest("workspaceTest")
         val cardPagination = CardPagination(0, 10)
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspace.name, "question", "response content")
         val cards = listOf(card)

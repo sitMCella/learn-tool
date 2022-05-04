@@ -11,7 +11,7 @@ import de.mcella.spring.learntool.learn.algorithm.OutputValues
 import de.mcella.spring.learntool.learn.dto.EvaluationParameters
 import de.mcella.spring.learntool.learn.storage.LearnCardEntity
 import de.mcella.spring.learntool.learn.storage.LearnCardRepository
-import de.mcella.spring.learntool.workspace.dto.Workspace
+import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
@@ -98,7 +98,7 @@ class LearnIntegrationTest {
     @Test
     fun `given a Workspace name, when a POST REST request is performed to the learn endpoint, then the LearnCard is created and the response body contains the LearnCard`() {
         val workspaceName = "workspaceTest"
-        val workspace = Workspace(workspaceName)
+        val workspaceRequest = WorkspaceRequest(workspaceName)
         val workspaceEntity = WorkspaceEntity(workspaceName)
         workspaceRepository.save(workspaceEntity)
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
@@ -116,20 +116,20 @@ class LearnIntegrationTest {
         assertEquals(cardId.id, createdLearnCard.id)
         assertEquals(workspaceName, createdLearnCard.workspaceName)
         assertEquals(workspaceName, createdLearnCard.workspaceName)
-        val expectedLearnCard = LearnCardEntity.createInitial(cardId, workspace, createdLearnCard.lastReview)
+        val expectedLearnCard = LearnCardEntity.createInitial(cardId, workspaceRequest, createdLearnCard.lastReview)
         assertEquals(expectedLearnCard, responseEntity)
     }
 
     @Test
     fun `given a Workspace name and a LeanCard, when a GET REST request is performed to the learn endpoint, then the response HTTP Status is 200 OK and the response body contains a Card`() {
         val workspaceName = "workspaceTest"
-        val workspace = Workspace(workspaceName)
+        val workspaceRequest = WorkspaceRequest(workspaceName)
         val workspaceEntity = WorkspaceEntity(workspaceName)
         workspaceRepository.save(workspaceEntity)
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val cardEntity = CardEntity(cardId.id, workspaceName, "question", "response")
         cardRepository.save(cardEntity)
-        val learnCard = LearnCardEntity.createInitial(cardId, workspace, Instant.now())
+        val learnCard = LearnCardEntity.createInitial(cardId, workspaceRequest, Instant.now())
         learnCardRepository.save(learnCard)
 
         val responseEntity = testRestTemplate.getForEntity(
@@ -146,14 +146,14 @@ class LearnIntegrationTest {
     @Test
     fun `given a Workspace name and a LearnCard with nextReview before the current date, when a GET REST request is performed to the learn endpoint, then the response HTTP Status is 200 OK and the response body contains a Card`() {
         val workspaceName = "workspaceTest"
-        val workspace = Workspace(workspaceName)
+        val workspaceRequest = WorkspaceRequest(workspaceName)
         val workspaceEntity = WorkspaceEntity(workspaceName)
         workspaceRepository.save(workspaceEntity)
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val cardEntity = CardEntity(cardId.id, workspaceName, "question", "response")
         cardRepository.save(cardEntity)
         val outputValues = OutputValues(1, 1, 1.0f)
-        val learnCard = LearnCardEntity.create(cardId, workspace, outputValues, Instant.now().minus(2, ChronoUnit.DAYS))
+        val learnCard = LearnCardEntity.create(cardId, workspaceRequest, outputValues, Instant.now().minus(2, ChronoUnit.DAYS))
         learnCardRepository.save(learnCard)
 
         val responseEntity = testRestTemplate.getForEntity(
@@ -170,14 +170,14 @@ class LearnIntegrationTest {
     @Test
     fun `given a Workspace name and the evaluation parameters, when a PUT REST request is performed to the learn endpoint, then the response HTTP Status is 200 OK and the response body contains the LearnCard`() {
         val workspaceName = "workspaceTest"
-        val workspace = Workspace(workspaceName)
+        val workspaceRequest = WorkspaceRequest(workspaceName)
         val workspaceEntity = WorkspaceEntity(workspaceName)
         workspaceRepository.save(workspaceEntity)
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val cardEntity = CardEntity(cardId.id, workspaceName, "question", "response")
         cardRepository.save(cardEntity)
         val instant = Instant.now()
-        val learnCard = LearnCardEntity.createInitial(cardId, workspace, instant)
+        val learnCard = LearnCardEntity.createInitial(cardId, workspaceRequest, instant)
         learnCardRepository.save(learnCard)
         val evaluationParameters = EvaluationParameters(5)
         val request = HttpEntity(evaluationParameters)
@@ -194,14 +194,14 @@ class LearnIntegrationTest {
     @Test
     fun `given a Workspace name and a Card id, when a DELETE REST request is performed to the learn endpoint, then the LearnCard is deleted`() {
         val workspaceName = "workspaceTest"
-        val workspace = Workspace(workspaceName)
+        val workspaceRequest = WorkspaceRequest(workspaceName)
         val workspaceEntity = WorkspaceEntity(workspaceName)
         workspaceRepository.save(workspaceEntity)
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val cardEntity = CardEntity(cardId.id, workspaceName, "question", "response")
         cardRepository.save(cardEntity)
         val instant = Instant.now()
-        val learnCard = LearnCardEntity.createInitial(cardId, workspace, instant)
+        val learnCard = LearnCardEntity.createInitial(cardId, workspaceRequest, instant)
         learnCardRepository.save(learnCard)
 
         testRestTemplate.delete(URI("http://localhost:$port/api/workspaces/$workspaceName/learn/${cardId.id}"))

@@ -4,7 +4,7 @@ import de.mcella.spring.learntool.card.dto.CardContent
 import de.mcella.spring.learntool.card.exceptions.CsvContentParseException
 import de.mcella.spring.learntool.card.storage.QUESTION
 import de.mcella.spring.learntool.card.storage.RESPONSE
-import de.mcella.spring.learntool.workspace.dto.Workspace
+import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service
 @Service
 class CardImportService(private val cardService: CardService) {
 
-    fun createMany(workspace: Workspace, content: InputStream) {
+    fun createMany(workspace: WorkspaceRequest, content: InputStream) {
         val csvRecords by lazy {
             try {
                 CSVFormat.DEFAULT

@@ -2,7 +2,7 @@ package de.mcella.spring.learntool.search
 
 import de.mcella.spring.learntool.card.dto.Card
 import de.mcella.spring.learntool.search.exceptions.CardSearchException
-import de.mcella.spring.learntool.workspace.dto.Workspace
+import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -23,11 +23,11 @@ class SearchController(private val cardSearchService: CardSearchService) {
     @ResponseStatus(HttpStatus.OK)
     fun search(@PathVariable(value = "workspaceName") workspaceName: String, @RequestParam(value = "content") content: String): List<Card> {
         try {
-            return cardSearchService.searchCards(Workspace(workspaceName), SearchPattern(content))
+            return cardSearchService.searchCards(WorkspaceRequest(workspaceName), SearchPattern(content))
         } catch (e: Exception) {
             when (e) {
                 is WorkspaceNotExistsException -> throw e
-                else -> throw CardSearchException(Workspace(workspaceName), e)
+                else -> throw CardSearchException(WorkspaceRequest(workspaceName), e)
             }
         }
     }

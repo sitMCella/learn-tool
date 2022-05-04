@@ -9,7 +9,7 @@ import de.mcella.spring.learntool.card.storage.CardRepository
 import de.mcella.spring.learntool.learn.algorithm.OutputValues
 import de.mcella.spring.learntool.learn.storage.LearnCardEntity
 import de.mcella.spring.learntool.learn.storage.LearnCardRepository
-import de.mcella.spring.learntool.workspace.dto.Workspace
+import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
@@ -90,18 +90,18 @@ class ExportIntegrationTest {
 
     @Test
     fun `given a Workspace name, when a GET REST request is performed to the export endpoint, then the backup file is created and the response body contains the file`() {
-        val workspace = Workspace("workspaceTest")
-        val workspaceEntity = WorkspaceEntity(workspace.name)
+        val workspaceRequest = WorkspaceRequest("workspaceTest")
+        val workspaceEntity = WorkspaceEntity(workspaceRequest.name)
         workspaceRepository.save(workspaceEntity)
         val cardId = CardId("a1900ca7-dc58-4360-b41c-537d933bc9c1")
-        val cardEntity = CardEntity(cardId.id, workspace.name, "This is a \"question\"", "This, is a response")
+        val cardEntity = CardEntity(cardId.id, workspaceRequest.name, "This is a \"question\"", "This, is a response")
         cardRepository.save(cardEntity)
         val outputValues = OutputValues(0, 0, 1.3f)
         val review = Instant.ofEpochMilli(1637090403000)
-        val learnCard = LearnCardEntity.create(cardId, workspace, outputValues, review)
+        val learnCard = LearnCardEntity.create(cardId, workspaceRequest, outputValues, review)
         learnCardRepository.save(learnCard)
 
-        val responseEntity = testRestTemplate.getForEntity<Resource>(URI("http://localhost:$port/api/workspaces/${workspace.name}/export"))
+        val responseEntity = testRestTemplate.getForEntity<Resource>(URI("http://localhost:$port/api/workspaces/${workspaceRequest.name}/export"))
 
         // Store the zip file
         // val outputStream: OutputStream = FileOutputStream(File("src/test/resources/backup.zip"))

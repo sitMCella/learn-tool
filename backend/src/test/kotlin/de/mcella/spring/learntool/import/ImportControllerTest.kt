@@ -1,13 +1,16 @@
 package de.mcella.spring.learntool.import
 
 import de.mcella.spring.learntool.UnitTest
+import de.mcella.spring.learntool.WithMockUser
 import de.mcella.spring.learntool.config.AppProperties
 import de.mcella.spring.learntool.security.CustomUserDetailsService
 import de.mcella.spring.learntool.security.TokenAuthenticationFilter
+import de.mcella.spring.learntool.security.UserPrincipal
 import de.mcella.spring.learntool.security.oauth2.CustomOAuth2UserService
 import de.mcella.spring.learntool.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository
 import de.mcella.spring.learntool.security.oauth2.OAuth2AuthenticationFailureHandler
 import de.mcella.spring.learntool.security.oauth2.OAuth2AuthenticationSuccessHandler
+import java.util.Collections
 import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
@@ -19,8 +22,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.mock.web.MockMultipartFile
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.servlet.MockMvc
@@ -34,7 +37,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 @AutoConfigureMockMvc(addFilters = false)
 @EnableConfigurationProperties(AppProperties::class)
 @TestPropertySource(properties = ["app.auth.tokenSecret=test", "app.auth.tokenExpirationMsec=123"])
-@WithMockUser("roles='USER'")
 class ImportControllerTest {
 
     @Autowired
@@ -65,6 +67,7 @@ class ImportControllerTest {
     private lateinit var importService: ImportService
 
     @Test
+    @WithMockUser
     fun `given a backup file, when sending a POST REST request to the import endpoint, then the importBackup method of ImportService is called`() {
         val backup = MockMultipartFile("backup", "backup.zip", "text/plain", null)
 
@@ -72,6 +75,7 @@ class ImportControllerTest {
                 MockMvcRequestBuilders.multipart("/api/workspaces/import").file(backup)
         ).andExpect(MockMvcResultMatchers.status().isOk)
 
-        Mockito.verify(importService).importBackup(backup)
+        val user = UserPrincipal(123L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        Mockito.verify(importService).importBackup(backup, user)
     }
 }

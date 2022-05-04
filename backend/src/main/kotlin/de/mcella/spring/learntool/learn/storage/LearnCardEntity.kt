@@ -4,7 +4,7 @@ import de.mcella.spring.learntool.card.dto.CardId
 import de.mcella.spring.learntool.learn.algorithm.MIN_EASE_FACTOR
 import de.mcella.spring.learntool.learn.algorithm.OutputValues
 import de.mcella.spring.learntool.learn.dto.LearnCard
-import de.mcella.spring.learntool.workspace.dto.Workspace
+import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import java.time.Duration
 import java.time.Instant
 import javax.persistence.Entity
@@ -25,14 +25,14 @@ data class LearnCardEntity(
     @field:NotNull val intervalDays: Int
 ) {
     companion object {
-        fun createInitial(cardId: CardId, workspace: Workspace, reviewTime: Instant): LearnCardEntity {
-            return LearnCardEntity(cardId.id, workspace.name, reviewTime, reviewTime, 0, MIN_EASE_FACTOR, 0)
+        fun createInitial(cardId: CardId, workspaceRequest: WorkspaceRequest, reviewTime: Instant): LearnCardEntity {
+            return LearnCardEntity(cardId.id, workspaceRequest.name, reviewTime, reviewTime, 0, MIN_EASE_FACTOR, 0)
         }
 
-        fun create(cardId: CardId, workspace: Workspace, outputValues: OutputValues, reviewTime: Instant): LearnCardEntity {
+        fun create(cardId: CardId, workspaceRequest: WorkspaceRequest, outputValues: OutputValues, reviewTime: Instant): LearnCardEntity {
             val intervalDays = outputValues.interval.toLong()
             val nextReview = reviewTime.plus(Duration.ofDays(intervalDays))
-            return LearnCardEntity(cardId.id, workspace.name, reviewTime, nextReview, outputValues.repetitions, outputValues.easeFactor, outputValues.interval)
+            return LearnCardEntity(cardId.id, workspaceRequest.name, reviewTime, nextReview, outputValues.repetitions, outputValues.easeFactor, outputValues.interval)
         }
 
         fun create(learnCard: LearnCard): LearnCardEntity {

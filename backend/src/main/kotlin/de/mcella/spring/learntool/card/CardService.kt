@@ -8,7 +8,7 @@ import de.mcella.spring.learntool.card.exceptions.CardAlreadyExistsException
 import de.mcella.spring.learntool.card.exceptions.CardNotFoundException
 import de.mcella.spring.learntool.card.storage.CardEntity
 import de.mcella.spring.learntool.card.storage.CardRepository
-import de.mcella.spring.learntool.workspace.dto.Workspace
+import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceNameException
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service
 @Service
 class CardService(private val cardRepository: CardRepository, private val workspaceRepository: WorkspaceRepository, private val cardIdGenerator: CardIdGenerator) {
 
-    fun create(workspace: Workspace, cardContent: CardContent): Card {
+    fun create(workspace: WorkspaceRequest, cardContent: CardContent): Card {
         require(!cardContent.question.isNullOrEmpty()) { "The field 'question' is required." }
         require(!cardContent.response.isNullOrEmpty()) { "The field 'response' is required." }
         if (!workspaceRepository.existsById(workspace.name)) {
@@ -40,7 +40,7 @@ class CardService(private val cardRepository: CardRepository, private val worksp
         require(!card.question.isNullOrEmpty()) { "The field 'question' is required." }
         require(!card.response.isNullOrEmpty()) { "The field 'response' is required." }
         if (!workspaceRepository.existsById(card.workspaceName)) {
-            throw WorkspaceNotExistsException(Workspace(card.workspaceName))
+            throw WorkspaceNotExistsException(WorkspaceRequest(card.workspaceName))
         }
         val cardId = CardId(card.id)
         if (cardRepository.existsById(cardId.id)) {
@@ -50,7 +50,7 @@ class CardService(private val cardRepository: CardRepository, private val worksp
         return Card.create(cardRepository.save(cardEntity))
     }
 
-    fun update(cardId: CardId, workspace: Workspace, cardContent: CardContent): Card {
+    fun update(cardId: CardId, workspace: WorkspaceRequest, cardContent: CardContent): Card {
         require(!cardContent.question.isNullOrEmpty()) { "The field 'question' is required." }
         require(!cardContent.response.isNullOrEmpty()) { "The field 'response' is required." }
         if (!workspaceRepository.existsById(workspace.name)) {
@@ -66,7 +66,7 @@ class CardService(private val cardRepository: CardRepository, private val worksp
         return Card.create(updatedCardEntity)
     }
 
-    fun delete(cardId: CardId, workspace: Workspace) {
+    fun delete(cardId: CardId, workspace: WorkspaceRequest) {
         if (!workspaceRepository.existsById(workspace.name)) {
             throw WorkspaceNotExistsException(workspace)
         }
@@ -77,19 +77,19 @@ class CardService(private val cardRepository: CardRepository, private val worksp
         cardRepository.delete(cardEntity)
     }
 
-    fun findByWorkspace(workspace: Workspace, cardPagination: CardPagination?): List<Card> {
-        if (!workspaceRepository.existsById(workspace.name)) {
-            throw WorkspaceNotExistsException(workspace)
+    fun findByWorkspace(workspaceRequest: WorkspaceRequest, cardPagination: CardPagination?): List<Card> {
+        if (!workspaceRepository.existsById(workspaceRequest.name)) {
+            throw WorkspaceNotExistsException(workspaceRequest)
         }
         val pageRequest = cardPagination?.let {
             PageRequest.of(cardPagination.page, cardPagination.size)
         } ?: Pageable.unpaged()
-        return cardRepository.findByWorkspaceNameOrderByCreationDateDesc(workspace.name, pageRequest).stream()
+        return cardRepository.findByWorkspaceNameOrderByCreationDateDesc(workspaceRequest.name, pageRequest).stream()
                 .map { cardEntity -> Card.create(cardEntity) }
                 .toList()
     }
 
-    fun countByWorkspace(workspace: Workspace): Long {
+    fun countByWorkspace(workspace: WorkspaceRequest): Long {
         if (!workspaceRepository.existsById(workspace.name)) {
             throw WorkspaceNotExistsException(workspace)
         }

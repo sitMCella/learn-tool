@@ -4,7 +4,7 @@ import de.mcella.spring.learntool.card.dto.Card
 import de.mcella.spring.learntool.card.dto.CardId
 import de.mcella.spring.learntool.learn.dto.EvaluationParameters
 import de.mcella.spring.learntool.learn.dto.LearnCard
-import de.mcella.spring.learntool.workspace.dto.Workspace
+import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType
@@ -30,13 +30,13 @@ class LearnController(private val learnService: LearnService) {
         @PathVariable(value = "workspaceName") workspaceName: String,
         @PathVariable(value = "cardId") cardId: String
     ): LearnCard {
-        return learnService.create(Workspace(workspaceName), CardId(cardId))
+        return learnService.create(WorkspaceRequest(workspaceName), CardId(cardId))
     }
 
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     @PreAuthorize("hasRole('USER')")
     @ResponseStatus(OK)
-    fun learn(@PathVariable(value = "workspaceName") workspaceName: String): Card = learnService.getCard(Workspace(workspaceName))
+    fun learn(@PathVariable(value = "workspaceName") workspaceName: String): Card = learnService.getCard(WorkspaceRequest(workspaceName))
 
     @PutMapping("/{cardId}", consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     @PreAuthorize("hasRole('USER')")
@@ -46,7 +46,7 @@ class LearnController(private val learnService: LearnService) {
         @PathVariable(value = "cardId") cardId: String,
         @RequestBody evaluationParameters: EvaluationParameters
     ): LearnCard {
-        return learnService.evaluateCard(Workspace(workspaceName), CardId(cardId), evaluationParameters)
+        return learnService.evaluateCard(WorkspaceRequest(workspaceName), CardId(cardId), evaluationParameters)
     }
 
     @DeleteMapping("/{cardId}")
@@ -56,6 +56,6 @@ class LearnController(private val learnService: LearnService) {
         @PathVariable(value = "workspaceName") workspaceName: String,
         @PathVariable(value = "cardId") cardId: String
     ) {
-        learnService.delete(Workspace(workspaceName), CardId(cardId))
+        learnService.delete(WorkspaceRequest(workspaceName), CardId(cardId))
     }
 }

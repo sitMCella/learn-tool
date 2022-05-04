@@ -11,11 +11,12 @@ import javax.validation.constraints.Size
 @Entity
 @Table(name = "workspaces")
 data class WorkspaceEntity(
-    @Id @Size(min = MIN_WORKSPACE_NAME_LENGTH, max = MAX_WORKSPACE_NAME_LENGTH) val name: String = ""
+    @Id @Size(min = MIN_WORKSPACE_NAME_LENGTH, max = MAX_WORKSPACE_NAME_LENGTH) val name: String = "",
+    val userId: Long? = 0L
 ) {
     companion object {
         fun create(workspace: Workspace): WorkspaceEntity {
-            return WorkspaceEntity(workspace.name)
+            return WorkspaceEntity(workspace.name, workspace.userId?.id)
         }
     }
 }
