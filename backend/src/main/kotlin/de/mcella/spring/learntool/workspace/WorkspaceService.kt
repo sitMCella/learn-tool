@@ -1,6 +1,7 @@
 package de.mcella.spring.learntool.workspace
 
 import de.mcella.spring.learntool.security.UserPrincipal
+import de.mcella.spring.learntool.user.dto.UserId
 import de.mcella.spring.learntool.workspace.dto.Workspace
 import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceAlreadyExistsException
@@ -22,8 +23,9 @@ class WorkspaceService(private val workspaceRepository: WorkspaceRepository) {
         return Workspace.create(workspaceRepository.save(workspaceEntity))
     }
 
-    fun getAll(): List<Workspace> {
-        return workspaceRepository.findAll()
+    fun getAll(user: UserPrincipal): List<Workspace> {
+        val userId = UserId.create(user)
+        return workspaceRepository.findByUserId(userId.id)
                 .stream()
                 .map { workspaceEntity -> Workspace.create(workspaceEntity) }
                 .toList()

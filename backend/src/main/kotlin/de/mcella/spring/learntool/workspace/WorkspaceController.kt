@@ -32,5 +32,5 @@ class WorkspaceController(private val workspaceService: WorkspaceService) {
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     @PreAuthorize("hasRole('USER')")
     @ResponseStatus(HttpStatus.OK)
-    fun getAll(): List<Workspace> = workspaceService.getAll()
+    fun getAll(@AuthenticationPrincipal user: UserPrincipal): List<Workspace> = workspaceService.getAll(user)
 }

@@ -10,10 +10,6 @@ import de.mcella.spring.learntool.card.exceptions.CardAlreadyExistsException
 import de.mcella.spring.learntool.config.AppProperties
 import de.mcella.spring.learntool.security.CustomUserDetailsService
 import de.mcella.spring.learntool.security.TokenAuthenticationFilter
-import de.mcella.spring.learntool.security.oauth2.CustomOAuth2UserService
-import de.mcella.spring.learntool.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository
-import de.mcella.spring.learntool.security.oauth2.OAuth2AuthenticationFailureHandler
-import de.mcella.spring.learntool.security.oauth2.OAuth2AuthenticationSuccessHandler
 import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceNameException
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
@@ -53,18 +49,6 @@ class CardControllerTest {
 
     @MockBean
     private lateinit var customUserDetailsService: CustomUserDetailsService
-
-    @MockBean
-    private lateinit var customOAuth2UserService: CustomOAuth2UserService
-
-    @MockBean
-    private lateinit var oAuth2AuthenticationSuccessHandler: OAuth2AuthenticationSuccessHandler
-
-    @MockBean
-    private lateinit var oAuth2AuthenticationFailureHandler: OAuth2AuthenticationFailureHandler
-
-    @MockBean
-    private lateinit var httpCookieOAuth2AuthorizationRequestRepository: HttpCookieOAuth2AuthorizationRequestRepository
 
     @MockBean
     private lateinit var tokenAuthenticationFilter: TokenAuthenticationFilter

@@ -125,16 +125,22 @@ class WorkspaceIntegrationTest {
     }
 
     @Test
-    fun `when a GET REST request is sent to the workspaces endpoint, then the http response body contains the list of Workspaces`() {
+    fun `when a GET REST request is sent to the workspaces endpoint, then the http response body contains the list of Workspaces of the authenticated user`() {
         val userId = UserId(1L)
         val user = UserEntity(userId.id, "user", "test@google.com", "", true, "", AuthProvider.local, "")
         userRepository.save(user)
+        val anotherUserId = UserId(2L)
+        val anotherUser = UserEntity(anotherUserId.id, "anotherUser", "another@google.com", "", true, "", AuthProvider.local, "")
+        userRepository.save(anotherUser)
         val workspace1 = Workspace("workspace1", userId)
         val workspaceEntity1 = WorkspaceEntity.create(workspace1)
         workspaceRepository.save(workspaceEntity1)
         val workspace2 = Workspace("workspace2", userId)
         val workspaceEntity2 = WorkspaceEntity.create(workspace2)
         workspaceRepository.save(workspaceEntity2)
+        val workspace3 = Workspace("workspace3", anotherUserId)
+        val workspaceEntity3 = WorkspaceEntity.create(workspace3)
+        workspaceRepository.save(workspaceEntity3)
         val headers = HttpHeaders()
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer FOO")
         headers.accept = listOf(MediaType.APPLICATION_JSON)

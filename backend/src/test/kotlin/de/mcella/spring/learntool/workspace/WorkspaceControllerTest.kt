@@ -7,10 +7,6 @@ import de.mcella.spring.learntool.config.AppProperties
 import de.mcella.spring.learntool.security.CustomUserDetailsService
 import de.mcella.spring.learntool.security.TokenAuthenticationFilter
 import de.mcella.spring.learntool.security.UserPrincipal
-import de.mcella.spring.learntool.security.oauth2.CustomOAuth2UserService
-import de.mcella.spring.learntool.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository
-import de.mcella.spring.learntool.security.oauth2.OAuth2AuthenticationFailureHandler
-import de.mcella.spring.learntool.security.oauth2.OAuth2AuthenticationSuccessHandler
 import de.mcella.spring.learntool.user.dto.UserId
 import de.mcella.spring.learntool.workspace.dto.Workspace
 import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
@@ -52,18 +48,6 @@ class WorkspaceControllerTest {
     private lateinit var customUserDetailsService: CustomUserDetailsService
 
     @MockBean
-    private lateinit var customOAuth2UserService: CustomOAuth2UserService
-
-    @MockBean
-    private lateinit var oAuth2AuthenticationSuccessHandler: OAuth2AuthenticationSuccessHandler
-
-    @MockBean
-    private lateinit var oAuth2AuthenticationFailureHandler: OAuth2AuthenticationFailureHandler
-
-    @MockBean
-    private lateinit var httpCookieOAuth2AuthorizationRequestRepository: HttpCookieOAuth2AuthorizationRequestRepository
-
-    @MockBean
     private lateinit var tokenAuthenticationFilter: TokenAuthenticationFilter
 
     @MockBean
@@ -87,6 +71,18 @@ class WorkspaceControllerTest {
 
         val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.verify(workspaceService).create(workspaceRequest, user)
+    }
+
+    @Test
+    fun `when sending a POST REST request to workspaces endpoint without JWT authentication, then an UNPROCESSABLE_ENTITY http status response is returned`() {
+        val workspaceRequest = WorkspaceRequest("workspaceTest")
+        val contentBody = objectMapper.writeValueAsString(workspaceRequest)
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.post("/api/workspaces")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(contentBody)
+        ).andExpect(MockMvcResultMatchers.status().isUnprocessableEntity)
     }
 
     @Test
@@ -120,12 +116,14 @@ class WorkspaceControllerTest {
     }
 
     @Test
-    fun `when sending a GET REST request to workspaces endpoint, then the getAll method of WorkspaceService is called and a list of Workspaces is returned`() {
+    @WithMockUser
+    fun `when sending a GET REST request to workspaces endpoint, then the getAll method of WorkspaceService is called and the list of Workspaces for the authenticated user is returned`() {
         val userId = UserId(1L)
+        val user = UserPrincipal(userId.id, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val workspace1 = Workspace("workspaceTest1", userId)
         val workspace2 = Workspace("workspaceTest2", userId)
         val workspaces = listOf(workspace1, workspace2)
-        Mockito.`when`(workspaceService.getAll()).thenReturn(workspaces)
+        Mockito.`when`(workspaceService.getAll(user)).thenReturn(workspaces)
         val expectedContentBody = objectMapper.writeValueAsString(workspaces)
 
         mockMvc.perform(
@@ -134,6 +132,13 @@ class WorkspaceControllerTest {
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(MockMvcResultMatchers.content().json(expectedContentBody))
 
-        Mockito.verify(workspaceService).getAll()
+        Mockito.verify(workspaceService).getAll(user)
+    }
+
+    @Test
+    fun `when sending a GET REST request to workspaces endpoint without JWT authentication, then an UNPROCESSABLE_ENTITY http status response is returned`() {
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/api/workspaces")
+        ).andExpect(MockMvcResultMatchers.status().isUnprocessableEntity)
     }
 }

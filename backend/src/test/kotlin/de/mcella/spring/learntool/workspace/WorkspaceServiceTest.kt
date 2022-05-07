@@ -64,16 +64,17 @@ class WorkspaceServiceTest {
     }
 
     @Test
-    fun `when retrieving all the Workspaces, then call the method findAll of WorkspaceRepository and return the list of Workspaces`() {
+    fun `when retrieving all the Workspaces of the authenticated user, then call the method findAll of WorkspaceRepository and return the list of Workspaces`() {
         val userId = UserId(1L)
+        val user = UserPrincipal(userId.id, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val workspaceEntity1 = WorkspaceEntity("workspaceTest1", userId.id)
         val workspaceEntity2 = WorkspaceEntity("workspaceTest2", userId.id)
         val workspaceEntities = listOf(workspaceEntity1, workspaceEntity2)
-        Mockito.`when`(workspaceRepository.findAll()).thenReturn(workspaceEntities)
+        Mockito.`when`(workspaceRepository.findByUserId(userId.id)).thenReturn(workspaceEntities)
 
-        val retrievedWorkspaces = workspaceService.getAll()
+        val retrievedWorkspaces = workspaceService.getAll(user)
 
-        Mockito.verify(workspaceRepository).findAll()
+        Mockito.verify(workspaceRepository).findByUserId(userId.id)
         val workspaces = listOf(Workspace("workspaceTest1", userId), Workspace("workspaceTest2", userId))
         assertEquals(workspaces, retrievedWorkspaces)
     }
