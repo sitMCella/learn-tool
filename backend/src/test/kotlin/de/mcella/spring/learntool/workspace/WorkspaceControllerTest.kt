@@ -85,7 +85,7 @@ class WorkspaceControllerTest {
             .andExpect(MockMvcResultMatchers.header().exists(HttpHeaders.LOCATION))
             .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.LOCATION, "/api/workspaces/workspaceTest"))
 
-        val user = UserPrincipal(123L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.verify(workspaceService).create(workspaceRequest, user)
     }
 
@@ -93,7 +93,7 @@ class WorkspaceControllerTest {
     @WithMockUser
     fun `given a Workspace with invalid name, when sending a POST REST request to the workspaces endpoint, then an UNPROCESSABLE_ENTITY http status response is returned`() {
         val workspaceRequest = WorkspaceRequest("workspace-invalid-Test")
-        val user = UserPrincipal(123L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val contentBody = objectMapper.writeValueAsString(workspaceRequest)
         Mockito.`when`(workspaceService.create(workspaceRequest, user)).thenThrow(InvalidWorkspaceNameException(""))
 
@@ -108,7 +108,7 @@ class WorkspaceControllerTest {
     @WithMockUser
     fun `given a Workspace, when sending a POST REST request to the workspaces endpoint and the Workspace already exists, then a CONFLICT http status response is returned`() {
         val workspaceRequest = WorkspaceRequest("workspaceTest")
-        val user = UserPrincipal(123L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val contentBody = objectMapper.writeValueAsString(workspaceRequest)
         Mockito.`when`(workspaceService.create(workspaceRequest, user)).thenThrow(WorkspaceAlreadyExistsException(workspaceRequest))
 

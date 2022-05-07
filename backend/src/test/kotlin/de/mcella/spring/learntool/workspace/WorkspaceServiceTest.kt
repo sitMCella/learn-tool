@@ -27,9 +27,10 @@ class WorkspaceServiceTest {
 
     @Test(expected = InvalidWorkspaceNameException::class)
     fun `given a Workspace with invalid name, when creating the Workspace, then throw InvalidWorkspaceNameException`() {
-        val user = UserPrincipal(123L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userId = UserId(123L)
+        val user = UserPrincipal(userId.id, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val workspaceRequest = WorkspaceRequest("workspace-InvalidTest!")
-        val workspaceEntity = WorkspaceEntity("workspace-InvalidTest!", user.id)
+        val workspaceEntity = WorkspaceEntity("workspace-InvalidTest!", userId.id)
         Mockito.`when`(workspaceRepository.save(workspaceEntity)).thenReturn(workspaceEntity)
 
         workspaceService.create(workspaceRequest, user)
@@ -48,9 +49,10 @@ class WorkspaceServiceTest {
 
     @Test
     fun `given a Workspace with valid name, when creating the Workspace and the Workspace does not already exist, then call the method save of WorkspaceRepository and return the Workspace`() {
-        val user = UserPrincipal(123L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userId = UserId(123L)
+        val user = UserPrincipal(userId.id, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val workspaceRequest = WorkspaceRequest("workspaceTest")
-        val workspaceEntity = WorkspaceEntity("workspaceTest", user.id)
+        val workspaceEntity = WorkspaceEntity("workspaceTest", userId.id)
         Mockito.`when`(workspaceRepository.existsById(workspaceRequest.name)).thenReturn(false)
         Mockito.`when`(workspaceRepository.save(workspaceEntity)).thenReturn(workspaceEntity)
 

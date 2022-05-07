@@ -19,7 +19,7 @@ class WithMockOAuth2ScopeSecurityContextFactory : WithSecurityContextFactory<Wit
         scope.add(mockOAuth2Scope.value)
         scope.add(mockOAuth2Scope.email)
         val request = OAuth2Request(null, mockOAuth2Scope.id, Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), true, scope, null, null, null, null)
-        val userPrincipal = UserPrincipal(123L, mockOAuth2Scope.email, mockOAuth2Scope.password, Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, mockOAuth2Scope.email, mockOAuth2Scope.password, Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val auth: Authentication = OAuth2Authentication(request, TestingAuthenticationToken(userPrincipal, null, "ROLE_USER"))
         context.authentication = auth
         return context

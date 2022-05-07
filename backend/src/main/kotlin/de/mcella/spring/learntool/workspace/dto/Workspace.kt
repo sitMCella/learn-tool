@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull
 
 data class Workspace(
     @field:NotNull @field:NotEmpty val name: String = "",
-    val userId: UserId?
+    val userId: UserId
 ) {
     companion object {
         fun create(workspaceRequest: WorkspaceRequest, user: UserPrincipal): Workspace {

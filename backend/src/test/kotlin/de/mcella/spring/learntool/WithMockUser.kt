@@ -7,4 +7,4 @@ import org.springframework.security.test.context.support.WithSecurityContext
 @Retention(AnnotationRetention.RUNTIME)
 @Inherited
 @WithSecurityContext(factory = WithMockOAuth2ScopeSecurityContextFactory::class)
-annotation class WithMockUser(val value: String = "user", val id: String = "123", val email: String = "test@google.com", val username: String = "", val roles: Array<String> = ["USER"], val password: String = "password")
+annotation class WithMockUser(val value: String = "user", val id: String = "1", val email: String = "test@google.com", val username: String = "", val roles: Array<String> = ["USER"], val password: String = "password")

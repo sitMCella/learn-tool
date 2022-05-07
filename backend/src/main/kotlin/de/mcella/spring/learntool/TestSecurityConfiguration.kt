@@ -10,6 +10,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.oauth2.provider.token.TokenStore
+import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore
 
 @Configuration
 @EnableWebSecurity
@@ -18,6 +20,11 @@ class TestSecurityConfiguration : WebSecurityConfigurerAdapter() {
     @Bean
     fun passwordEncoder(): PasswordEncoder {
         return BCryptPasswordEncoder()
+    }
+
+    @Bean
+    fun tokenStore(): TokenStore {
+        return InMemoryTokenStore()
     }
 
     @Bean(BeanIds.AUTHENTICATION_MANAGER)
