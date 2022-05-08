@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile
 @Service
 class ImportService(private val workspaceService: WorkspaceService, private val cardService: CardService, private val learnService: LearnService) {
 
-    fun importBackup(backup: MultipartFile, user: UserPrincipal) {
+    fun importBackup(backup: MultipartFile, userPrincipal: UserPrincipal) {
         ZipInputStream(BufferedInputStream(backup.inputStream)).use { zipInputStream ->
             generateSequence { zipInputStream.nextEntry }
                     .filterNot { it.isDirectory }
@@ -33,7 +33,7 @@ class ImportService(private val workspaceService: WorkspaceService, private val 
                     .forEach { unzippedFile ->
                         when (unzippedFile.filename) {
                             "/workspaces.csv" -> {
-                                importWorkspaceBackup(unzippedFile, user)
+                                importWorkspaceBackup(unzippedFile, userPrincipal)
                             }
                             "/cards.csv" -> {
                                 importCardsBackup(unzippedFile)
@@ -46,7 +46,7 @@ class ImportService(private val workspaceService: WorkspaceService, private val 
         }
     }
 
-    private fun importWorkspaceBackup(unzippedFile: UnzippedFile, user: UserPrincipal) {
+    private fun importWorkspaceBackup(unzippedFile: UnzippedFile, userPrincipal: UserPrincipal) {
         CSVFormat.DEFAULT
                 .withHeader("name")
                 .withIgnoreEmptyLines()
@@ -57,7 +57,7 @@ class ImportService(private val workspaceService: WorkspaceService, private val 
                     if (workspaceService.exists(workspaceRequest)) {
                         throw WorkspaceAlreadyExistsException(workspaceRequest)
                     }
-                    workspaceService.create(workspaceRequest, user)
+                    workspaceService.create(workspaceRequest, userPrincipal)
                 }
     }
 

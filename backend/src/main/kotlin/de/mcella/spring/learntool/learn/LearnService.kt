@@ -14,6 +14,8 @@ import de.mcella.spring.learntool.learn.exceptions.LearnCardNotFoundException
 import de.mcella.spring.learntool.learn.exceptions.LearnCardsNotFoundException
 import de.mcella.spring.learntool.learn.storage.LearnCardEntity
 import de.mcella.spring.learntool.learn.storage.LearnCardRepository
+import de.mcella.spring.learntool.security.UserPrincipal
+import de.mcella.spring.learntool.workspace.WorkspaceService
 import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import java.time.Instant
 import java.time.LocalDate
@@ -22,9 +24,10 @@ import kotlin.streams.toList
 import org.springframework.stereotype.Service
 
 @Service
-class LearnService(private val cardService: CardService, private val learnCardRepository: LearnCardRepository) {
+class LearnService(private val cardService: CardService, private val workspaceService: WorkspaceService, private val learnCardRepository: LearnCardRepository) {
 
-    fun create(workspaceRequest: WorkspaceRequest, cardId: CardId): LearnCard {
+    fun create(workspaceRequest: WorkspaceRequest, cardId: CardId, userPrincipal: UserPrincipal): LearnCard {
+        workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)
         if (learnCardRepository.existsById(cardId.id)) {
             throw LearnCardAlreadyExistsException(cardId)
         }
@@ -40,14 +43,16 @@ class LearnService(private val cardService: CardService, private val learnCardRe
         return LearnCard.create(learnCardRepository.save(LearnCardEntity.create(learnCard)))
     }
 
-    fun getCard(workspaceRequest: WorkspaceRequest): Card {
+    fun getCard(workspaceRequest: WorkspaceRequest, userPrincipal: UserPrincipal): Card {
+        workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)
         val today = LocalDate.now()
         val end = today.plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC)
         val learnCard = learnCardRepository.findFirstByWorkspaceNameAndNextReviewBeforeOrderByNextReview(workspaceRequest.name, end).toNullable() ?: throw LearnCardsNotFoundException(workspaceRequest)
         return cardService.findById(CardId(learnCard.id))
     }
 
-    fun evaluateCard(workspaceRequest: WorkspaceRequest, cardId: CardId, evaluationParameters: EvaluationParameters): LearnCard {
+    fun evaluateCard(workspaceRequest: WorkspaceRequest, cardId: CardId, evaluationParameters: EvaluationParameters, userPrincipal: UserPrincipal): LearnCard {
+        workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)
         val card = cardService.findById(cardId)
         if (card.workspaceName != workspaceRequest.name) throw CardBindingException(workspaceRequest, cardId)
         val learnCard = learnCardRepository.findById(cardId.id).toNullable() ?: throw LearnCardNotFoundException(workspaceRequest, cardId)
@@ -64,7 +69,8 @@ class LearnService(private val cardService: CardService, private val learnCardRe
                 .toList()
     }
 
-    fun delete(workspaceRequest: WorkspaceRequest, cardId: CardId) {
+    fun delete(workspaceRequest: WorkspaceRequest, cardId: CardId, userPrincipal: UserPrincipal) {
+        workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)
         val card = cardService.findById(cardId)
         if (card.workspaceName != workspaceRequest.name) throw CardBindingException(workspaceRequest, cardId)
         val learnCard = learnCardRepository.findById(cardId.id).toNullable() ?: throw LearnCardNotFoundException(workspaceRequest, cardId)
