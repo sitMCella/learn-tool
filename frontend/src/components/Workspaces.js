@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ACCESS_TOKEN } from '../constants'
 import Workspace from './Workspace'
+import ProfileMenu from './ProfileMenu'
 import AppBar from '@material-ui/core/AppBar'
 import Box from '@material-ui/core/Box'
 import Divider from '@material-ui/core/Divider'
@@ -212,9 +213,10 @@ function Workspaces (props) {
   const classes = useStyles()
 
   return (
-        <Box sx={{ flexGrow: 1 }}>
+        <Box sx={{ flexGrow: 0 }}>
             <AppBar position="relative" className={classes.appBar}>
                 <Toolbar variant="dense">
+                  <ProfileMenu {...props} />
                 </Toolbar>
             </AppBar>
             <Drawer variant="permanent" anchor="left">

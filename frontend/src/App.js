@@ -87,12 +87,8 @@ class App extends Component {
                       <Route path="/signup" render={(props) => <Signup authenticated={this.state.authenticated} {...props} />}/>
                       <PrivateRoute path="/profile" authenticated={this.state.authenticated} currentUser={this.state.currentUser} component={Profile}/>
                       <Route exact path="/workspaces" render={(props) => <Workspaces key={Math.random()} {...props} />} />
-                      <Route path="/workspaces/:name/cards">
-                          <WorkspaceDetails />
-                      </Route>
-                      <Route path="/workspaces/:name/study">
-                          <Study />
-                      </Route>
+                      <Route path="/workspaces/:name/cards" render={(props) => <WorkspaceDetails {...props} />}/>
+                      <Route path="/workspaces/:name/study" render={(props) => <Study {...props} />}/>
                       <Route component={NotFound}/>
                   </Switch>
               </BrowserRouter>

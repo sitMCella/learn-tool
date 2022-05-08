@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ACCESS_TOKEN } from '../constants'
+import ProfileMenu from './ProfileMenu'
 import AppBar from '@material-ui/core/AppBar'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
@@ -21,7 +22,7 @@ import StarIcon from '@material-ui/icons/Star'
 import Fab from '@material-ui/core/Fab'
 import SkipNextIcon from '@material-ui/icons/SkipNext'
 
-function Study () {
+function Study (props) {
   const params = useParams()
   const [cardId, setCardId] = useState('')
   const [cardQuestion, setCardQuestion] = useState('')
@@ -205,6 +206,7 @@ function Study () {
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="relative" className={classes.appBar}>
                 <Toolbar variant="dense">
+                  <ProfileMenu {...props} />
                 </Toolbar>
             </AppBar>
             <Drawer variant="permanent" anchor="left">

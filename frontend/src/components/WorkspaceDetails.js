@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { ACCESS_TOKEN } from '../constants'
 import Card from './Card'
+import ProfileMenu from './ProfileMenu'
 import AppBar from '@material-ui/core/AppBar'
 import Box from '@material-ui/core/Box'
 import Drawer from '@material-ui/core/Drawer'
@@ -21,7 +22,7 @@ import RocketIcon from '@material-ui/icons/EmojiEvents'
 import SaveAltIcon from '@material-ui/icons/SaveAlt'
 import SearchIcon from '@material-ui/icons/Search'
 
-const WorkspaceDetails = () => {
+const WorkspaceDetails = (props) => {
   const params = useParams()
   const [cards, setCards] = useState([])
   const [pagesCount, setPagesCount] = useState(0)
@@ -367,6 +368,7 @@ const WorkspaceDetails = () => {
                           endAdornment={<div className={classes.closeIcon}><CloseIcon onClick={resetSearchHandler} /></div>}
                       />
                     </Box>
+                    <ProfileMenu {...props} />
                 </Toolbar>
             </AppBar>
             <Drawer variant="permanent" anchor="left">
