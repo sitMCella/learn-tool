@@ -1,5 +1,6 @@
 package de.mcella.spring.learntool.workspace.storage
 
+import de.mcella.spring.learntool.user.dto.UserId
 import de.mcella.spring.learntool.workspace.WorkspaceNameValidator.MAX_WORKSPACE_NAME_LENGTH
 import de.mcella.spring.learntool.workspace.WorkspaceNameValidator.MIN_WORKSPACE_NAME_LENGTH
 import de.mcella.spring.learntool.workspace.dto.Workspace
@@ -17,6 +18,10 @@ data class WorkspaceEntity(
     companion object {
         fun create(workspace: Workspace): WorkspaceEntity {
             return WorkspaceEntity(workspace.name, workspace.userId.id)
+        }
+
+        fun hasUserId(workspaceEntity: WorkspaceEntity, userId: UserId): Boolean {
+            return workspaceEntity.userId == userId.id
         }
     }
 }

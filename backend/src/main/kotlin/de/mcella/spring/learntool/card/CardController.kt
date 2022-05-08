@@ -4,6 +4,7 @@ import de.mcella.spring.learntool.card.dto.Card
 import de.mcella.spring.learntool.card.dto.CardContent
 import de.mcella.spring.learntool.card.dto.CardId
 import de.mcella.spring.learntool.card.dto.CardPagination
+import de.mcella.spring.learntool.security.UserPrincipal
 import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import java.io.InputStream
 import java.net.URI
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -30,10 +32,11 @@ class CardController(private val cardService: CardService, private val cardImpor
     @PreAuthorize("hasRole('USER')")
     fun create(
         @PathVariable(value = "workspaceName") workspaceName: String,
-        @RequestBody cardContent: CardContent
+        @RequestBody cardContent: CardContent,
+        @AuthenticationPrincipal user: UserPrincipal
     ): ResponseEntity<Card> {
         val workspace = WorkspaceRequest(workspaceName)
-        val card: Card = cardService.create(workspace, cardContent)
+        val card: Card = cardService.create(workspace, cardContent, user)
         val bodyBuilder = ResponseEntity.status(HttpStatus.CREATED)
         bodyBuilder.location(URI("/workspaces/$workspaceName/cards/${card.id}"))
         return bodyBuilder.body(card)
@@ -44,9 +47,10 @@ class CardController(private val cardService: CardService, private val cardImpor
     fun update(
         @PathVariable(value = "workspaceName") workspaceName: String,
         @PathVariable(value = "cardId") cardId: String,
-        @RequestBody cardContent: CardContent
+        @RequestBody cardContent: CardContent,
+        @AuthenticationPrincipal user: UserPrincipal
     ): ResponseEntity<Card> {
-        val card: Card = cardService.update(CardId(cardId), WorkspaceRequest(workspaceName), cardContent)
+        val card: Card = cardService.update(CardId(cardId), WorkspaceRequest(workspaceName), cardContent, user)
         val bodyBuilder = ResponseEntity.status(HttpStatus.OK)
         bodyBuilder.location(URI("/workspaces/$workspaceName/cards/$cardId"))
         return bodyBuilder.body(card)
@@ -57,16 +61,18 @@ class CardController(private val cardService: CardService, private val cardImpor
     @ResponseStatus(HttpStatus.OK)
     fun delete(
         @PathVariable(value = "workspaceName") workspaceName: String,
-        @PathVariable(value = "cardId") cardId: String
-    ) = cardService.delete(CardId(cardId), WorkspaceRequest(workspaceName))
+        @PathVariable(value = "cardId") cardId: String,
+        @AuthenticationPrincipal user: UserPrincipal
+    ) = cardService.delete(CardId(cardId), WorkspaceRequest(workspaceName), user)
 
     @PostMapping("many.csv", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     @PreAuthorize("hasRole('USER')")
     @ResponseStatus(HttpStatus.CREATED)
     fun createMany(
         @PathVariable(value = "workspaceName") workspaceName: String,
-        content: InputStream
-    ) = cardImportService.createMany(WorkspaceRequest(workspaceName), content)
+        content: InputStream,
+        @AuthenticationPrincipal user: UserPrincipal
+    ) = cardImportService.createMany(WorkspaceRequest(workspaceName), content, user)
 
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     @PreAuthorize("hasRole('USER')")
@@ -74,10 +80,11 @@ class CardController(private val cardService: CardService, private val cardImpor
     fun get(
         @PathVariable(value = "workspaceName") workspaceName: String,
         @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
-        @RequestParam(value = "size", required = false, defaultValue = "20") size: Int
+        @RequestParam(value = "size", required = false, defaultValue = "20") size: Int,
+        @AuthenticationPrincipal user: UserPrincipal
     ): ResponseEntity<List<Card>> {
         val workspace = WorkspaceRequest(workspaceName)
-        val cards = cardService.findByWorkspace(workspace, CardPagination(page, size))
+        val cards = cardService.findByWorkspace(workspace, CardPagination(page, size), user)
         val bodyBuilder = ResponseEntity.status(HttpStatus.OK)
         bodyBuilder.header("count", cardService.countByWorkspace(workspace).toString())
         return bodyBuilder.body(cards)

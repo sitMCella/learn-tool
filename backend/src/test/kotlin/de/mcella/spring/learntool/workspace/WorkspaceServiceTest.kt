@@ -3,6 +3,8 @@ package de.mcella.spring.learntool.workspace
 import de.mcella.spring.learntool.UnitTest
 import de.mcella.spring.learntool.security.UserPrincipal
 import de.mcella.spring.learntool.user.dto.UserId
+import de.mcella.spring.learntool.user.exceptions.UserNotAuthorizedException
+import de.mcella.spring.learntool.user.exceptions.UserNotExistentException
 import de.mcella.spring.learntool.workspace.dto.Workspace
 import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceNameException
@@ -10,6 +12,7 @@ import de.mcella.spring.learntool.workspace.exceptions.WorkspaceAlreadyExistsExc
 import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.util.Collections
+import java.util.Optional
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -97,5 +100,52 @@ class WorkspaceServiceTest {
         val workspaceExists = workspaceService.exists(workspaceRequest)
 
         assertFalse(workspaceExists)
+    }
+
+    @Test
+    fun `given a Workspace name and a UserPrincipal, when verifying the User ownership of the Workspace and the Workspace does not exist, then return true`() {
+        val workspaceRequest = WorkspaceRequest("workspaceTest")
+        val userId = UserId(1L)
+        val userPrincipal = UserPrincipal(userId.id, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        Mockito.`when`(workspaceRepository.findById(workspaceRequest.name)).thenReturn(Optional.empty())
+
+        val isAuthorized = workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)
+
+        assertTrue(isAuthorized)
+    }
+
+    @Test(expected = UserNotExistentException::class)
+    fun `given a Workspace name and a UserPrincipal, when verifying the User ownership of the Workspace and the user does not exist, then throw UserNotExistentException`() {
+        val workspaceRequest = WorkspaceRequest("workspaceTest")
+        val userPrincipal = UserPrincipal(null, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userId = UserId(1L)
+        val workspaceEntity = WorkspaceEntity("workspaceTest", userId.id)
+        Mockito.`when`(workspaceRepository.findById(workspaceRequest.name)).thenReturn(Optional.of(workspaceEntity))
+
+        workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)
+    }
+
+    @Test(expected = UserNotAuthorizedException::class)
+    fun `given a Workspace name and a UserPrincipal, when verifying the User ownership of the Workspace and the user does not own the Workspace, then throw UserNotAuthorizedException`() {
+        val workspaceRequest = WorkspaceRequest("workspaceTest")
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val anotherUserId = UserId(2L)
+        val workspaceEntity = WorkspaceEntity("workspaceTest", anotherUserId.id)
+        Mockito.`when`(workspaceRepository.findById(workspaceRequest.name)).thenReturn(Optional.of(workspaceEntity))
+
+        workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)
+    }
+
+    @Test
+    fun `given a Workspace name and a UserPrincipal, when verifying the User ownership of the Workspace and the user owns the Workspace, then return true`() {
+        val workspaceRequest = WorkspaceRequest("workspaceTest")
+        val userId = UserId(1L)
+        val userPrincipal = UserPrincipal(userId.id, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val workspaceEntity = WorkspaceEntity("workspaceTest", userId.id)
+        Mockito.`when`(workspaceRepository.findById(workspaceRequest.name)).thenReturn(Optional.of(workspaceEntity))
+
+        val isAuthorized = workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)
+
+        assertTrue(isAuthorized)
     }
 }

@@ -2,6 +2,7 @@ package de.mcella.spring.learntool.workspace
 
 import de.mcella.spring.learntool.security.UserPrincipal
 import de.mcella.spring.learntool.user.dto.UserId
+import de.mcella.spring.learntool.user.exceptions.UserNotAuthorizedException
 import de.mcella.spring.learntool.workspace.dto.Workspace
 import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceAlreadyExistsException
@@ -32,4 +33,14 @@ class WorkspaceService(private val workspaceRepository: WorkspaceRepository) {
     }
 
     fun exists(workspaceRequest: WorkspaceRequest): Boolean = workspaceRepository.existsById(workspaceRequest.name)
+
+    fun verifyIfUserIsAuthorized(workspaceRequest: WorkspaceRequest, userPrincipal: UserPrincipal): Boolean {
+        val workspaceEntity = workspaceRepository.findById(workspaceRequest.name)
+        if (!workspaceEntity.isPresent) return true
+        val userId = UserId.create(userPrincipal)
+        if (!WorkspaceEntity.hasUserId(workspaceEntity.get(), userId)) {
+            throw UserNotAuthorizedException(userPrincipal)
+        }
+        return true
+    }
 }

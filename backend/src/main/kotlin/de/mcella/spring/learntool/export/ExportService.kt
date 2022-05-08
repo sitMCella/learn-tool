@@ -2,6 +2,7 @@ package de.mcella.spring.learntool.export
 
 import de.mcella.spring.learntool.card.CardService
 import de.mcella.spring.learntool.learn.LearnService
+import de.mcella.spring.learntool.security.UserPrincipal
 import de.mcella.spring.learntool.workspace.WorkspaceService
 import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
@@ -22,10 +23,10 @@ import org.springframework.stereotype.Service
 @Service
 class ExportService(private val workspaceService: WorkspaceService, private val cardService: CardService, private val learnService: LearnService) {
 
-    fun exportBackup(workspaceRequest: WorkspaceRequest): File {
+    fun exportBackup(workspaceRequest: WorkspaceRequest, userPrincipal: UserPrincipal): File {
         val tempDirectory = Files.createTempDirectory("backup")
-        val workspaceFile = exportWorkspaceBackup(workspaceRequest, tempDirectory)
-        val cardsFile = exportCardsBackup(workspaceRequest, tempDirectory)
+        val workspaceFile = exportWorkspaceBackup(workspaceRequest, tempDirectory, userPrincipal)
+        val cardsFile = exportCardsBackup(workspaceRequest, tempDirectory, userPrincipal)
         val learnCardsFile = exportLearnCardsBackup(workspaceRequest, tempDirectory)
         val files = arrayOf(workspaceFile.absolutePath, cardsFile.absolutePath, learnCardsFile.absolutePath)
         val backup: File = File.createTempFile("backup", ".zip")
@@ -43,10 +44,11 @@ class ExportService(private val workspaceService: WorkspaceService, private val 
         return backup
     }
 
-    private fun exportWorkspaceBackup(workspaceRequest: WorkspaceRequest, tempDirectory: Path): File {
+    private fun exportWorkspaceBackup(workspaceRequest: WorkspaceRequest, tempDirectory: Path, userPrincipal: UserPrincipal): File {
         if (!workspaceService.exists(workspaceRequest)) {
             throw WorkspaceNotExistsException(workspaceRequest)
         }
+        workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)
         val file = File(tempDirectory.toString(), "workspaces.csv")
         val writer = Files.newBufferedWriter(Paths.get(file.toURI()))
         val csvPrinter = CSVPrinter(writer, CSVFormat.RFC4180
@@ -57,12 +59,13 @@ class ExportService(private val workspaceService: WorkspaceService, private val 
         return file
     }
 
-    private fun exportCardsBackup(workspaceRequest: WorkspaceRequest, tempDirectory: Path): File {
+    private fun exportCardsBackup(workspaceRequest: WorkspaceRequest, tempDirectory: Path, userPrincipal: UserPrincipal): File {
         val file = File(tempDirectory.toString(), "cards.csv")
         val writer = Files.newBufferedWriter(Paths.get(file.toURI()))
         val csvPrinter = CSVPrinter(writer, CSVFormat.RFC4180
                 .withHeader("id", "workspace_name", "question", "response").withEscape('"'))
-        cardService.findByWorkspace(workspaceRequest, null).stream().forEach { card -> csvPrinter.printRecord(card.id, card.workspaceName, card.question, card.response) }
+        cardService.findByWorkspace(workspaceRequest, null, userPrincipal).stream()
+                .forEach { card -> csvPrinter.printRecord(card.id, card.workspaceName, card.question, card.response) }
         csvPrinter.flush()
         csvPrinter.close()
         return file
