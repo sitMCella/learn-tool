@@ -22,14 +22,14 @@ function Login (props) {
 
   const useStyles = makeStyles((theme) => ({
     formContent: {
-      width: 1200,
-      fontSize: 'x-medium'
+      fontSize: 'x-medium',
+      alignItems: 'center'
     },
     loginFormContent: {
       width: 520,
       margin: theme.spacing(1, 0),
       '@media only screen and (max-width:768px)': {
-        width: 270
+        width: 310
       }
     },
     title: {

@@ -9,7 +9,6 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import MenuList from '@material-ui/core/MenuList'
 import MenuItem from '@material-ui/core/MenuItem'
 import { makeStyles } from '@material-ui/core/styles'
-import { ACCESS_TOKEN } from '../constants'
 
 function ProfileMenu (props) {
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false)
@@ -26,9 +25,9 @@ function ProfileMenu (props) {
   }
 
   const logoutHandler = () => {
-    localStorage.removeItem(ACCESS_TOKEN)
+    props.onLogout()
     props.history.push({
-      pathname: '/',
+      pathname: '/login',
       key: Math.random()
     })
   }

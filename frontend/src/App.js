@@ -70,9 +70,7 @@ class App extends Component {
   render () {
     if (this.state.loading) {
       return (
-        <div className="loading-indicator" style={{ display: 'block', textAlign: 'center', marginTop: '30px' }}>
-          Loading ...
-        </div>
+        <div></div>
       )
     }
 
@@ -83,12 +81,12 @@ class App extends Component {
                   <Switch>
                       <Redirect exact from="/" to="/workspaces" />
                       <Route path="/login" render={(props) => <Login authenticated={this.state.authenticated} {...props} />} />
-                      <Route path="/oauth2/redirect" component={OAuth2RedirectHandler} />
+                      <Route path="/oauth2/redirect" render={(props) => <OAuth2RedirectHandler {...props} />} />
                       <Route path="/signup" render={(props) => <Signup authenticated={this.state.authenticated} {...props} />}/>
                       <PrivateRoute path="/profile" authenticated={this.state.authenticated} currentUser={this.state.currentUser} component={Profile}/>
-                      <Route exact path="/workspaces" render={(props) => <Workspaces key={Math.random()} {...props} />} />
-                      <Route path="/workspaces/:name/cards" render={(props) => <WorkspaceDetails {...props} />}/>
-                      <Route path="/workspaces/:name/study" render={(props) => <Study {...props} />}/>
+                      <Route exact path="/workspaces" render={(props) => <Workspaces key={Math.random()} onLogout={this.handleLogout} {...props} />} />
+                      <Route path="/workspaces/:name/cards" render={(props) => <WorkspaceDetails onLogout={this.handleLogout} {...props} />}/>
+                      <Route path="/workspaces/:name/study" render={(props) => <Study onLogout={this.handleLogout} {...props} />}/>
                       <Route component={NotFound}/>
                   </Switch>
               </BrowserRouter>

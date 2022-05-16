@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ACCESS_TOKEN } from '../constants'
+import { ACCESS_TOKEN, UNAUTHORIZED, UNPROCESSABLE_ENTITY } from '../constants'
+import AuthenticationException from '../AuthenticationException'
 import Workspace from './Workspace'
 import ProfileMenu from './ProfileMenu'
 import AppBar from '@material-ui/core/AppBar'
@@ -41,6 +42,9 @@ function Workspaces (props) {
       signal
     })
     if (!response.ok) {
+      if (response.status === UNAUTHORIZED || response.status === UNPROCESSABLE_ENTITY) {
+        throw new AuthenticationException(JSON.stringify(response))
+      }
       throw new Error(JSON.stringify(response))
     }
     const responseData = await response.json()
@@ -63,9 +67,11 @@ function Workspaces (props) {
         console.log('Error while retrieving the Workspaces: ' + err.message)
         setWorkspaceError(true)
         setWorkspaceErrorMessage('Cannot retrieve the Workspaces, please refresh the page.')
-        props.history.push({
-          pathname: '/login'
-        })
+        if (err instanceof AuthenticationException) {
+          props.history.push({
+            pathname: '/login'
+          })
+        }
       })
     return () => controller.abort()
   }, [])
@@ -133,10 +139,10 @@ function Workspaces (props) {
         getWorkspaces()
           .then(() => setWorkspaceError(false))
           .catch(() => {
+            console.log('Error while importing the Workspace.')
             setWorkspaceError(true)
             setWorkspaceErrorMessage('Cannot retrieve the Workspaces, please refresh the page.')
           })
-          .catch(() => { console.log('Error while importing the Workspace.') })
       }
       await response
     }

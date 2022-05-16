@@ -11,16 +11,21 @@ import Fab from '@material-ui/core/Fab'
 import InputBase from '@material-ui/core/InputBase'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
+import MuiAlert from '@material-ui/lab/Alert'
 import Pagination from '@material-ui/lab/Pagination'
 import Toolbar from '@material-ui/core/Toolbar'
 import { fade, makeStyles } from '@material-ui/core/styles'
 import AddIcon from '@material-ui/icons/Add'
 import DashboardIcon from '@material-ui/icons/Dashboard'
 import CloseIcon from '@material-ui/icons/Close'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
 import RocketIcon from '@material-ui/icons/EmojiEvents'
 import SaveAltIcon from '@material-ui/icons/SaveAlt'
 import SearchIcon from '@material-ui/icons/Search'
+
+function Alert (props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />
+}
 
 const WorkspaceDetails = (props) => {
   const params = useParams()
@@ -30,6 +35,8 @@ const WorkspaceDetails = (props) => {
   const [backupCards, setBackupCards] = useState([])
   const [searchPattern, setSearchPattern] = useState('')
   const [typingTimeout, setTypingTimeout] = useState()
+  const [workspaceDetailsError, setWorkspaceDetailsError] = useState(false)
+  const [workspaceDetailsErrorMessage, setWorkspaceDetailsErrorMessage] = useState('')
   const paginationSize = 5
 
   const getPagesCount = (cardsCount) => {
@@ -72,8 +79,11 @@ const WorkspaceDetails = (props) => {
     const controller = new AbortController()
     const signal = controller.signal
     getCards(signal)
+      .then(() => setWorkspaceDetailsError(false))
       .catch((err) => {
         console.log('Error while retrieving the cards from the Workspace ' + params.name + ': ' + err.message)
+        setWorkspaceDetailsError(true)
+        setWorkspaceDetailsErrorMessage('Cannot retrieve the Workspace details, please refresh the page.')
       })
     return () => controller.abort()
   }, [])
@@ -111,8 +121,11 @@ const WorkspaceDetails = (props) => {
       setBackupCards(loadedCards)
     }
     getCards()
+      .then(() => setWorkspaceDetailsError(false))
       .catch((err) => {
         console.log('Error while retrieving the cards from the Workspace ' + params.name + ': ' + err.message)
+        setWorkspaceDetailsError(true)
+        setWorkspaceDetailsErrorMessage('Cannot retrieve the Cards, please refresh the page.')
       })
   }
 
@@ -161,8 +174,11 @@ const WorkspaceDetails = (props) => {
         return
       }
       getSearchCards()
+        .then(() => setWorkspaceDetailsError(false))
         .catch((err) => {
           console.log('Error while searching the Cards: ' + err.message)
+          setWorkspaceDetailsError(true)
+          setWorkspaceDetailsErrorMessage('Cannot search the Cards.')
         })
     }, 500))
   }
@@ -241,8 +257,11 @@ const WorkspaceDetails = (props) => {
       a.click()
     }
     exportBackup()
+      .then(() => setWorkspaceDetailsError(false))
       .catch((err) => {
         console.log('Error while exporting the backup: ' + err.message)
+        setWorkspaceDetailsError(true)
+        setWorkspaceDetailsErrorMessage('Cannot export the Workspace backup.')
       })
   }
 
@@ -387,6 +406,7 @@ const WorkspaceDetails = (props) => {
                 </List>
             </Drawer>
             <Box className={classes.content}>
+                {workspaceDetailsError && (<Alert severity="error">{workspaceDetailsErrorMessage}</Alert>)}
                 <div className={classes.title}>Cards</div>
                 <Box className={classes.events}>
                   <Box className={classes.eventIcon}>

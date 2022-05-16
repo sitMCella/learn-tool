@@ -12,6 +12,7 @@ import Drawer from '@material-ui/core/Drawer'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
+import MuiAlert from '@material-ui/lab/Alert'
 import Rating from '@material-ui/lab/Rating'
 import Typography from '@material-ui/core/Typography'
 import Toolbar from '@material-ui/core/Toolbar'
@@ -21,6 +22,10 @@ import FilterNoneIcon from '@material-ui/icons/FilterNone'
 import StarIcon from '@material-ui/icons/Star'
 import Fab from '@material-ui/core/Fab'
 import SkipNextIcon from '@material-ui/icons/SkipNext'
+
+function Alert (props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />
+}
 
 function Study (props) {
   const params = useParams()
@@ -32,6 +37,8 @@ function Study (props) {
   const [evaluationButtonsVisible, setEvaluationButtonsVisible] = useState(false)
   const [noCardsLft, setNoCardsLeft] = useState(false)
   const [qualityValue, setQualityValue] = React.useState(3)
+  const [studyError, setStudyError] = useState(false)
+  const [studyErrorMessage, setStudyErrorMessage] = useState('')
 
   const getCard = async (signal) => {
     const headers = {
@@ -57,13 +64,17 @@ function Study (props) {
   useEffect(() => {
     const controller = new AbortController()
     const signal = controller.signal
-    getCard(signal).catch((err) => {
-      console.log('Error while retrieving a card from the Workspace ' + params.name + ': ' + err.message)
-      setNoCardsLeft(true)
-      setCardId('')
-      setCardQuestion('')
-      setCardResponse('')
-    })
+    getCard(signal)
+      .then(() => setStudyError(false))
+      .catch((err) => {
+        console.log('Error while retrieving a card from the Workspace ' + params.name + ': ' + err.message)
+        setStudyError(true)
+        setStudyErrorMessage('Cannot retrieve the next Card, please refresh the page.')
+        setNoCardsLeft(true)
+        setCardId('')
+        setCardQuestion('')
+        setCardResponse('')
+      })
     return () => controller.abort()
   }, [])
 
@@ -96,12 +107,15 @@ function Study (props) {
     }
     evaluateCard()
       .then(() => {
+        setStudyError(false)
         setEvaluationButtonsVisible(false)
         setResponseVisibility('none')
         setFlipButtonVisible(true)
         getCard()
           .catch((err) => {
-            console.log('Error while retrieving a card from the Workspace ' + params.name + ' status: ' + err.message)
+            console.log('Error while evaluating the card from the Workspace ' + params.name + ' status: ' + err.message)
+            setStudyError(true)
+            setStudyErrorMessage('Cannot evaluate the Card, please refresh the page.')
             setNoCardsLeft(true)
             setCardId('')
             setCardQuestion('')
@@ -110,6 +124,8 @@ function Study (props) {
       })
       .catch((err) => {
         console.log('Error while evaluating the Card with Id ' + cardId + ': ' + err.message)
+        setStudyError(true)
+        setStudyErrorMessage('Cannot evaluate the Card, please refresh the page.')
         setCardId('')
         setCardQuestion('')
         setCardResponse('')
@@ -227,6 +243,7 @@ function Study (props) {
             { !noCardsLft
               ? (
                 <div className={classes.content}>
+                    {studyError && (<Alert severity="error">{studyErrorMessage}</Alert>)}
                     <div className={classes.title}>Learn</div>
                     <Box className={classes.events}>
                       <Box className={classes.eventIcon}>

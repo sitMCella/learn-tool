@@ -46,7 +46,7 @@ function LoginForm (props) {
         localStorage.setItem(ACCESS_TOKEN, response.accessToken)
         console.log('You are successfully logged in.')
         props.history.push({
-          pathname: '/workspaces',
+          pathname: '/',
           key: Math.random()
         })
       }).catch(error => {
