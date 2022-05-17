@@ -11,13 +11,13 @@ function Login (props) {
   useEffect(() => {
     if (props.location.state && props.location.state.error) {
       setTimeout(() => {
-        console.log(props.location.state.error)
         props.history.replace({
           pathname: props.location.pathname,
           state: {}
         })
       }, 100)
     }
+    props.loadCurrentLoggedInUser()
   }, [])
 
   const useStyles = makeStyles((theme) => ({

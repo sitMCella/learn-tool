@@ -172,6 +172,9 @@ function Study (props) {
       },
       marginRight: 0
     },
+    errors: {
+      marginBottom: theme.spacing(2)
+    },
     title: {
       flex: 0,
       display: 'flex',
@@ -214,6 +217,9 @@ function Study (props) {
     },
     eventIcon: {
       paddingRight: 5
+    },
+    close: {
+      marginTop: theme.spacing(1)
     }
   }))
   const classes = useStyles()
@@ -243,7 +249,7 @@ function Study (props) {
             { !noCardsLft
               ? (
                 <div className={classes.content}>
-                    {studyError && (<Alert severity="error">{studyErrorMessage}</Alert>)}
+                  {studyError && (<div className={classes.errors}><Alert severity="error">{studyErrorMessage}</Alert></div>)}
                     <div className={classes.title}>Learn</div>
                     <Box className={classes.events}>
                       <Box className={classes.eventIcon}>
@@ -314,7 +320,9 @@ function Study (props) {
                             </CardContent>
                         </CardUi>
                         <Box component="span" m={3}>
+                          <div className={classes.close}>
                             <Button variant="contained" color="primary" component={Link} to={'/workspaces/' + params.name + '/cards'}>Close</Button>
+                          </div>
                         </Box>
                     </List>
                 </div>

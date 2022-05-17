@@ -65,13 +65,13 @@ function Workspaces (props) {
       .then(() => setWorkspaceError(false))
       .catch((err) => {
         console.log('Error while retrieving the Workspaces: ' + err.message)
-        setWorkspaceError(true)
-        setWorkspaceErrorMessage('Cannot retrieve the Workspaces, please refresh the page.')
         if (err instanceof AuthenticationException) {
           props.history.push({
             pathname: '/login'
           })
         }
+        setWorkspaceError(true)
+        setWorkspaceErrorMessage('Cannot retrieve the Workspaces, please refresh the page.')
       })
     return () => controller.abort()
   }, [])
@@ -192,6 +192,9 @@ function Workspaces (props) {
       },
       marginRight: 0
     },
+    errors: {
+      marginBottom: theme.spacing(2)
+    },
     title: {
       flex: 0,
       display: 'flex',
@@ -244,7 +247,7 @@ function Workspaces (props) {
                 </List>
             </Drawer>
             <div className={classes.content}>
-                {workspaceError && (<Alert severity="error">{workspaceErrorMessage}</Alert>)}
+              {workspaceError && (<div className={classes.errors}><Alert severity="error">{workspaceErrorMessage}</Alert></div>)}
                 <div className={classes.title}>Workspaces</div>
                 <Box className={classes.events}>
                   <Box className={classes.eventIcon}>

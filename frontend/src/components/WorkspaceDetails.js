@@ -349,6 +349,9 @@ const WorkspaceDetails = (props) => {
       },
       marginRight: 0
     },
+    errors: {
+      marginBottom: theme.spacing(2)
+    },
     title: {
       flex: 0,
       position: 'absolute',
@@ -406,7 +409,7 @@ const WorkspaceDetails = (props) => {
                 </List>
             </Drawer>
             <Box className={classes.content}>
-                {workspaceDetailsError && (<Alert severity="error">{workspaceDetailsErrorMessage}</Alert>)}
+                {workspaceDetailsError && (<div className={classes.errors}><Alert severity="error">{workspaceDetailsErrorMessage}</Alert></div>)}
                 <div className={classes.title}>Cards</div>
                 <Box className={classes.events}>
                   <Box className={classes.eventIcon}>

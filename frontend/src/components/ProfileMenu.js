@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 import Box from '@material-ui/core/Box'
 import Fab from '@material-ui/core/Fab'
 import Avatar from '@material-ui/core/Avatar'
@@ -62,6 +63,7 @@ function ProfileMenu (props) {
                         <Paper>
                             <ClickAwayListener onClickAway={avatarMenuCloseHandler}>
                                 <MenuList autoFocusItem={avatarMenuOpen} id="avatar-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={avatarMenuCloseHandler}>
+                                    <MenuItem component={Link} to="/profile">Profile</MenuItem>
                                     <MenuItem onClick={logoutHandler}>Logout</MenuItem>
                                 </MenuList>
                             </ClickAwayListener>

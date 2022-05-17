@@ -8,7 +8,6 @@ import NotFound from './components/NotFound'
 import OAuth2RedirectHandler from './components/OAuth2RedirectHandler'
 import Workspaces from './components/Workspaces'
 import WorkspaceDetails from './components/WorkspaceDetails'
-import PrivateRoute from './components/PrivateRoute'
 import Profile from './components/Profile'
 import Signup from './components/Signup'
 import Study from './components/Study'
@@ -49,6 +48,8 @@ class App extends Component {
       }).catch((err) => {
         console.log(err)
         this.setState({
+          currentUser: null,
+          authenticated: false,
           loading: false
         })
       })
@@ -80,10 +81,10 @@ class App extends Component {
               <BrowserRouter>
                   <Switch>
                       <Redirect exact from="/" to="/workspaces" />
-                      <Route path="/login" render={(props) => <Login authenticated={this.state.authenticated} {...props} />} />
+                      <Route path="/login" render={(props) => <Login authenticated={this.state.authenticated} loadCurrentLoggedInUser={this.loadCurrentlyLoggedInUser} {...props} />} />
                       <Route path="/oauth2/redirect" render={(props) => <OAuth2RedirectHandler {...props} />} />
                       <Route path="/signup" render={(props) => <Signup authenticated={this.state.authenticated} {...props} />}/>
-                      <PrivateRoute path="/profile" authenticated={this.state.authenticated} currentUser={this.state.currentUser} component={Profile}/>
+                      <Route path="/profile" render={(props) => <Profile authenticated={this.state.authenticated} currentUser={this.state.currentUser} onLogout={this.handleLogout} {...props} />} />
                       <Route exact path="/workspaces" render={(props) => <Workspaces key={Math.random()} onLogout={this.handleLogout} {...props} />} />
                       <Route path="/workspaces/:name/cards" render={(props) => <WorkspaceDetails onLogout={this.handleLogout} {...props} />}/>
                       <Route path="/workspaces/:name/study" render={(props) => <Study onLogout={this.handleLogout} {...props} />}/>

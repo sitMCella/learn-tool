@@ -41,8 +41,7 @@ function Card (props) {
       if (!response.ok) {
         throw new Error(JSON.stringify(response))
       }
-      const card = await response.json()
-      return card
+      return await response.json()
     }
     const createLearnCard = async (cardId) => {
       const headers = {
@@ -97,8 +96,7 @@ function Card (props) {
       if (!response.ok) {
         throw new Error(JSON.stringify(response))
       }
-      const card = await response.json()
-      return card
+      return await response.json()
     }
     updateCard()
       .then((card) => {
