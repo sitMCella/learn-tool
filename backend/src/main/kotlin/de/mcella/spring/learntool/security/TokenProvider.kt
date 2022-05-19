@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service
 @Service
 class TokenProvider(val appProperties: AppProperties) {
     fun createToken(authentication: Authentication): String {
-        val userPrincipal: UserPrincipal = authentication.principal as UserPrincipal
+        val userPrincipal = authentication.principal as UserPrincipal
         val now = Date()
         val expiryDate = Date(now.time + appProperties.auth.tokenExpirationMsec)
         val keyBytes = Decoders.BASE64.decode(appProperties.auth.tokenSecret)

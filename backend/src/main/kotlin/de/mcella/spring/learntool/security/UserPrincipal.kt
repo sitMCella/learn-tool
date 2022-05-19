@@ -19,14 +19,12 @@ data class UserPrincipal(
     companion object {
         fun create(userEntity: UserEntity): UserPrincipal {
             val authorities = Collections.singletonList(SimpleGrantedAuthority("ROLE_USER"))
-            val userPrincipal = UserPrincipal(userEntity.id, userEntity.email, userEntity.password, authorities, attributes = emptyMap())
-            return userPrincipal
+            return UserPrincipal(userEntity.id, userEntity.email, userEntity.password, authorities, attributes = emptyMap())
         }
 
         fun create(userEntity: UserEntity, attributes: Map<String, Any>): UserPrincipal {
             val authorities = Collections.singletonList(SimpleGrantedAuthority("ROLE_USER"))
-            val userPrincipal = UserPrincipal(userEntity.id, userEntity.email, userEntity.password, authorities, attributes = attributes)
-            return userPrincipal
+            return UserPrincipal(userEntity.id, userEntity.email, userEntity.password, authorities, attributes = attributes)
         }
     }
 
