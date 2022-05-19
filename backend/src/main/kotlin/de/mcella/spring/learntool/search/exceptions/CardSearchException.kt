@@ -1,7 +1,7 @@
 package de.mcella.spring.learntool.search.exceptions
 
-import de.mcella.spring.learntool.workspace.dto.Workspace
+import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 
-class CardSearchException(workspace: Workspace, e: Throwable) : ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error while searching Cards in the Workspace ${workspace.name}. Exception: $e")
+class CardSearchException(workspaceRequest: WorkspaceRequest, e: Throwable) : ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error while searching Cards in the Workspace ${workspaceRequest.name}. Exception: $e")

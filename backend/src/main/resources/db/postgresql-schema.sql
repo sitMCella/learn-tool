@@ -1,5 +1,18 @@
+CREATE TABLE if not exists users (
+  id bigserial primary key,
+  name varchar (255),
+  email varchar (36) NOT NULL,
+  image_url varchar (255),
+  email_verified boolean,
+  password varchar (255) NOT NULL,
+  auth_provider varchar (36) NOT NULL,
+  auth_provider_id varchar (36) NOT NULL
+);
+
 CREATE TABLE if not exists workspaces (
-  name varchar (255) primary key
+  name varchar (255) primary key,
+  user_id bigserial,
+  CONSTRAINT fkUserId FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 CREATE TABLE if not exists cards (
@@ -19,4 +32,4 @@ CREATE TABLE if not exists learn_cards (
   repetitions integer NOT NULL,
   ease_factor real NOT NULL,
   interval_days integer NOT NULL
-)
+);

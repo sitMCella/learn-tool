@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { ACCESS_TOKEN } from '../constants'
+import ProfileMenu from './ProfileMenu'
 import AppBar from '@material-ui/core/AppBar'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
@@ -10,6 +12,7 @@ import Drawer from '@material-ui/core/Drawer'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
+import MuiAlert from '@material-ui/lab/Alert'
 import Rating from '@material-ui/lab/Rating'
 import Typography from '@material-ui/core/Typography'
 import Toolbar from '@material-ui/core/Toolbar'
@@ -20,7 +23,11 @@ import StarIcon from '@material-ui/icons/Star'
 import Fab from '@material-ui/core/Fab'
 import SkipNextIcon from '@material-ui/icons/SkipNext'
 
-function Study () {
+function Alert (props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />
+}
+
+function Study (props) {
   const params = useParams()
   const [cardId, setCardId] = useState('')
   const [cardQuestion, setCardQuestion] = useState('')
@@ -30,13 +37,19 @@ function Study () {
   const [evaluationButtonsVisible, setEvaluationButtonsVisible] = useState(false)
   const [noCardsLft, setNoCardsLeft] = useState(false)
   const [qualityValue, setQualityValue] = React.useState(3)
+  const [studyError, setStudyError] = useState(false)
+  const [studyErrorMessage, setStudyErrorMessage] = useState('')
 
   const getCard = async (signal) => {
+    const headers = {
+      Accepted: 'application/json'
+    }
+    if (localStorage.getItem(ACCESS_TOKEN)) {
+      headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
+    }
     const response = await fetch('/api/workspaces/' + params.name + '/learn', {
       method: 'GET',
-      headers: {
-        Accepted: 'application/json'
-      },
+      headers: headers,
       signal
     })
     if (!response.ok) {
@@ -51,13 +64,17 @@ function Study () {
   useEffect(() => {
     const controller = new AbortController()
     const signal = controller.signal
-    getCard(signal).catch((err) => {
-      console.log('Error while retrieving a card from the Workspace ' + params.name + ': ' + err.message)
-      setNoCardsLeft(true)
-      setCardId('')
-      setCardQuestion('')
-      setCardResponse('')
-    })
+    getCard(signal)
+      .then(() => setStudyError(false))
+      .catch((err) => {
+        console.log('Error while retrieving a card from the Workspace ' + params.name + ': ' + err.message)
+        setStudyError(true)
+        setStudyErrorMessage('Cannot retrieve the next Card, please refresh the page.')
+        setNoCardsLeft(true)
+        setCardId('')
+        setCardQuestion('')
+        setCardResponse('')
+      })
     return () => controller.abort()
   }, [])
 
@@ -69,12 +86,16 @@ function Study () {
 
   const evaluateCardHandler = () => {
     const evaluateCard = async () => {
+      const headers = {
+        'Content-Type': 'application/json',
+        Accepted: 'application/json'
+      }
+      if (localStorage.getItem(ACCESS_TOKEN)) {
+        headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
+      }
       const response = await fetch('/api/workspaces/' + params.name + '/learn/' + cardId, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Accepted: 'application/json'
-        },
+        headers: headers,
         body: JSON.stringify({ quality: 0 })
       })
       if (!response.ok) {
@@ -86,12 +107,15 @@ function Study () {
     }
     evaluateCard()
       .then(() => {
+        setStudyError(false)
         setEvaluationButtonsVisible(false)
         setResponseVisibility('none')
         setFlipButtonVisible(true)
         getCard()
           .catch((err) => {
-            console.log('Error while retrieving a card from the Workspace ' + params.name + ' status: ' + err.message)
+            console.log('Error while evaluating the card from the Workspace ' + params.name + ' status: ' + err.message)
+            setStudyError(true)
+            setStudyErrorMessage('Cannot evaluate the Card, please refresh the page.')
             setNoCardsLeft(true)
             setCardId('')
             setCardQuestion('')
@@ -100,6 +124,8 @@ function Study () {
       })
       .catch((err) => {
         console.log('Error while evaluating the Card with Id ' + cardId + ': ' + err.message)
+        setStudyError(true)
+        setStudyErrorMessage('Cannot evaluate the Card, please refresh the page.')
         setCardId('')
         setCardQuestion('')
         setCardResponse('')
@@ -146,6 +172,9 @@ function Study () {
       },
       marginRight: 0
     },
+    errors: {
+      marginBottom: theme.spacing(2)
+    },
     title: {
       flex: 0,
       display: 'flex',
@@ -188,6 +217,9 @@ function Study () {
     },
     eventIcon: {
       paddingRight: 5
+    },
+    close: {
+      marginTop: theme.spacing(1)
     }
   }))
   const classes = useStyles()
@@ -196,6 +228,7 @@ function Study () {
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="relative" className={classes.appBar}>
                 <Toolbar variant="dense">
+                  <ProfileMenu {...props} />
                 </Toolbar>
             </AppBar>
             <Drawer variant="permanent" anchor="left">
@@ -216,6 +249,7 @@ function Study () {
             { !noCardsLft
               ? (
                 <div className={classes.content}>
+                  {studyError && (<div className={classes.errors}><Alert severity="error">{studyErrorMessage}</Alert></div>)}
                     <div className={classes.title}>Learn</div>
                     <Box className={classes.events}>
                       <Box className={classes.eventIcon}>
@@ -286,7 +320,9 @@ function Study () {
                             </CardContent>
                         </CardUi>
                         <Box component="span" m={3}>
+                          <div className={classes.close}>
                             <Button variant="contained" color="primary" component={Link} to={'/workspaces/' + params.name + '/cards'}>Close</Button>
+                          </div>
                         </Box>
                     </List>
                 </div>

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { ACCESS_TOKEN } from '../constants'
 import Card from './Card'
+import ProfileMenu from './ProfileMenu'
 import AppBar from '@material-ui/core/AppBar'
 import Box from '@material-ui/core/Box'
 import Drawer from '@material-ui/core/Drawer'
@@ -9,18 +11,23 @@ import Fab from '@material-ui/core/Fab'
 import InputBase from '@material-ui/core/InputBase'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
+import MuiAlert from '@material-ui/lab/Alert'
 import Pagination from '@material-ui/lab/Pagination'
 import Toolbar from '@material-ui/core/Toolbar'
 import { fade, makeStyles } from '@material-ui/core/styles'
 import AddIcon from '@material-ui/icons/Add'
 import DashboardIcon from '@material-ui/icons/Dashboard'
 import CloseIcon from '@material-ui/icons/Close'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
 import RocketIcon from '@material-ui/icons/EmojiEvents'
 import SaveAltIcon from '@material-ui/icons/SaveAlt'
 import SearchIcon from '@material-ui/icons/Search'
 
-const WorkspaceDetails = () => {
+function Alert (props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />
+}
+
+const WorkspaceDetails = (props) => {
   const params = useParams()
   const [cards, setCards] = useState([])
   const [pagesCount, setPagesCount] = useState(0)
@@ -28,6 +35,8 @@ const WorkspaceDetails = () => {
   const [backupCards, setBackupCards] = useState([])
   const [searchPattern, setSearchPattern] = useState('')
   const [typingTimeout, setTypingTimeout] = useState()
+  const [workspaceDetailsError, setWorkspaceDetailsError] = useState(false)
+  const [workspaceDetailsErrorMessage, setWorkspaceDetailsErrorMessage] = useState('')
   const paginationSize = 5
 
   const getPagesCount = (cardsCount) => {
@@ -35,11 +44,15 @@ const WorkspaceDetails = () => {
   }
 
   const getCards = async (signal) => {
+    const headers = {
+      Accepted: 'application/json'
+    }
+    if (localStorage.getItem(ACCESS_TOKEN)) {
+      headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
+    }
     const response = await fetch('/api/workspaces/' + params.name + '/cards?page=0&size=' + paginationSize, {
       method: 'GET',
-      headers: {
-        Accepted: 'application/json'
-      },
+      headers: headers,
       signal
     })
     if (!response.ok) {
@@ -66,20 +79,27 @@ const WorkspaceDetails = () => {
     const controller = new AbortController()
     const signal = controller.signal
     getCards(signal)
+      .then(() => setWorkspaceDetailsError(false))
       .catch((err) => {
         console.log('Error while retrieving the cards from the Workspace ' + params.name + ': ' + err.message)
+        setWorkspaceDetailsError(true)
+        setWorkspaceDetailsErrorMessage('Cannot retrieve the Workspace details, please refresh the page.')
       })
     return () => controller.abort()
   }, [])
 
   const handlePaginationChange = (event, value) => {
     const getCards = async () => {
+      const headers = {
+        Accepted: 'application/json'
+      }
+      if (localStorage.getItem(ACCESS_TOKEN)) {
+        headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
+      }
       const page = value - 1
       const response = await fetch('/api/workspaces/' + params.name + '/cards?page=' + page + '&size=' + paginationSize, {
         method: 'GET',
-        headers: {
-          Accepted: 'application/json'
-        }
+        headers: headers
       })
       if (!response.ok) {
         throw new Error(JSON.stringify(response))
@@ -101,8 +121,11 @@ const WorkspaceDetails = () => {
       setBackupCards(loadedCards)
     }
     getCards()
+      .then(() => setWorkspaceDetailsError(false))
       .catch((err) => {
         console.log('Error while retrieving the cards from the Workspace ' + params.name + ': ' + err.message)
+        setWorkspaceDetailsError(true)
+        setWorkspaceDetailsErrorMessage('Cannot retrieve the Cards, please refresh the page.')
       })
   }
 
@@ -113,12 +136,16 @@ const WorkspaceDetails = () => {
 
   const searchOnChangeHandler = (event) => {
     const getSearchCards = async () => {
+      const headers = {
+        Accepted: 'application/json'
+      }
+      if (localStorage.getItem(ACCESS_TOKEN)) {
+        headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
+      }
       const content = encodeURIComponent(event.target.value)
       const response = await fetch('/api/workspaces/' + params.name + '/search?content=' + content, {
         method: 'GET',
-        headers: {
-          Accepted: 'application/json'
-        }
+        headers: headers
       })
       if (!response.ok) {
         throw new Error(JSON.stringify(response))
@@ -147,8 +174,11 @@ const WorkspaceDetails = () => {
         return
       }
       getSearchCards()
+        .then(() => setWorkspaceDetailsError(false))
         .catch((err) => {
           console.log('Error while searching the Cards: ' + err.message)
+          setWorkspaceDetailsError(true)
+          setWorkspaceDetailsErrorMessage('Cannot search the Cards.')
         })
     }, 500))
   }
@@ -206,11 +236,15 @@ const WorkspaceDetails = () => {
 
   const handleExport = () => {
     const exportBackup = async () => {
+      const headers = {
+        Accepted: 'application/octet-stream'
+      }
+      if (localStorage.getItem(ACCESS_TOKEN)) {
+        headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
+      }
       const response = await fetch('/api/workspaces/' + params.name + '/export', {
         method: 'GET',
-        headers: {
-          Accepted: 'application/octet-stream'
-        }
+        headers: headers
       })
       if (!response.ok) {
         throw new Error(JSON.stringify(response))
@@ -223,8 +257,11 @@ const WorkspaceDetails = () => {
       a.click()
     }
     exportBackup()
+      .then(() => setWorkspaceDetailsError(false))
       .catch((err) => {
         console.log('Error while exporting the backup: ' + err.message)
+        setWorkspaceDetailsError(true)
+        setWorkspaceDetailsErrorMessage('Cannot export the Workspace backup.')
       })
   }
 
@@ -312,6 +349,9 @@ const WorkspaceDetails = () => {
       },
       marginRight: 0
     },
+    errors: {
+      marginBottom: theme.spacing(2)
+    },
     title: {
       flex: 0,
       position: 'absolute',
@@ -350,6 +390,7 @@ const WorkspaceDetails = () => {
                           endAdornment={<div className={classes.closeIcon}><CloseIcon onClick={resetSearchHandler} /></div>}
                       />
                     </Box>
+                    <ProfileMenu {...props} />
                 </Toolbar>
             </AppBar>
             <Drawer variant="permanent" anchor="left">
@@ -368,6 +409,7 @@ const WorkspaceDetails = () => {
                 </List>
             </Drawer>
             <Box className={classes.content}>
+                {workspaceDetailsError && (<div className={classes.errors}><Alert severity="error">{workspaceDetailsErrorMessage}</Alert></div>)}
                 <div className={classes.title}>Cards</div>
                 <Box className={classes.events}>
                   <Box className={classes.eventIcon}>

@@ -4,10 +4,13 @@ import de.mcella.spring.learntool.card.dto.Card
 import de.mcella.spring.learntool.card.dto.CardId
 import de.mcella.spring.learntool.learn.dto.EvaluationParameters
 import de.mcella.spring.learntool.learn.dto.LearnCard
-import de.mcella.spring.learntool.workspace.dto.Workspace
+import de.mcella.spring.learntool.security.UserPrincipal
+import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -23,34 +26,44 @@ import org.springframework.web.bind.annotation.RestController
 class LearnController(private val learnService: LearnService) {
 
     @PostMapping("/{cardId}", consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PreAuthorize("hasRole('USER')")
     @ResponseStatus(CREATED)
     fun create(
         @PathVariable(value = "workspaceName") workspaceName: String,
-        @PathVariable(value = "cardId") cardId: String
+        @PathVariable(value = "cardId") cardId: String,
+        @AuthenticationPrincipal user: UserPrincipal
     ): LearnCard {
-        return learnService.create(Workspace(workspaceName), CardId(cardId))
+        return learnService.create(WorkspaceRequest(workspaceName), CardId(cardId), user)
     }
 
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PreAuthorize("hasRole('USER')")
     @ResponseStatus(OK)
-    fun learn(@PathVariable(value = "workspaceName") workspaceName: String): Card = learnService.getCard(Workspace(workspaceName))
+    fun learn(
+        @PathVariable(value = "workspaceName") workspaceName: String,
+        @AuthenticationPrincipal user: UserPrincipal
+    ): Card = learnService.getCard(WorkspaceRequest(workspaceName), user)
 
     @PutMapping("/{cardId}", consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PreAuthorize("hasRole('USER')")
     @ResponseStatus(OK)
     fun evaluate(
         @PathVariable(value = "workspaceName") workspaceName: String,
         @PathVariable(value = "cardId") cardId: String,
-        @RequestBody evaluationParameters: EvaluationParameters
+        @RequestBody evaluationParameters: EvaluationParameters,
+        @AuthenticationPrincipal user: UserPrincipal
     ): LearnCard {
-        return learnService.evaluateCard(Workspace(workspaceName), CardId(cardId), evaluationParameters)
+        return learnService.evaluateCard(WorkspaceRequest(workspaceName), CardId(cardId), evaluationParameters, user)
     }
 
     @DeleteMapping("/{cardId}")
+    @PreAuthorize("hasRole('USER')")
     @ResponseStatus(OK)
     fun delete(
         @PathVariable(value = "workspaceName") workspaceName: String,
-        @PathVariable(value = "cardId") cardId: String
+        @PathVariable(value = "cardId") cardId: String,
+        @AuthenticationPrincipal user: UserPrincipal
     ) {
-        learnService.delete(Workspace(workspaceName), CardId(cardId))
+        learnService.delete(WorkspaceRequest(workspaceName), CardId(cardId), user)
     }
 }

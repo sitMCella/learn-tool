@@ -5,8 +5,9 @@ import de.mcella.spring.learntool.card.dto.Card
 import de.mcella.spring.learntool.card.dto.CardId
 import de.mcella.spring.learntool.learn.LearnService
 import de.mcella.spring.learntool.learn.dto.LearnCard
+import de.mcella.spring.learntool.security.UserPrincipal
 import de.mcella.spring.learntool.workspace.WorkspaceService
-import de.mcella.spring.learntool.workspace.dto.Workspace
+import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceAlreadyExistsException
 import java.io.BufferedInputStream
 import java.io.StringReader
@@ -19,8 +20,7 @@ import org.springframework.web.multipart.MultipartFile
 @Service
 class ImportService(private val workspaceService: WorkspaceService, private val cardService: CardService, private val learnService: LearnService) {
 
-    fun importBackup(backup: MultipartFile) {
-
+    fun importBackup(backup: MultipartFile, userPrincipal: UserPrincipal) {
         ZipInputStream(BufferedInputStream(backup.inputStream)).use { zipInputStream ->
             generateSequence { zipInputStream.nextEntry }
                     .filterNot { it.isDirectory }
@@ -33,7 +33,7 @@ class ImportService(private val workspaceService: WorkspaceService, private val 
                     .forEach { unzippedFile ->
                         when (unzippedFile.filename) {
                             "/workspaces.csv" -> {
-                                importWorkspaceBackup(unzippedFile)
+                                importWorkspaceBackup(unzippedFile, userPrincipal)
                             }
                             "/cards.csv" -> {
                                 importCardsBackup(unzippedFile)
@@ -46,18 +46,18 @@ class ImportService(private val workspaceService: WorkspaceService, private val 
         }
     }
 
-    private fun importWorkspaceBackup(unzippedFile: UnzippedFile) {
+    private fun importWorkspaceBackup(unzippedFile: UnzippedFile, userPrincipal: UserPrincipal) {
         CSVFormat.DEFAULT
                 .withHeader("name")
                 .withIgnoreEmptyLines()
                 .withFirstRecordAsHeader().withQuote(null)
                 .parse(StringReader(String(unzippedFile.content)))
                 .forEach { record ->
-                    val workspace = Workspace(record.get("name"))
-                    if (workspaceService.exists(workspace)) {
-                        throw WorkspaceAlreadyExistsException(workspace)
+                    val workspaceRequest = WorkspaceRequest(record.get("name"))
+                    if (workspaceService.exists(workspaceRequest)) {
+                        throw WorkspaceAlreadyExistsException(workspaceRequest)
                     }
-                    workspaceService.create(workspace)
+                    workspaceService.create(workspaceRequest, userPrincipal)
                 }
     }
 

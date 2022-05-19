@@ -2,19 +2,31 @@ package de.mcella.spring.learntool.workspace
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import de.mcella.spring.learntool.UnitTest
+import de.mcella.spring.learntool.WithMockUser
+import de.mcella.spring.learntool.config.AppProperties
+import de.mcella.spring.learntool.security.CustomUserDetailsService
+import de.mcella.spring.learntool.security.TokenAuthenticationFilter
+import de.mcella.spring.learntool.security.UserPrincipal
+import de.mcella.spring.learntool.user.dto.UserId
 import de.mcella.spring.learntool.workspace.dto.Workspace
+import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceNameException
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceAlreadyExistsException
+import java.util.Collections
 import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.test.autoconfigure.web.client.AutoConfigureWebClient
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -24,10 +36,19 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 @Category(UnitTest::class)
 @WebMvcTest(WorkspaceController::class)
 @AutoConfigureWebClient
+@AutoConfigureMockMvc(addFilters = false)
+@EnableConfigurationProperties(AppProperties::class)
+@TestPropertySource(properties = ["app.auth.tokenSecret=test", "app.auth.tokenExpirationMsec=123"])
 class WorkspaceControllerTest {
 
     @Autowired
     private lateinit var mockMvc: MockMvc
+
+    @MockBean
+    private lateinit var customUserDetailsService: CustomUserDetailsService
+
+    @MockBean
+    private lateinit var tokenAuthenticationFilter: TokenAuthenticationFilter
 
     @MockBean
     private lateinit var workspaceService: WorkspaceService
@@ -35,9 +56,10 @@ class WorkspaceControllerTest {
     private val objectMapper = ObjectMapper()
 
     @Test
+    @WithMockUser
     fun `given a Workspace, when sending a POST REST request to workspaces endpoint, then the create method of WorkspaceService is called`() {
-        val workspace = Workspace("workspaceTest")
-        val contentBody = objectMapper.writeValueAsString(workspace)
+        val workspaceRequest = WorkspaceRequest("workspaceTest")
+        val contentBody = objectMapper.writeValueAsString(workspaceRequest)
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/workspaces")
@@ -47,14 +69,29 @@ class WorkspaceControllerTest {
             .andExpect(MockMvcResultMatchers.header().exists(HttpHeaders.LOCATION))
             .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.LOCATION, "/api/workspaces/workspaceTest"))
 
-        Mockito.verify(workspaceService).create(workspace)
+        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        Mockito.verify(workspaceService).create(workspaceRequest, user)
     }
 
     @Test
+    fun `when sending a POST REST request to workspaces endpoint without JWT authentication, then an UNPROCESSABLE_ENTITY http status response is returned`() {
+        val workspaceRequest = WorkspaceRequest("workspaceTest")
+        val contentBody = objectMapper.writeValueAsString(workspaceRequest)
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.post("/api/workspaces")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(contentBody)
+        ).andExpect(MockMvcResultMatchers.status().isUnprocessableEntity)
+    }
+
+    @Test
+    @WithMockUser
     fun `given a Workspace with invalid name, when sending a POST REST request to the workspaces endpoint, then an UNPROCESSABLE_ENTITY http status response is returned`() {
-        val workspace = Workspace("workspace-invalid-Test")
-        val contentBody = objectMapper.writeValueAsString(workspace)
-        Mockito.`when`(workspaceService.create(workspace)).thenThrow(InvalidWorkspaceNameException(""))
+        val workspaceRequest = WorkspaceRequest("workspace-invalid-Test")
+        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val contentBody = objectMapper.writeValueAsString(workspaceRequest)
+        Mockito.`when`(workspaceService.create(workspaceRequest, user)).thenThrow(InvalidWorkspaceNameException(""))
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/workspaces")
@@ -64,10 +101,12 @@ class WorkspaceControllerTest {
     }
 
     @Test
+    @WithMockUser
     fun `given a Workspace, when sending a POST REST request to the workspaces endpoint and the Workspace already exists, then a CONFLICT http status response is returned`() {
-        val workspace = Workspace("workspaceTest")
-        val contentBody = objectMapper.writeValueAsString(workspace)
-        Mockito.`when`(workspaceService.create(workspace)).thenThrow(WorkspaceAlreadyExistsException(workspace))
+        val workspaceRequest = WorkspaceRequest("workspaceTest")
+        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val contentBody = objectMapper.writeValueAsString(workspaceRequest)
+        Mockito.`when`(workspaceService.create(workspaceRequest, user)).thenThrow(WorkspaceAlreadyExistsException(workspaceRequest))
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/workspaces")
@@ -77,11 +116,14 @@ class WorkspaceControllerTest {
     }
 
     @Test
-    fun `when sending a GET REST request to workspaces endpoint, then the getAll method of WorkspaceService is called and a list of Workspaces is returned`() {
-        val workspace1 = Workspace("workspaceTest1")
-        val workspace2 = Workspace("workspaceTest2")
+    @WithMockUser
+    fun `when sending a GET REST request to workspaces endpoint, then the getAll method of WorkspaceService is called and the list of Workspaces for the authenticated user is returned`() {
+        val userId = UserId(1L)
+        val user = UserPrincipal(userId.id, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val workspace1 = Workspace("workspaceTest1", userId)
+        val workspace2 = Workspace("workspaceTest2", userId)
         val workspaces = listOf(workspace1, workspace2)
-        Mockito.`when`(workspaceService.getAll()).thenReturn(workspaces)
+        Mockito.`when`(workspaceService.getAll(user)).thenReturn(workspaces)
         val expectedContentBody = objectMapper.writeValueAsString(workspaces)
 
         mockMvc.perform(
@@ -90,6 +132,13 @@ class WorkspaceControllerTest {
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(MockMvcResultMatchers.content().json(expectedContentBody))
 
-        Mockito.verify(workspaceService).getAll()
+        Mockito.verify(workspaceService).getAll(user)
+    }
+
+    @Test
+    fun `when sending a GET REST request to workspaces endpoint without JWT authentication, then an UNPROCESSABLE_ENTITY http status response is returned`() {
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/api/workspaces")
+        ).andExpect(MockMvcResultMatchers.status().isUnprocessableEntity)
     }
 }

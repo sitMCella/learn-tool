@@ -2,15 +2,23 @@ package de.mcella.spring.learntool.import.integration
 
 import de.mcella.spring.learntool.BackendApplication
 import de.mcella.spring.learntool.IntegrationTest
+import de.mcella.spring.learntool.TestSecurityConfiguration
+import de.mcella.spring.learntool.WithMockUser
 import de.mcella.spring.learntool.card.storage.CardEntity
 import de.mcella.spring.learntool.card.storage.CardRepository
 import de.mcella.spring.learntool.learn.storage.LearnCardEntity
 import de.mcella.spring.learntool.learn.storage.LearnCardRepository
+import de.mcella.spring.learntool.security.UserPrincipal
+import de.mcella.spring.learntool.user.AuthProvider
+import de.mcella.spring.learntool.user.dto.UserId
+import de.mcella.spring.learntool.user.storage.UserEntity
+import de.mcella.spring.learntool.user.storage.UserRepository
 import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.io.File
 import java.net.URI
 import java.time.Instant
+import java.util.Collections
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.junit.Before
@@ -29,6 +37,12 @@ import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.security.authentication.TestingAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken
+import org.springframework.security.oauth2.provider.OAuth2Authentication
+import org.springframework.security.oauth2.provider.OAuth2Request
+import org.springframework.security.oauth2.provider.token.TokenStore
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.util.LinkedMultiValueMap
@@ -37,7 +51,7 @@ import org.testcontainers.utility.DockerImageName
 
 @RunWith(SpringRunner::class)
 @Category(IntegrationTest::class)
-@SpringBootTest(classes = [BackendApplication::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = [TestSecurityConfiguration::class, BackendApplication::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(initializers = [ImportIntegrationTest.Companion.Initializer::class])
 class ImportIntegrationTest {
 
@@ -72,7 +86,13 @@ class ImportIntegrationTest {
     lateinit var testRestTemplate: TestRestTemplate
 
     @Autowired
+    lateinit var tokenStore: TokenStore
+
+    @Autowired
     lateinit var cardRepository: CardRepository
+
+    @Autowired
+    lateinit var userRepository: UserRepository
 
     @Autowired
     lateinit var workspaceRepository: WorkspaceRepository
@@ -85,14 +105,27 @@ class ImportIntegrationTest {
         learnCardRepository.deleteAll()
         cardRepository.deleteAll()
         workspaceRepository.deleteAll()
+        val scope: MutableSet<String> = HashSet()
+        scope.add("user")
+        scope.add("test@google.com")
+        val token = DefaultOAuth2AccessToken("FOO")
+        val oAuth2Request = OAuth2Request(null, "1", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), true, scope, null, null, null, null)
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val auth = OAuth2Authentication(oAuth2Request, TestingAuthenticationToken(userPrincipal, null, "ROLE_USER"))
+        tokenStore.storeAccessToken(token, auth)
     }
 
     // curl -X POST --header "Content-Type:multipart/form-data" -F backup=@/path/to/backup.zip  http://localhost:8080/api/workspaces/import
     @Test
+    @WithMockUser
     fun `given a backup file, when a POST REST request is performed to the import endpoint, then the data is imported`() {
+        val userId = UserId(1L)
+        val user = UserEntity(userId.id, "user", "test@google.com", "", true, "", AuthProvider.local, "")
+        userRepository.save(user)
         val parameters = LinkedMultiValueMap<String, Any>()
         parameters.add("backup", FileSystemResource(File("src/test/resources/backup.zip")))
         val headers = HttpHeaders()
+        headers.add(HttpHeaders.AUTHORIZATION, "Bearer FOO")
         headers.contentType = MediaType.MULTIPART_FORM_DATA
         val entity = HttpEntity(parameters, headers)
 
@@ -100,7 +133,7 @@ class ImportIntegrationTest {
 
         val workspaceEntities = workspaceRepository.findAll()
         assertEquals(1, workspaceEntities.size)
-        val expectedWorkspaceEntity = WorkspaceEntity("workspaceTest")
+        val expectedWorkspaceEntity = WorkspaceEntity("workspaceTest", userId.id)
         val expectedWorkspaceEntities = listOf(expectedWorkspaceEntity)
         assertEquals(expectedWorkspaceEntities, workspaceEntities)
         assertTrue { cardRepository.count() == 1L }

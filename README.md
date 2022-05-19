@@ -1,8 +1,14 @@
 # Learn Tool
 
 ## Introduction
-The Learn Tool application is a web application that aims to improve the study and learning process.
-Learn Tool consists mainly of an active recall learning tool, but offers a whole range of functionalities, from importing a dataset to creating custom cards and workspaces.
+
+Learn Tool is a web application that aims to improve the study and learning process.
+Learn Tool consists of an active recall learning tool, and offers a whole range of functionalities, from importing a dataset to create custom cards and workspaces.
+
+## Configuration
+
+Learn Tool application makes use of Oauth 2.0 and JWT authentication. Learn Tool supports local authentication and Google authentication.
+Read the page [google_authentication](https://github.com/sitMCella/toggl-trello-kpi/google_authentication.md) in order to configure Google Cloud Platform.
 
 ## Development
 

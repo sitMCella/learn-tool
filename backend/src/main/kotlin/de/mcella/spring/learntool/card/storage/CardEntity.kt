@@ -3,7 +3,7 @@ package de.mcella.spring.learntool.card.storage
 import de.mcella.spring.learntool.card.dto.Card
 import de.mcella.spring.learntool.card.dto.CardContent
 import de.mcella.spring.learntool.card.dto.CardId
-import de.mcella.spring.learntool.workspace.dto.Workspace
+import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import java.time.Instant
 import javax.persistence.Entity
 import javax.persistence.Id
@@ -33,11 +33,11 @@ data class CardEntity(
     @field:NotNull val creationDate: Instant = Instant.now()
 ) {
     companion object {
-        fun create(cardId: CardId, workspace: Workspace, cardContent: CardContent): CardEntity {
+        fun create(cardId: CardId, workspace: WorkspaceRequest, cardContent: CardContent): CardEntity {
             return CardEntity(cardId.id, workspace.name, cardContent.question, cardContent.response)
         }
 
-        fun create(cardId: CardId, workspace: Workspace, cardContent: CardContent, creationDate: Instant): CardEntity {
+        fun create(cardId: CardId, workspace: WorkspaceRequest, cardContent: CardContent, creationDate: Instant): CardEntity {
             return CardEntity(cardId.id, workspace.name, cardContent.question, cardContent.response, creationDate)
         }
 

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { ACCESS_TOKEN, UNAUTHORIZED, UNPROCESSABLE_ENTITY } from '../constants'
+import AuthenticationException from '../AuthenticationException'
 import Workspace from './Workspace'
+import ProfileMenu from './ProfileMenu'
 import AppBar from '@material-ui/core/AppBar'
 import Box from '@material-ui/core/Box'
 import Divider from '@material-ui/core/Divider'
@@ -20,21 +23,28 @@ function Alert (props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />
 }
 
-function Workspaces () {
+function Workspaces (props) {
   const [list, setList] = useState([])
   const [newWorkspaceStatus, setNewWorkspaceStatus] = useState(false)
   const [workspaceError, setWorkspaceError] = useState(false)
   const [workspaceErrorMessage, setWorkspaceErrorMessage] = useState('')
 
   const getWorkspaces = async (signal) => {
+    const headers = {
+      Accepted: 'application/json'
+    }
+    if (localStorage.getItem(ACCESS_TOKEN)) {
+      headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
+    }
     const response = await fetch('/api/workspaces', {
       method: 'GET',
-      headers: {
-        Accepted: 'application/json'
-      },
+      headers: headers,
       signal
     })
     if (!response.ok) {
+      if (response.status === UNAUTHORIZED || response.status === UNPROCESSABLE_ENTITY) {
+        throw new AuthenticationException(JSON.stringify(response))
+      }
       throw new Error(JSON.stringify(response))
     }
     const responseData = await response.json()
@@ -55,6 +65,11 @@ function Workspaces () {
       .then(() => setWorkspaceError(false))
       .catch((err) => {
         console.log('Error while retrieving the Workspaces: ' + err.message)
+        if (err instanceof AuthenticationException) {
+          props.history.push({
+            pathname: '/login'
+          })
+        }
         setWorkspaceError(true)
         setWorkspaceErrorMessage('Cannot retrieve the Workspaces, please refresh the page.')
       })
@@ -102,8 +117,13 @@ function Workspaces () {
     const data = new FormData()
     data.append('backup', event.target.files[0])
     const importBackup = async () => {
+      const headers = {}
+      if (localStorage.getItem(ACCESS_TOKEN)) {
+        headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
+      }
       const response = await fetch('/api/workspaces/import', {
         method: 'POST',
+        headers: headers,
         body: data
       })
       if (!response.ok) {
@@ -119,10 +139,10 @@ function Workspaces () {
         getWorkspaces()
           .then(() => setWorkspaceError(false))
           .catch(() => {
+            console.log('Error while importing the Workspace.')
             setWorkspaceError(true)
             setWorkspaceErrorMessage('Cannot retrieve the Workspaces, please refresh the page.')
           })
-          .catch(() => { console.log('Error while importing the Workspace.') })
       }
       await response
     }
@@ -172,6 +192,9 @@ function Workspaces () {
       },
       marginRight: 0
     },
+    errors: {
+      marginBottom: theme.spacing(2)
+    },
     title: {
       flex: 0,
       display: 'flex',
@@ -199,9 +222,10 @@ function Workspaces () {
   const classes = useStyles()
 
   return (
-        <Box sx={{ flexGrow: 1 }}>
+        <Box sx={{ flexGrow: 0 }}>
             <AppBar position="relative" className={classes.appBar}>
                 <Toolbar variant="dense">
+                  <ProfileMenu {...props} />
                 </Toolbar>
             </AppBar>
             <Drawer variant="permanent" anchor="left">
@@ -223,7 +247,7 @@ function Workspaces () {
                 </List>
             </Drawer>
             <div className={classes.content}>
-                {workspaceError && (<Alert severity="error">{workspaceErrorMessage}</Alert>)}
+              {workspaceError && (<div className={classes.errors}><Alert severity="error">{workspaceErrorMessage}</Alert></div>)}
                 <div className={classes.title}>Workspaces</div>
                 <Box className={classes.events}>
                   <Box className={classes.eventIcon}>

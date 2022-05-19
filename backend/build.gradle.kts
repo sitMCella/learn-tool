@@ -32,20 +32,30 @@ repositories {
 }
 
 dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.security:spring-security-oauth2-client")
+    implementation("org.springframework.security.oauth:spring-security-oauth2:2.2.6.RELEASE")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.apache.commons:commons-csv:1.6")
     implementation("org.hibernate.search:hibernate-search-mapper-orm:6.0.7.Final")
     implementation("org.hibernate.search:hibernate-search-backend-lucene:6.0.7.Final")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("io.jsonwebtoken:jjwt-api:0.11.2")
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("org.postgresql:postgresql:$postgresVersion")
+    implementation("io.jsonwebtoken:jjwt-impl:0.11.2")
+    implementation("io.jsonwebtoken:jjwt-jackson:0.11.2")
     annotationProcessor("org.projectlombok:lombok")
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
+    testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0")
     testImplementation("pl.pragmatists:JUnitParams:1.1.1")

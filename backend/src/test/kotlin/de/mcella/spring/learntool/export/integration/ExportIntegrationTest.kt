@@ -2,17 +2,24 @@ package de.mcella.spring.learntool.export.integration
 
 import de.mcella.spring.learntool.BackendApplication
 import de.mcella.spring.learntool.IntegrationTest
+import de.mcella.spring.learntool.TestSecurityConfiguration
 import de.mcella.spring.learntool.card.dto.CardId
 import de.mcella.spring.learntool.card.storage.CardEntity
 import de.mcella.spring.learntool.card.storage.CardRepository
 import de.mcella.spring.learntool.learn.algorithm.OutputValues
 import de.mcella.spring.learntool.learn.storage.LearnCardEntity
 import de.mcella.spring.learntool.learn.storage.LearnCardRepository
-import de.mcella.spring.learntool.workspace.dto.Workspace
+import de.mcella.spring.learntool.security.UserPrincipal
+import de.mcella.spring.learntool.user.AuthProvider
+import de.mcella.spring.learntool.user.dto.UserId
+import de.mcella.spring.learntool.user.storage.UserEntity
+import de.mcella.spring.learntool.user.storage.UserRepository
+import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
 import java.time.Instant
+import java.util.Collections
 import java.util.zip.ZipInputStream
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -25,11 +32,20 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.util.TestPropertyValues
 import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.boot.test.web.client.getForEntity
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.core.io.Resource
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.MediaType
+import org.springframework.security.authentication.TestingAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken
+import org.springframework.security.oauth2.provider.OAuth2Authentication
+import org.springframework.security.oauth2.provider.OAuth2Request
+import org.springframework.security.oauth2.provider.token.TokenStore
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringRunner
 import org.testcontainers.containers.PostgreSQLContainer
@@ -37,7 +53,7 @@ import org.testcontainers.utility.DockerImageName
 
 @RunWith(SpringRunner::class)
 @Category(IntegrationTest::class)
-@SpringBootTest(classes = [BackendApplication::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = [TestSecurityConfiguration::class, BackendApplication::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(initializers = [ExportIntegrationTest.Companion.Initializer::class])
 class ExportIntegrationTest {
 
@@ -72,6 +88,12 @@ class ExportIntegrationTest {
     lateinit var testRestTemplate: TestRestTemplate
 
     @Autowired
+    lateinit var tokenStore: TokenStore
+
+    @Autowired
+    lateinit var userRepository: UserRepository
+
+    @Autowired
     lateinit var cardRepository: CardRepository
 
     @Autowired
@@ -85,22 +107,37 @@ class ExportIntegrationTest {
         learnCardRepository.deleteAll()
         cardRepository.deleteAll()
         workspaceRepository.deleteAll()
+        val scope: MutableSet<String> = HashSet()
+        scope.add("user")
+        scope.add("test@google.com")
+        val token = DefaultOAuth2AccessToken("FOO")
+        val oAuth2Request = OAuth2Request(null, "1", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), true, scope, null, null, null, null)
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val auth = OAuth2Authentication(oAuth2Request, TestingAuthenticationToken(userPrincipal, null, "ROLE_USER"))
+        tokenStore.storeAccessToken(token, auth)
     }
 
     @Test
     fun `given a Workspace name, when a GET REST request is performed to the export endpoint, then the backup file is created and the response body contains the file`() {
-        val workspace = Workspace("workspaceTest")
-        val workspaceEntity = WorkspaceEntity(workspace.name)
+        val userId = UserId(1L)
+        val user = UserEntity(userId.id, "user", "test@google.com", "", true, "", AuthProvider.local, "")
+        userRepository.save(user)
+        val workspaceRequest = WorkspaceRequest("workspaceTest")
+        val workspaceEntity = WorkspaceEntity(workspaceRequest.name, userId.id)
         workspaceRepository.save(workspaceEntity)
         val cardId = CardId("a1900ca7-dc58-4360-b41c-537d933bc9c1")
-        val cardEntity = CardEntity(cardId.id, workspace.name, "This is a \"question\"", "This, is a response")
+        val cardEntity = CardEntity(cardId.id, workspaceRequest.name, "This is a \"question\"", "This, is a response")
         cardRepository.save(cardEntity)
         val outputValues = OutputValues(0, 0, 1.3f)
         val review = Instant.ofEpochMilli(1637090403000)
-        val learnCard = LearnCardEntity.create(cardId, workspace, outputValues, review)
+        val learnCard = LearnCardEntity.create(cardId, workspaceRequest, outputValues, review)
         learnCardRepository.save(learnCard)
+        val headers = HttpHeaders()
+        headers.add(HttpHeaders.AUTHORIZATION, "Bearer FOO")
+        headers.accept = listOf(MediaType.APPLICATION_OCTET_STREAM)
+        val request = HttpEntity(null, headers)
 
-        val responseEntity = testRestTemplate.getForEntity<Resource>(URI("http://localhost:$port/api/workspaces/${workspace.name}/export"))
+        val responseEntity = testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/${workspaceRequest.name}/export"), HttpMethod.GET, request, Resource::class.java)
 
         // Store the zip file
         // val outputStream: OutputStream = FileOutputStream(File("src/test/resources/backup.zip"))
