@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service
 @Service
 class CardImportService(private val cardService: CardService) {
 
-    fun createMany(workspace: WorkspaceRequest, content: InputStream, user: UserPrincipal) {
+    fun createMany(workspaceRequest: WorkspaceRequest, content: InputStream, user: UserPrincipal) {
         val csvRecords by lazy {
             try {
                 CSVFormat.DEFAULT
@@ -31,7 +31,7 @@ class CardImportService(private val cardService: CardService) {
         }
         for (csvRecord in csvRecords) {
             try {
-                cardService.create(workspace, CardContent(csvRecord.get(QUESTION), csvRecord.get(RESPONSE)), user)
+                cardService.create(workspaceRequest, CardContent(csvRecord.get(QUESTION), csvRecord.get(RESPONSE)), user)
             } catch (e: Exception) {
                 when (e) {
                     is IllegalArgumentException,

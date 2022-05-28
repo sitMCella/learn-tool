@@ -133,20 +133,20 @@ class ImportIntegrationTest {
 
         val workspaceEntities = workspaceRepository.findAll()
         assertEquals(1, workspaceEntities.size)
-        val expectedWorkspaceEntity = WorkspaceEntity("workspaceTest", userId.id)
+        val expectedWorkspaceEntity = WorkspaceEntity(workspaceEntities[0].id, "Workspace Name", userId.id)
         val expectedWorkspaceEntities = listOf(expectedWorkspaceEntity)
         assertEquals(expectedWorkspaceEntities, workspaceEntities)
         assertTrue { cardRepository.count() == 1L }
         val cardEntities = cardRepository.findAll()
         cardRepository.findAll().forEach {
-            val expectedCardEntity = CardEntity("a1900ca7-dc58-4360-b41c-537d933bc9c1", "workspaceTest", "This is a \"question\"", "This, is a response", it.creationDate)
+            val expectedCardEntity = CardEntity("a1900ca7-dc58-4360-b41c-537d933bc9c1", workspaceEntities[0].id, "This is a \"question\"", "This, is a response", it.creationDate)
             val expectedCardEntities = listOf(expectedCardEntity)
             assertEquals(expectedCardEntities, cardEntities)
         }
         val learnCardEntities = learnCardRepository.findAll()
         assertEquals(1, learnCardEntities.size)
         val lastReview = Instant.ofEpochMilli(1637090403000)
-        val expectedLearnCardEntity = LearnCardEntity("a1900ca7-dc58-4360-b41c-537d933bc9c1", "workspaceTest", lastReview, lastReview, 0, 1.3f, 0)
+        val expectedLearnCardEntity = LearnCardEntity("a1900ca7-dc58-4360-b41c-537d933bc9c1", workspaceEntities[0].id, lastReview, lastReview, 0, 1.3f, 0)
         val expectedLearnCardEntities = listOf(expectedLearnCardEntity)
         assertEquals(expectedLearnCardEntities, learnCardEntities)
     }

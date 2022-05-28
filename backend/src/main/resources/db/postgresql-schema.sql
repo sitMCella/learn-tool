@@ -10,26 +10,28 @@ CREATE TABLE if not exists users (
 );
 
 CREATE TABLE if not exists workspaces (
-  name varchar (255) primary key,
-  user_id bigserial,
+  id varchar (36) primary key,
+  name varchar (255) NOT NULL,
+  user_id bigserial NOT NULL,
   CONSTRAINT fkUserId FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 CREATE TABLE if not exists cards (
   id varchar (36) primary key,
-  workspace_name varchar (255),
+  workspace_id varchar (36),
   question text NOT NULL,
   response text NOT NULL,
   creation_date timestamp NOT NULL,
-  CONSTRAINT fkWorkspaceName FOREIGN KEY (workspace_name) REFERENCES workspaces(name)
+  CONSTRAINT fkWorkspaceId FOREIGN KEY (workspace_id) REFERENCES workspaces(id)
 );
 
 CREATE TABLE if not exists learn_cards (
   id varchar (36) primary key references cards,
-  workspace_name varchar (255),
+  workspace_id varchar (36),
   last_review timestamp NOT NULL,
   next_review timestamp NOT NULL,
   repetitions integer NOT NULL,
   ease_factor real NOT NULL,
-  interval_days integer NOT NULL
+  interval_days integer NOT NULL,
+  CONSTRAINT fkWorkspaceId FOREIGN KEY (workspace_id) REFERENCES workspaces(id)
 );

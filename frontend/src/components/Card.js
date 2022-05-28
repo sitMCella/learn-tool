@@ -33,10 +33,10 @@ function Card (props) {
       if (localStorage.getItem(ACCESS_TOKEN)) {
         headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
       }
-      const response = await fetch('/api/workspaces/' + props.workspaceName + '/cards', {
+      const response = await fetch('/api/workspaces/' + props.workspaceId + '/cards', {
         method: 'POST',
         headers: headers,
-        body: JSON.stringify({ workspaceName: props.workspaceName, question: newQuestion, response: newResponse })
+        body: JSON.stringify({ workspaceId: props.workspaceId, question: newQuestion, response: newResponse })
       })
       if (!response.ok) {
         throw new Error(JSON.stringify(response))
@@ -50,7 +50,7 @@ function Card (props) {
       if (localStorage.getItem(ACCESS_TOKEN)) {
         headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
       }
-      const response = await fetch('/api/workspaces/' + props.workspaceName + '/learn/' + cardId, {
+      const response = await fetch('/api/workspaces/' + props.workspaceId + '/learn/' + cardId, {
         method: 'POST',
         headers: headers
       })
@@ -88,7 +88,7 @@ function Card (props) {
       if (localStorage.getItem(ACCESS_TOKEN)) {
         headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
       }
-      const response = await fetch('/api/workspaces/' + props.workspaceName + '/cards/' + props.id, {
+      const response = await fetch('/api/workspaces/' + props.workspaceId + '/cards/' + props.id, {
         method: 'PUT',
         headers: headers,
         body: JSON.stringify({ question: newQuestion, response: newResponse })
@@ -126,7 +126,7 @@ function Card (props) {
       if (localStorage.getItem(ACCESS_TOKEN)) {
         headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
       }
-      const response = await fetch('/api/workspaces/' + props.workspaceName + '/learn/' + props.id, {
+      const response = await fetch('/api/workspaces/' + props.workspaceId + '/learn/' + props.id, {
         method: 'DELETE',
         headers: headers
       })
@@ -141,7 +141,7 @@ function Card (props) {
       if (localStorage.getItem(ACCESS_TOKEN)) {
         headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
       }
-      const response = await fetch('/api/workspaces/' + props.workspaceName + '/cards/' + props.id, {
+      const response = await fetch('/api/workspaces/' + props.workspaceId + '/cards/' + props.id, {
         method: 'DELETE',
         headers: headers
       })

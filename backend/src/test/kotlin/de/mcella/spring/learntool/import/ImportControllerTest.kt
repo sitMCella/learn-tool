@@ -59,7 +59,7 @@ class ImportControllerTest {
                 MockMvcRequestBuilders.multipart("/api/workspaces/import").file(backup)
         ).andExpect(MockMvcResultMatchers.status().isOk)
 
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
-        Mockito.verify(importService).importBackup(backup, user)
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        Mockito.verify(importService).importBackup(backup, userPrincipal)
     }
 }

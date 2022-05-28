@@ -47,7 +47,7 @@ function Study (props) {
     if (localStorage.getItem(ACCESS_TOKEN)) {
       headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
     }
-    const response = await fetch('/api/workspaces/' + params.name + '/learn', {
+    const response = await fetch('/api/workspaces/' + params.id + '/learn', {
       method: 'GET',
       headers: headers,
       signal
@@ -67,7 +67,7 @@ function Study (props) {
     getCard(signal)
       .then(() => setStudyError(false))
       .catch((err) => {
-        console.log('Error while retrieving a card from the Workspace ' + params.name + ': ' + err.message)
+        console.log('Error while retrieving a card from the Workspace ' + params.id + ': ' + err.message)
         setStudyError(true)
         setStudyErrorMessage('Cannot retrieve the next Card, please refresh the page.')
         setNoCardsLeft(true)
@@ -93,7 +93,7 @@ function Study (props) {
       if (localStorage.getItem(ACCESS_TOKEN)) {
         headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
       }
-      const response = await fetch('/api/workspaces/' + params.name + '/learn/' + cardId, {
+      const response = await fetch('/api/workspaces/' + params.id + '/learn/' + cardId, {
         method: 'PUT',
         headers: headers,
         body: JSON.stringify({ quality: 0 })
@@ -113,7 +113,7 @@ function Study (props) {
         setFlipButtonVisible(true)
         getCard()
           .catch((err) => {
-            console.log('Error while evaluating the card from the Workspace ' + params.name + ' status: ' + err.message)
+            console.log('Error while evaluating the card from the Workspace with id ' + params.id + ' status: ' + err.message)
             setStudyError(true)
             setStudyErrorMessage('Cannot evaluate the Card, please refresh the page.')
             setNoCardsLeft(true)
@@ -241,7 +241,7 @@ function Study (props) {
                     </ListItem>
                 </List>
                 <List className={classes.drawerList}>
-                    <ListItem button key="Workspaces" component={Link} to={'/workspaces/' + params.name + '/cards'} className={classes.drawerListItem}>
+                    <ListItem button key="Workspaces" component={Link} to={'/workspaces/' + params.id + '/cards'} className={classes.drawerListItem}>
                         <ListItemIcon><FilterNoneIcon /></ListItemIcon>
                     </ListItem>
                 </List>
@@ -321,7 +321,7 @@ function Study (props) {
                         </CardUi>
                         <Box component="span" m={3}>
                           <div className={classes.close}>
-                            <Button variant="contained" color="primary" component={Link} to={'/workspaces/' + params.name + '/cards'}>Close</Button>
+                            <Button variant="contained" color="primary" component={Link} to={'/workspaces/' + params.id + '/cards'}>Close</Button>
                           </div>
                         </Box>
                     </List>

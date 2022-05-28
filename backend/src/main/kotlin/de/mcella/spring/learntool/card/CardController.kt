@@ -25,34 +25,34 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/workspaces/{workspaceName}/cards")
+@RequestMapping("/api/workspaces/{workspaceId}/cards")
 class CardController(private val cardService: CardService, private val cardImportService: CardImportService) {
 
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
     @PreAuthorize("hasRole('USER')")
     fun create(
-        @PathVariable(value = "workspaceName") workspaceName: String,
+        @PathVariable(value = "workspaceId") workspaceId: String,
         @RequestBody cardContent: CardContent,
         @AuthenticationPrincipal user: UserPrincipal
     ): ResponseEntity<Card> {
-        val workspace = WorkspaceRequest(workspaceName)
-        val card: Card = cardService.create(workspace, cardContent, user)
+        val workspaceRequest = WorkspaceRequest(workspaceId)
+        val card: Card = cardService.create(workspaceRequest, cardContent, user)
         val bodyBuilder = ResponseEntity.status(HttpStatus.CREATED)
-        bodyBuilder.location(URI("/workspaces/$workspaceName/cards/${card.id}"))
+        bodyBuilder.location(URI("/workspaces/$workspaceId/cards/${card.id}"))
         return bodyBuilder.body(card)
     }
 
     @PutMapping("/{cardId}", consumes = [MediaType.APPLICATION_JSON_VALUE])
     @PreAuthorize("hasRole('USER')")
     fun update(
-        @PathVariable(value = "workspaceName") workspaceName: String,
+        @PathVariable(value = "workspaceId") workspaceId: String,
         @PathVariable(value = "cardId") cardId: String,
         @RequestBody cardContent: CardContent,
         @AuthenticationPrincipal user: UserPrincipal
     ): ResponseEntity<Card> {
-        val card: Card = cardService.update(CardId(cardId), WorkspaceRequest(workspaceName), cardContent, user)
+        val card: Card = cardService.update(CardId(cardId), WorkspaceRequest(workspaceId), cardContent, user)
         val bodyBuilder = ResponseEntity.status(HttpStatus.OK)
-        bodyBuilder.location(URI("/workspaces/$workspaceName/cards/$cardId"))
+        bodyBuilder.location(URI("/workspaces/$workspaceId/cards/$cardId"))
         return bodyBuilder.body(card)
     }
 
@@ -60,33 +60,33 @@ class CardController(private val cardService: CardService, private val cardImpor
     @PreAuthorize("hasRole('USER')")
     @ResponseStatus(HttpStatus.OK)
     fun delete(
-        @PathVariable(value = "workspaceName") workspaceName: String,
+        @PathVariable(value = "workspaceId") workspaceId: String,
         @PathVariable(value = "cardId") cardId: String,
         @AuthenticationPrincipal user: UserPrincipal
-    ) = cardService.delete(CardId(cardId), WorkspaceRequest(workspaceName), user)
+    ) = cardService.delete(CardId(cardId), WorkspaceRequest(workspaceId), user)
 
     @PostMapping("many.csv", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     @PreAuthorize("hasRole('USER')")
     @ResponseStatus(HttpStatus.CREATED)
     fun createMany(
-        @PathVariable(value = "workspaceName") workspaceName: String,
+        @PathVariable(value = "workspaceId") workspaceId: String,
         content: InputStream,
         @AuthenticationPrincipal user: UserPrincipal
-    ) = cardImportService.createMany(WorkspaceRequest(workspaceName), content, user)
+    ) = cardImportService.createMany(WorkspaceRequest(workspaceId), content, user)
 
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     @PreAuthorize("hasRole('USER')")
     @ResponseStatus(HttpStatus.OK)
     fun get(
-        @PathVariable(value = "workspaceName") workspaceName: String,
+        @PathVariable(value = "workspaceId") workspaceId: String,
         @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
         @RequestParam(value = "size", required = false, defaultValue = "20") size: Int,
         @AuthenticationPrincipal user: UserPrincipal
     ): ResponseEntity<List<Card>> {
-        val workspace = WorkspaceRequest(workspaceName)
+        val workspace = WorkspaceRequest(workspaceId)
         val cards = cardService.findByWorkspace(workspace, CardPagination(page, size), user)
         val bodyBuilder = ResponseEntity.status(HttpStatus.OK)
-        bodyBuilder.header("count", cardService.countByWorkspace(workspace).toString())
+        bodyBuilder.header("count", cardService.countByWorkspace(workspace, user).toString())
         return bodyBuilder.body(cards)
     }
 }

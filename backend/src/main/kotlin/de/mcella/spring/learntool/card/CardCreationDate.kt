@@ -11,7 +11,7 @@ data class CardCreationDate(
 ) {
     companion object {
         fun create(cardEntity: CardEntity): CardCreationDate {
-            return CardCreationDate(Card(cardEntity.id, cardEntity.workspaceName, cardEntity.question, cardEntity.response), cardEntity.creationDate)
+            return CardCreationDate(Card(cardEntity.id, cardEntity.workspaceId, cardEntity.question, cardEntity.response), cardEntity.creationDate)
         }
     }
 }

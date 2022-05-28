@@ -86,8 +86,8 @@ class App extends Component {
                       <Route path="/signup" render={(props) => <Signup authenticated={this.state.authenticated} {...props} />}/>
                       <Route path="/profile" render={(props) => <Profile authenticated={this.state.authenticated} currentUser={this.state.currentUser} onLogout={this.handleLogout} {...props} />} />
                       <Route exact path="/workspaces" render={(props) => <Workspaces key={Math.random()} onLogout={this.handleLogout} {...props} />} />
-                      <Route path="/workspaces/:name/cards" render={(props) => <WorkspaceDetails onLogout={this.handleLogout} {...props} />}/>
-                      <Route path="/workspaces/:name/study" render={(props) => <Study onLogout={this.handleLogout} {...props} />}/>
+                      <Route path="/workspaces/:id/cards" render={(props) => <WorkspaceDetails onLogout={this.handleLogout} {...props} />}/>
+                      <Route path="/workspaces/:id/study" render={(props) => <Study onLogout={this.handleLogout} {...props} />}/>
                       <Route component={NotFound}/>
                   </Switch>
               </BrowserRouter>

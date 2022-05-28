@@ -114,44 +114,44 @@ class CardIntegrationTest {
     }
 
     @Test
-    fun `given a Workspace name and a CardContent, when a POST REST request is sent to the cards endpoint, then a Card is created and the response body contains the Card`() {
+    fun `given a Workspace Id and a Card Content, when a POST REST request is sent to the cards endpoint, then a Card is created and the response body contains the Card`() {
         val userId = UserId(1L)
         val user = UserEntity(userId.id, "user", "test@google.com", "", true, "", AuthProvider.local, "")
         userRepository.save(user)
-        val workspaceRequest = WorkspaceRequest("workspaceTest")
-        val workspaceEntity = WorkspaceEntity(workspaceRequest.name, userId.id)
-        workspaceRepository.save(workspaceEntity)
+        val workspaceRequest = WorkspaceRequest("workspaceId")
+        val workspace = WorkspaceEntity(workspaceRequest.id, "Workspace Name", userId.id)
+        workspaceRepository.save(workspace)
         val headers = HttpHeaders()
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer FOO")
         headers.contentType = MediaType.APPLICATION_JSON
         val cardContent = CardContent("question", "response")
         val request = HttpEntity(cardContent, headers)
 
-        val responseEntity = testRestTemplate.postForObject(URI("http://localhost:$port/api/workspaces/${workspaceRequest.name}/cards"), request, Card::class.java)
+        val responseEntity = testRestTemplate.postForObject(URI("http://localhost:$port/api/workspaces/${workspaceRequest.id}/cards"), request, Card::class.java)
 
         assertTrue { cardRepository.count() == 1L }
         cardRepository.findAll().forEach {
             val createdCard = it
             assertNotNull(createdCard.id)
-            assertEquals(workspaceRequest.name, createdCard.workspaceName)
+            assertEquals(workspaceRequest.id, createdCard.workspaceId)
             assertEquals("question", createdCard.question)
             assertEquals("response", createdCard.response)
-            val expectedCard = Card(createdCard.id, workspaceRequest.name, "question", "response")
+            val expectedCard = Card(createdCard.id, workspaceRequest.id, "question", "response")
             assertEquals(expectedCard, responseEntity)
         }
     }
 
     @Test
-    fun `given a Workspace name, a Card Id, and a CardContent, when a PUT REST request is sent to the cards endpoint, then a Card is updated and the response body contains the Card`() {
+    fun `given a Workspace Id, a Card Id, and a Card Content, when a PUT REST request is sent to the cards endpoint, then a Card is updated and the response body contains the Card`() {
         val userId = UserId(1L)
         val user = UserEntity(userId.id, "user", "test@google.com", "", true, "", AuthProvider.local, "")
         userRepository.save(user)
-        val workspace = WorkspaceRequest("workspaceTest")
-        val workspaceEntity = WorkspaceEntity(workspace.name, userId.id)
-        workspaceRepository.save(workspaceEntity)
+        val workspaceRequest = WorkspaceRequest("workspaceId")
+        val workspace = WorkspaceEntity(workspaceRequest.id, "Workspace Name", userId.id)
+        workspaceRepository.save(workspace)
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val cardContent = CardContent("question", "response")
-        val cardEntity = CardEntity.create(cardId, workspace, cardContent)
+        val cardEntity = CardEntity.create(cardId, workspaceRequest, cardContent)
         cardRepository.save(cardEntity)
         val updatedCardContent = CardContent("updated question", "updated response")
         val headers = HttpHeaders()
@@ -159,13 +159,13 @@ class CardIntegrationTest {
         headers.contentType = MediaType.APPLICATION_JSON
         val request = HttpEntity(updatedCardContent, headers)
 
-        var responseEntity = testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/${workspace.name}/cards/${cardId.id}"), HttpMethod.PUT, request, Card::class.java)
+        var responseEntity = testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/${workspaceRequest.id}/cards/${cardId.id}"), HttpMethod.PUT, request, Card::class.java)
 
         assertTrue { cardRepository.count() == 1L }
         cardRepository.findAll().forEach {
             val updatedCard = it
             assertEquals(cardId.id, updatedCard.id)
-            assertEquals(workspace.name, updatedCard.workspaceName)
+            assertEquals(workspaceRequest.id, updatedCard.workspaceId)
             assertEquals("updated question", updatedCard.question)
             assertEquals("updated response", updatedCard.response)
             assertEquals(HttpStatus.OK, responseEntity.statusCode)
@@ -173,22 +173,22 @@ class CardIntegrationTest {
     }
 
     @Test
-    fun `given a Workspace name and a Card Id, when a DELETE REST request is sent to the cards endpoint, then a Card is deleted`() {
+    fun `given a Workspace Id and a Card Id, when a DELETE REST request is sent to the cards endpoint, then a Card is deleted`() {
         val userId = UserId(1L)
         val user = UserEntity(userId.id, "user", "test@google.com", "", true, "", AuthProvider.local, "")
         userRepository.save(user)
-        val workspace = WorkspaceRequest("workspaceTest")
-        val workspaceEntity = WorkspaceEntity(workspace.name, userId.id)
-        workspaceRepository.save(workspaceEntity)
+        val workspaceRequest = WorkspaceRequest("workspaceId")
+        val workspace = WorkspaceEntity(workspaceRequest.id, "Workspace Name", userId.id)
+        workspaceRepository.save(workspace)
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val cardContent = CardContent("question", "response")
-        val cardEntity = CardEntity.create(cardId, workspace, cardContent)
+        val cardEntity = CardEntity.create(cardId, workspaceRequest, cardContent)
         cardRepository.save(cardEntity)
         val headers = HttpHeaders()
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer FOO")
         val request = HttpEntity(null, headers)
 
-        testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/${workspace.name}/cards/${cardId.id}"), HttpMethod.DELETE, request, Object::class.java)
+        testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/${workspaceRequest.id}/cards/${cardId.id}"), HttpMethod.DELETE, request, Object::class.java)
 
         assertTrue { cardRepository.count() == 0L }
     }
@@ -198,16 +198,16 @@ class CardIntegrationTest {
         val userId = UserId(1L)
         val user = UserEntity(userId.id, "user", "test@google.com", "", true, "", AuthProvider.local, "")
         userRepository.save(user)
-        val workspace = WorkspaceRequest("workspaceTest")
-        val workspaceEntity = WorkspaceEntity(workspace.name, userId.id)
-        workspaceRepository.save(workspaceEntity)
+        val workspaceRequest = WorkspaceRequest("workspaceId")
+        val workspace = WorkspaceEntity(workspaceRequest.id, "Workspace Name", userId.id)
+        workspaceRepository.save(workspace)
         val headers = HttpHeaders()
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer FOO")
         headers.contentType = MediaType.APPLICATION_OCTET_STREAM
         val streamContent = "question,response\nquestionTest1,responseTest1\nquestionTest2,responseTest2"
         val request = HttpEntity(ByteArrayResource(streamContent.toByteArray()), headers)
 
-        testRestTemplate.postForObject(URI("http://localhost:$port/api/workspaces/${workspace.name}/cards/many.csv"), request, String::class.java)
+        testRestTemplate.postForObject(URI("http://localhost:$port/api/workspaces/${workspaceRequest.id}/cards/many.csv"), request, String::class.java)
 
         assertTrue { cardRepository.count() == 2L }
         var i = 0
@@ -215,32 +215,32 @@ class CardIntegrationTest {
             val createdCard = it
             i = i.inc()
             assertNotNull(createdCard.id)
-            assertEquals(workspace.name, createdCard.workspaceName)
+            assertEquals(workspaceRequest.id, createdCard.workspaceId)
             assertEquals("questionTest$i", createdCard.question)
             assertEquals("responseTest$i", createdCard.response)
         }
     }
 
     @Test
-    fun `given a Workspace named, when a GET REST request is sent to the cards endpoint, then the response HTTP Status is 200 OK and the response body contains the list of Cards and the count Header the count of Cards`() {
+    fun `given a Workspace Id, when a GET REST request is sent to the cards endpoint, then the response HTTP Status is 200 OK and the response body contains the list of Cards and the count Header the count of Cards`() {
         val userId = UserId(1L)
         val user = UserEntity(userId.id, "user", "test@google.com", "", true, "", AuthProvider.local, "")
         userRepository.save(user)
-        val workspace = WorkspaceRequest("workspaceTest")
-        val workspaceEntity = WorkspaceEntity(workspace.name, userId.id)
-        workspaceRepository.save(workspaceEntity)
+        val workspaceRequest = WorkspaceRequest("workspaceId")
+        val workspace = WorkspaceEntity(workspaceRequest.id, "Workspace Name", userId.id)
+        workspaceRepository.save(workspace)
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val cardContent = CardContent("question", "response")
-        val cardEntity = CardEntity.create(cardId, workspace, cardContent)
+        val cardEntity = CardEntity.create(cardId, workspaceRequest, cardContent)
         cardRepository.save(cardEntity)
         val headers = HttpHeaders()
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer FOO")
         headers.accept = listOf(MediaType.APPLICATION_JSON)
         val request = HttpEntity(null, headers)
 
-        val responseEntity = testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/${workspace.name}/cards"), HttpMethod.GET, request, List::class.java)
+        val responseEntity = testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/${workspaceRequest.id}/cards"), HttpMethod.GET, request, List::class.java)
 
-        val expectedCard = Card(cardId.id, workspace.name, "question", "response")
+        val expectedCard = Card(cardId.id, workspaceRequest.id, "question", "response")
         val expectedCards = listOf(expectedCard)
         val expectedResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedCards)
         assertEquals(expectedResponseEntity.statusCode, responseEntity.statusCode)

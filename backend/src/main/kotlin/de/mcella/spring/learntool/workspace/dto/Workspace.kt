@@ -7,18 +7,19 @@ import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.NotNull
 
 data class Workspace(
-    @field:NotNull @field:NotEmpty val name: String = "",
+    @field:NotNull @field:NotEmpty val id: String,
+    @field:NotNull @field:NotEmpty val name: String,
     val userId: UserId
 ) {
     companion object {
-        fun create(workspaceRequest: WorkspaceRequest, user: UserPrincipal): Workspace {
-            val userId = UserId.create(user)
-            return Workspace(workspaceRequest.name, userId)
+        fun create(workspaceId: WorkspaceId, workspaceCreateRequest: WorkspaceCreateRequest, userPrincipal: UserPrincipal): Workspace {
+            val userId = UserId.create(userPrincipal)
+            return Workspace(workspaceId.id, workspaceCreateRequest.name, userId)
         }
 
         fun create(workspaceEntity: WorkspaceEntity): Workspace {
             val userId = UserId.create(workspaceEntity)
-            return Workspace(workspaceEntity.name, userId)
+            return Workspace(workspaceEntity.id, workspaceEntity.name, userId)
         }
     }
 }

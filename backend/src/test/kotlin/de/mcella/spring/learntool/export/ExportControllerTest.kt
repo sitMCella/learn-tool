@@ -56,51 +56,51 @@ class ExportControllerTest {
 
     @Test
     @WithMockUser
-    fun `given a Workspace name, when sending a GET REST request to the export endpoint and the Workspace exists, then the exportBackup method of ExportService is called and a backup file is returned`() {
-        val workspaceRequest = WorkspaceRequest("workspaceTest")
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+    fun `given a Workspace Id, when sending a GET REST request to the export endpoint and the Workspace exists, then the exportBackup method of ExportService is called and a backup file is returned`() {
+        val workspaceRequest = WorkspaceRequest("workspaceId")
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val backup = File.createTempFile("backup", ".zip")
-        Mockito.`when`(exportService.exportBackup(workspaceRequest, user)).thenReturn(backup)
+        Mockito.`when`(exportService.exportBackup(workspaceRequest, userPrincipal)).thenReturn(backup)
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/api/workspaces/${workspaceRequest.name}/export")
+                MockMvcRequestBuilders.get("/api/workspaces/${workspaceRequest.id}/export")
         ).andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
                 .andExpect(MockMvcResultMatchers.content().bytes(backup.readBytes()))
 
-        Mockito.verify(exportService).exportBackup(workspaceRequest, user)
+        Mockito.verify(exportService).exportBackup(workspaceRequest, userPrincipal)
     }
 
     @Test
-    fun `given a Workspace name, when sending a GET REST request to the export endpoint without JWT authentication, then an UNPROCESSABLE_ENTITY http status response is returned`() {
-        val workspaceRequest = WorkspaceRequest("workspaceTest")
+    fun `given a Workspace Id, when sending a GET REST request to the export endpoint without JWT authentication, then an UNPROCESSABLE_ENTITY http status response is returned`() {
+        val workspaceRequest = WorkspaceRequest("workspaceId")
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/api/workspaces/${workspaceRequest.name}/export")
+                MockMvcRequestBuilders.get("/api/workspaces/${workspaceRequest.id}/export")
         ).andExpect(MockMvcResultMatchers.status().isUnprocessableEntity)
     }
 
     @Test
     @WithMockUser
-    fun `given a Workspace name, when sending a GET REST request to the export endpoint and the exportService exportBackup method throws UserNotAuthorizedException, then an UNAUTHORIZED http status response is returned`() {
-        val workspaceRequest = WorkspaceRequest("workspaceTest")
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
-        Mockito.`when`(exportService.exportBackup(workspaceRequest, user)).thenThrow(UserNotAuthorizedException(user))
+    fun `given a Workspace Id, when sending a GET REST request to the export endpoint and the exportBackup method of the ExportService throws UserNotAuthorizedException, then an UNAUTHORIZED http status response is returned`() {
+        val workspaceRequest = WorkspaceRequest("workspaceId")
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        Mockito.`when`(exportService.exportBackup(workspaceRequest, userPrincipal)).thenThrow(UserNotAuthorizedException(userPrincipal))
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/api/workspaces/${workspaceRequest.name}/export")
+                MockMvcRequestBuilders.get("/api/workspaces/${workspaceRequest.id}/export")
         ).andExpect(MockMvcResultMatchers.status().isUnauthorized)
     }
 
     @Test
     @WithMockUser
-    fun `given a Workspace name, when sending a GET REST request to the export endpoint and the Workspace does not exist, then a NOT_FOUND http status response is returned`() {
-        val workspaceRequest = WorkspaceRequest("workspaceTest")
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
-        Mockito.`when`(exportService.exportBackup(workspaceRequest, user)).thenThrow(WorkspaceNotExistsException(workspaceRequest))
+    fun `given a Workspace Id, when sending a GET REST request to the export endpoint and the Workspace does not exist, then a NOT_FOUND http status response is returned`() {
+        val workspaceRequest = WorkspaceRequest("workspaceId")
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        Mockito.`when`(exportService.exportBackup(workspaceRequest, userPrincipal)).thenThrow(WorkspaceNotExistsException(workspaceRequest))
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/api/workspaces/${workspaceRequest.name}/export")
+                MockMvcRequestBuilders.get("/api/workspaces/${workspaceRequest.id}/export")
         ).andExpect(MockMvcResultMatchers.status().isNotFound)
     }
 }

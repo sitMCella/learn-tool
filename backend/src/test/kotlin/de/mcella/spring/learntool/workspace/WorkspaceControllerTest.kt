@@ -9,8 +9,9 @@ import de.mcella.spring.learntool.security.TokenAuthenticationFilter
 import de.mcella.spring.learntool.security.UserPrincipal
 import de.mcella.spring.learntool.user.dto.UserId
 import de.mcella.spring.learntool.workspace.dto.Workspace
-import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
-import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceNameException
+import de.mcella.spring.learntool.workspace.dto.WorkspaceCreateRequest
+import de.mcella.spring.learntool.workspace.dto.WorkspaceId
+import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceIdException
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceAlreadyExistsException
 import java.util.Collections
 import org.junit.Test
@@ -57,9 +58,13 @@ class WorkspaceControllerTest {
 
     @Test
     @WithMockUser
-    fun `given a Workspace, when sending a POST REST request to workspaces endpoint, then the create method of WorkspaceService is called`() {
-        val workspaceRequest = WorkspaceRequest("workspaceTest")
-        val contentBody = objectMapper.writeValueAsString(workspaceRequest)
+    fun `given a Workspace create request, when sending a POST REST request to workspaces endpoint, then the create method of WorkspaceService is called`() {
+        val workspaceCreateRequest = WorkspaceCreateRequest("Workspace Name")
+        val contentBody = objectMapper.writeValueAsString(workspaceCreateRequest)
+        val userId = UserId(1L)
+        val userPrincipal = UserPrincipal(userId.id, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val workspace = Workspace("workspaceId", "Workspace Name", userId)
+        Mockito.`when`(workspaceService.create(workspaceCreateRequest, userPrincipal)).thenReturn(workspace)
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/workspaces")
@@ -67,16 +72,15 @@ class WorkspaceControllerTest {
                 .content(contentBody)
         ).andExpect(MockMvcResultMatchers.status().isCreated)
             .andExpect(MockMvcResultMatchers.header().exists(HttpHeaders.LOCATION))
-            .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.LOCATION, "/api/workspaces/workspaceTest"))
+            .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.LOCATION, "/api/workspaces/workspaceId"))
 
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
-        Mockito.verify(workspaceService).create(workspaceRequest, user)
+        Mockito.verify(workspaceService).create(workspaceCreateRequest, userPrincipal)
     }
 
     @Test
     fun `when sending a POST REST request to workspaces endpoint without JWT authentication, then an UNPROCESSABLE_ENTITY http status response is returned`() {
-        val workspaceRequest = WorkspaceRequest("workspaceTest")
-        val contentBody = objectMapper.writeValueAsString(workspaceRequest)
+        val workspaceCreateRequest = WorkspaceCreateRequest("Workspace Name")
+        val contentBody = objectMapper.writeValueAsString(workspaceCreateRequest)
 
         mockMvc.perform(
                 MockMvcRequestBuilders.post("/api/workspaces")
@@ -87,11 +91,11 @@ class WorkspaceControllerTest {
 
     @Test
     @WithMockUser
-    fun `given a Workspace with invalid name, when sending a POST REST request to the workspaces endpoint, then an UNPROCESSABLE_ENTITY http status response is returned`() {
-        val workspaceRequest = WorkspaceRequest("workspace-invalid-Test")
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
-        val contentBody = objectMapper.writeValueAsString(workspaceRequest)
-        Mockito.`when`(workspaceService.create(workspaceRequest, user)).thenThrow(InvalidWorkspaceNameException(""))
+    fun `given a Workspace create request, when sending a POST REST request to the workspaces endpoint and the Workspace name is invalid, then an UNPROCESSABLE_ENTITY http status response is returned`() {
+        val workspaceCreateRequest = WorkspaceCreateRequest("Workspace-Invalid_Name")
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val contentBody = objectMapper.writeValueAsString(workspaceCreateRequest)
+        Mockito.`when`(workspaceService.create(workspaceCreateRequest, userPrincipal)).thenThrow(InvalidWorkspaceIdException(""))
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/workspaces")
@@ -102,11 +106,11 @@ class WorkspaceControllerTest {
 
     @Test
     @WithMockUser
-    fun `given a Workspace, when sending a POST REST request to the workspaces endpoint and the Workspace already exists, then a CONFLICT http status response is returned`() {
-        val workspaceRequest = WorkspaceRequest("workspaceTest")
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
-        val contentBody = objectMapper.writeValueAsString(workspaceRequest)
-        Mockito.`when`(workspaceService.create(workspaceRequest, user)).thenThrow(WorkspaceAlreadyExistsException(workspaceRequest))
+    fun `given a Workspace create request, when sending a POST REST request to the workspaces endpoint and the Workspace Id already exists, then a CONFLICT http status response is returned`() {
+        val workspaceCreateRequest = WorkspaceCreateRequest("workspace-InvalidName!")
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val contentBody = objectMapper.writeValueAsString(workspaceCreateRequest)
+        Mockito.`when`(workspaceService.create(workspaceCreateRequest, userPrincipal)).thenThrow(WorkspaceAlreadyExistsException(WorkspaceId("workspaceId")))
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/workspaces")
@@ -119,11 +123,11 @@ class WorkspaceControllerTest {
     @WithMockUser
     fun `when sending a GET REST request to workspaces endpoint, then the getAll method of WorkspaceService is called and the list of Workspaces for the authenticated user is returned`() {
         val userId = UserId(1L)
-        val user = UserPrincipal(userId.id, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
-        val workspace1 = Workspace("workspaceTest1", userId)
-        val workspace2 = Workspace("workspaceTest2", userId)
+        val userPrincipal = UserPrincipal(userId.id, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val workspace1 = Workspace("workspaceId1", "Workspace Name 1", userId)
+        val workspace2 = Workspace("workspaceId2", "Workspace Name 2", userId)
         val workspaces = listOf(workspace1, workspace2)
-        Mockito.`when`(workspaceService.getAll(user)).thenReturn(workspaces)
+        Mockito.`when`(workspaceService.getAll(userPrincipal)).thenReturn(workspaces)
         val expectedContentBody = objectMapper.writeValueAsString(workspaces)
 
         mockMvc.perform(
@@ -132,7 +136,7 @@ class WorkspaceControllerTest {
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(MockMvcResultMatchers.content().json(expectedContentBody))
 
-        Mockito.verify(workspaceService).getAll(user)
+        Mockito.verify(workspaceService).getAll(userPrincipal)
     }
 
     @Test

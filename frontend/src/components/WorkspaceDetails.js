@@ -50,7 +50,7 @@ const WorkspaceDetails = (props) => {
     if (localStorage.getItem(ACCESS_TOKEN)) {
       headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
     }
-    const response = await fetch('/api/workspaces/' + params.name + '/cards?page=0&size=' + paginationSize, {
+    const response = await fetch('/api/workspaces/' + params.id + '/cards?page=0&size=' + paginationSize, {
       method: 'GET',
       headers: headers,
       signal
@@ -81,7 +81,7 @@ const WorkspaceDetails = (props) => {
     getCards(signal)
       .then(() => setWorkspaceDetailsError(false))
       .catch((err) => {
-        console.log('Error while retrieving the cards from the Workspace ' + params.name + ': ' + err.message)
+        console.log('Error while retrieving the cards from the Workspace with id ' + params.id + ': ' + err.message)
         setWorkspaceDetailsError(true)
         setWorkspaceDetailsErrorMessage('Cannot retrieve the Workspace details, please refresh the page.')
       })
@@ -97,7 +97,7 @@ const WorkspaceDetails = (props) => {
         headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
       }
       const page = value - 1
-      const response = await fetch('/api/workspaces/' + params.name + '/cards?page=' + page + '&size=' + paginationSize, {
+      const response = await fetch('/api/workspaces/' + params.id + '/cards?page=' + page + '&size=' + paginationSize, {
         method: 'GET',
         headers: headers
       })
@@ -123,7 +123,7 @@ const WorkspaceDetails = (props) => {
     getCards()
       .then(() => setWorkspaceDetailsError(false))
       .catch((err) => {
-        console.log('Error while retrieving the cards from the Workspace ' + params.name + ': ' + err.message)
+        console.log('Error while retrieving the cards from the Workspace with id ' + params.id + ': ' + err.message)
         setWorkspaceDetailsError(true)
         setWorkspaceDetailsErrorMessage('Cannot retrieve the Cards, please refresh the page.')
       })
@@ -143,7 +143,7 @@ const WorkspaceDetails = (props) => {
         headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
       }
       const content = encodeURIComponent(event.target.value)
-      const response = await fetch('/api/workspaces/' + params.name + '/search?content=' + content, {
+      const response = await fetch('/api/workspaces/' + params.id + '/search?content=' + content, {
         method: 'GET',
         headers: headers
       })
@@ -176,7 +176,7 @@ const WorkspaceDetails = (props) => {
       getSearchCards()
         .then(() => setWorkspaceDetailsError(false))
         .catch((err) => {
-          console.log('Error while searching the Cards: ' + err.message)
+          console.log('Error while searching the Cards from the Workspace with id ' + params.id + ': ' + err.message)
           setWorkspaceDetailsError(true)
           setWorkspaceDetailsErrorMessage('Cannot search the Cards.')
         })
@@ -242,7 +242,7 @@ const WorkspaceDetails = (props) => {
       if (localStorage.getItem(ACCESS_TOKEN)) {
         headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
       }
-      const response = await fetch('/api/workspaces/' + params.name + '/export', {
+      const response = await fetch('/api/workspaces/' + params.id + '/export', {
         method: 'GET',
         headers: headers
       })
@@ -418,13 +418,13 @@ const WorkspaceDetails = (props) => {
                     </Fab>
                   </Box>
                   <Box className={classes.eventIcon}>
-                    <Fab size="small" color="primary" aria-label="add" component={Link} to={'/workspaces/' + params.name + '/study'}>
+                    <Fab size="small" color="primary" aria-label="add" component={Link} to={'/workspaces/' + params.id + '/study'}>
                         <RocketIcon />
                     </Fab>
                   </Box>
                 </Box>
                 <List component="nav" aria-label="cards">
-                    {cards.map(card => <Card key={card.id} workspaceName={params.name} id={card.id} question={card.question} response={card.response} selected={false} new={card.new} change={card.change}
+                    {cards.map(card => <Card key={card.id} workspaceId={params.id} id={card.id} question={card.question} response={card.response} selected={false} new={card.new} change={card.change}
     handleCreateCard={createCardHandler} handleCreateCardCancel={createCardCancelHandler} handleUpdateCard={updateCardHandler} handleCraeteCardError={createCardErrorHandler}
     handleUpdateCardComplete={updateCardCompleteHandler} handleUpdateCardCancel={updateCardCancelHandler} handleUpdateCardError={updateCardErrorHandler}
     handleDeleteCardComplete={deleteCardCompleteHandler}/>)}

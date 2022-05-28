@@ -9,12 +9,13 @@ import de.mcella.spring.learntool.user.dto.UserId
 import de.mcella.spring.learntool.user.storage.UserEntity
 import de.mcella.spring.learntool.user.storage.UserRepository
 import de.mcella.spring.learntool.workspace.dto.Workspace
-import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
+import de.mcella.spring.learntool.workspace.dto.WorkspaceCreateRequest
+import de.mcella.spring.learntool.workspace.dto.WorkspaceId
 import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
 import java.util.Collections
-import java.util.HashSet
+import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.junit.Before
@@ -104,23 +105,24 @@ class WorkspaceIntegrationTest {
     }
 
     @Test
-    fun `given a Workspace name, when a POST REST request is sent to the workspaces endpoint, then a Workspace is created and the http response body contains the Workspace`() {
+    fun `given a Workspace create request, when a POST REST request is sent to the workspaces endpoint, then a Workspace is created and the http response body contains the Workspace`() {
         val userId = UserId(1L)
         val user = UserEntity(userId.id, "user", "test@google.com", "", true, "", AuthProvider.local, "")
         userRepository.save(user)
         val headers = HttpHeaders()
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer FOO")
         headers.contentType = MediaType.APPLICATION_JSON
-        val workspaceRequest = WorkspaceRequest("workspace1")
-        val request = HttpEntity(workspaceRequest, headers)
+        val workspaceCreateRequest = WorkspaceCreateRequest("Workspace Name")
+        val request = HttpEntity(workspaceCreateRequest, headers)
 
         val responseEntity = testRestTemplate.postForObject(URI("http://localhost:$port/api/workspaces"), request, Workspace::class.java)
 
         val workspaces = workspaceRepository.findAll()
-        val workspaceEntity = WorkspaceEntity("workspace1", userId.id)
+        assertTrue { workspaces.size == 1 }
+        val workspaceEntity = WorkspaceEntity(workspaces[0].id, "Workspace Name", userId.id)
         assertTrue { workspaces.contains(workspaceEntity) }
         val userPrincipal = UserPrincipal(userId.id, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
-        val workspace = Workspace.create(workspaceRequest, userPrincipal)
+        val workspace = Workspace.create(WorkspaceId(workspaces[0].id), workspaceCreateRequest, userPrincipal)
         assertEquals(workspace, responseEntity)
     }
 
@@ -132,13 +134,16 @@ class WorkspaceIntegrationTest {
         val anotherUserId = UserId(2L)
         val anotherUser = UserEntity(anotherUserId.id, "anotherUser", "another@google.com", "", true, "", AuthProvider.local, "")
         userRepository.save(anotherUser)
-        val workspace1 = Workspace("workspace1", userId)
+        val workspaceId1 = WorkspaceId(UUID.randomUUID().toString())
+        val workspace1 = Workspace(workspaceId1.id, "Workspace Name 1", userId)
         val workspaceEntity1 = WorkspaceEntity.create(workspace1)
         workspaceRepository.save(workspaceEntity1)
-        val workspace2 = Workspace("workspace2", userId)
+        val workspaceId2 = WorkspaceId(UUID.randomUUID().toString())
+        val workspace2 = Workspace(workspaceId2.id, "Workspace Name 2", userId)
         val workspaceEntity2 = WorkspaceEntity.create(workspace2)
         workspaceRepository.save(workspaceEntity2)
-        val workspace3 = Workspace("workspace3", anotherUserId)
+        val workspaceId3 = WorkspaceId(UUID.randomUUID().toString())
+        val workspace3 = Workspace(workspaceId3.id, "Workspace Name 3", anotherUserId)
         val workspaceEntity3 = WorkspaceEntity.create(workspace3)
         workspaceRepository.save(workspaceEntity3)
         val headers = HttpHeaders()

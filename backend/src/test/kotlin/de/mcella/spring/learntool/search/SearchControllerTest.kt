@@ -60,70 +60,70 @@ class SearchControllerTest {
 
     @Test
     @WithMockUser
-    fun `given a Workspace name and a search content, when sending a GET REST request to the search endpoint, then the searchCards method of CardSearchService is called and the retrieved Cards are returned`() {
-        val workspaceRequest = WorkspaceRequest("workspaceTest")
+    fun `given a Workspace Id and a search content, when sending a GET REST request to the search endpoint, then the searchCards method of CardSearchService is called and the retrieved Cards are returned`() {
+        val workspaceRequest = WorkspaceRequest("workspaceId")
         val searchContent = SearchPattern("content")
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
-        val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspaceRequest.name, "question", "response content")
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspaceRequest.id, "question", "response content")
         val cards = listOf(card)
-        Mockito.`when`(cardSearchService.searchCards(workspaceRequest, searchContent, user)).thenReturn(cards)
+        Mockito.`when`(cardSearchService.searchCards(workspaceRequest, searchContent, userPrincipal)).thenReturn(cards)
         val expectedContentBody = objectMapper.writeValueAsString(cards)
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/api/workspaces/${workspaceRequest.name}/search?content=${searchContent.content}")
+                MockMvcRequestBuilders.get("/api/workspaces/${workspaceRequest.id}/search?content=${searchContent.content}")
         ).andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.content().json(expectedContentBody))
 
-        Mockito.verify(cardSearchService).searchCards(workspaceRequest, searchContent, user)
+        Mockito.verify(cardSearchService).searchCards(workspaceRequest, searchContent, userPrincipal)
     }
 
     @Test
-    fun `given a Workspace name and a search content, when sending a GET REST request to the search endpoint without JWT authentication, then an UNPROCESSABLE_ENTITY http status response is returned`() {
-        val workspaceRequest = WorkspaceRequest("workspaceTest")
+    fun `given a Workspace Id and a search content, when sending a GET REST request to the search endpoint without JWT authentication, then an UNPROCESSABLE_ENTITY http status response is returned`() {
+        val workspaceRequest = WorkspaceRequest("workspaceId")
         val searchContent = SearchPattern("content")
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/api/workspaces/${workspaceRequest.name}/search?content=${searchContent.content}")
+                MockMvcRequestBuilders.get("/api/workspaces/${workspaceRequest.id}/search?content=${searchContent.content}")
         ).andExpect(MockMvcResultMatchers.status().isUnprocessableEntity)
     }
 
     @Test
     @WithMockUser
-    fun `given a Workspace name and a search content, when sending a GET REST request to the search endpoint and the cardSearchService searchCards method throws UserNotAuthorizedException, then a UNAUTHORIZED http status response is returned`() {
-        val workspaceRequest = WorkspaceRequest("workspaceTest")
+    fun `given a Workspace Id and a search content, when sending a GET REST request to the search endpoint and the cardSearchService searchCards method throws UserNotAuthorizedException, then a UNAUTHORIZED http status response is returned`() {
+        val workspaceRequest = WorkspaceRequest("workspaceId")
         val searchContent = SearchPattern("content")
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
-        Mockito.`when`(cardSearchService.searchCards(workspaceRequest, searchContent, user)).thenThrow(UserNotAuthorizedException(user))
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        Mockito.`when`(cardSearchService.searchCards(workspaceRequest, searchContent, userPrincipal)).thenThrow(UserNotAuthorizedException(userPrincipal))
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/api/workspaces/${workspaceRequest.name}/search?content=${searchContent.content}")
+                MockMvcRequestBuilders.get("/api/workspaces/${workspaceRequest.id}/search?content=${searchContent.content}")
         ).andExpect(MockMvcResultMatchers.status().isUnauthorized)
     }
 
     @Test
     @WithMockUser
-    fun `given a Workspace name and a search content, when sending a GET REST request to the search endpoint and the CardSearchService throws WorkspaceNotExistsException exception, then a NOT_FOUND http status response is returned`() {
-        val workspaceRequest = WorkspaceRequest("workspaceTest")
+    fun `given a Workspace Id and a search content, when sending a GET REST request to the search endpoint and the CardSearchService searchCards method throws WorkspaceNotExistsException exception, then a NOT_FOUND http status response is returned`() {
+        val workspaceRequest = WorkspaceRequest("workspaceId")
         val searchPattern = SearchPattern("content")
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
-        Mockito.`when`(cardSearchService.searchCards(workspaceRequest, searchPattern, user)).thenThrow(WorkspaceNotExistsException(workspaceRequest))
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        Mockito.`when`(cardSearchService.searchCards(workspaceRequest, searchPattern, userPrincipal)).thenThrow(WorkspaceNotExistsException(workspaceRequest))
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/api/workspaces/${workspaceRequest.name}/search?content=${searchPattern.content}")
+                MockMvcRequestBuilders.get("/api/workspaces/${workspaceRequest.id}/search?content=${searchPattern.content}")
         ).andExpect(MockMvcResultMatchers.status().isNotFound)
     }
 
     @Test
     @WithMockUser
-    fun `given a Workspace name and a search content, when sending a GET REST request to the search endpoint and the CardSearchService throws SearchException exception, then a NOT_FOUND http status response is returned`() {
-        val workspaceRequest = WorkspaceRequest("workspaceTest")
+    fun `given a Workspace Id and a search content, when sending a GET REST request to the search endpoint and the CardSearchService searchCards method throws SearchException exception, then a SERVER_ERROR http status response is returned`() {
+        val workspaceRequest = WorkspaceRequest("workspaceId")
         val searchPattern = SearchPattern("content")
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
-        Mockito.`when`(cardSearchService.searchCards(workspaceRequest, searchPattern, user)).thenThrow(SearchException("search error"))
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        Mockito.`when`(cardSearchService.searchCards(workspaceRequest, searchPattern, userPrincipal)).thenThrow(SearchException("search error"))
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/api/workspaces/${workspaceRequest.name}/search?content=${searchPattern.content}")
+                MockMvcRequestBuilders.get("/api/workspaces/${workspaceRequest.id}/search?content=${searchPattern.content}")
         ).andExpect(MockMvcResultMatchers.status().is5xxServerError)
     }
 }

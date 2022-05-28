@@ -14,10 +14,12 @@ import de.mcella.spring.learntool.user.dto.UserId
 import de.mcella.spring.learntool.user.storage.UserEntity
 import de.mcella.spring.learntool.user.storage.UserRepository
 import de.mcella.spring.learntool.workspace.dto.Workspace
+import de.mcella.spring.learntool.workspace.dto.WorkspaceId
 import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
 import java.util.Collections
+import java.util.UUID
 import kotlin.collections.HashSet
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -113,18 +115,19 @@ class SearchIntegrationTest {
     }
 
     @Test
-    fun `given a Workspace name and a search content, when a GET REST request is performed to the search endpoint and one Card matches, then the response HTTP Status is 200 OK and the response body contains the retrieved Card`() {
+    fun `given a Workspace Id and a search content, when a GET REST request is performed to the search endpoint and one Card matches, then the response HTTP Status is 200 OK and the response body contains the retrieved Card`() {
         val userId = UserId(1L)
         val user = UserEntity(userId.id, "user", "test@google.com", "", true, "", AuthProvider.local, "")
         userRepository.save(user)
-        val workspace = Workspace("workspaceTest", userId)
+        val workspaceId = WorkspaceId(UUID.randomUUID().toString())
+        val workspace = Workspace(workspaceId.id, "Workspace Name", userId)
         val workspaceEntity = WorkspaceEntity.create(workspace)
         workspaceRepository.save(workspaceEntity)
         val matchingCardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
-        val matchingCardEntity = CardEntity(matchingCardId.id, workspace.name, "question", "response content")
+        val matchingCardEntity = CardEntity(matchingCardId.id, workspaceId.id, "question", "response content")
         cardRepository.save(matchingCardEntity)
         val nonMatchingCardId = CardId("a1900ca7-dc58-4360-b41c-537d933bc9c1")
-        val nonMatchingCardEntity = CardEntity(nonMatchingCardId.id, workspace.name, "new question", "new response")
+        val nonMatchingCardEntity = CardEntity(nonMatchingCardId.id, workspaceId.id, "new question", "new response")
         cardRepository.save(nonMatchingCardEntity)
         val searchPattern = SearchPattern("content")
         val headers = HttpHeaders()
@@ -132,9 +135,9 @@ class SearchIntegrationTest {
         headers.accept = listOf(MediaType.APPLICATION_JSON)
         val request = HttpEntity(null, headers)
 
-        val responseEntity = testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/${workspace.name}/search?content=${searchPattern.content}"), HttpMethod.GET, request, List::class.java)
+        val responseEntity = testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/${workspaceId.id}/search?content=${searchPattern.content}"), HttpMethod.GET, request, List::class.java)
 
-        val expectedCard = Card(matchingCardId.id, workspace.name, "question", "response content")
+        val expectedCard = Card(matchingCardId.id, workspaceId.id, "question", "response content")
         val expectedCards = listOf(expectedCard)
         val expectedResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedCards)
         assertEquals(expectedResponseEntity.statusCode, responseEntity.statusCode)

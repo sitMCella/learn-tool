@@ -51,6 +51,7 @@ function Workspaces (props) {
     const loadedWorkspaces = []
     for (const key in responseData) {
       loadedWorkspaces.push({
+        id: responseData[key].id,
         name: responseData[key].name,
         new: false
       })
@@ -80,14 +81,14 @@ function Workspaces (props) {
     if (newWorkspaceStatus) {
       return
     }
-    const newWorkspaces = [{ name: 'New Workspace Name', new: true }, ...list]
+    const newWorkspaces = [{ id: -1, name: 'New Workspace Name', new: true }, ...list]
     setList(newWorkspaces)
     setNewWorkspaceStatus(true)
     setWorkspaceError(false)
   }
 
-  const submitHandler = (workspaceName) => {
-    const newWorkspaces = [{ name: workspaceName, new: false }, ...list.slice(1)]
+  const submitHandler = (workspaceId, workspaceName) => {
+    const newWorkspaces = [{ id: workspaceId, name: workspaceName, new: false }, ...list.slice(1)]
     setList(newWorkspaces)
     setNewWorkspaceStatus(false)
   }
@@ -98,7 +99,7 @@ function Workspaces (props) {
     setNewWorkspaceStatus(false)
     setWorkspaceError(true)
     if (errCode === '422') {
-      setWorkspaceErrorMessage('Cannot create the Workspace. The Workspace name should not contain spaces.')
+      setWorkspaceErrorMessage('Cannot create the Workspace.')
     } else if (errCode === '409') {
       setWorkspaceErrorMessage('Cannot create the Workspace. The Workspace already exists.')
     } else {
@@ -257,7 +258,7 @@ function Workspaces (props) {
                   </Box>
                 </Box>
                 <List component="nav" aria-label="main mailbox folders">
-                    {list.map(workspace => <Workspace key={workspace.name} name={workspace.name} selected={false} new={workspace.new} handleSubmit={submitHandler} handleError={createErrorHandler} handleCancel={cancelButtonClickHandler}></Workspace>)}
+                    {list.map(workspace => <Workspace key={workspace.id} id={workspace.id} name={workspace.name} selected={false} new={workspace.new} handleSubmit={submitHandler} handleError={createErrorHandler} handleCancel={cancelButtonClickHandler}></Workspace>)}
                 </List>
             </div>
         </Box>

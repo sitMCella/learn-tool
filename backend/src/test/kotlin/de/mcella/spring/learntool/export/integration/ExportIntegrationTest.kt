@@ -118,15 +118,15 @@ class ExportIntegrationTest {
     }
 
     @Test
-    fun `given a Workspace name, when a GET REST request is performed to the export endpoint, then the backup file is created and the response body contains the file`() {
+    fun `given a Workspace Id, when a GET REST request is performed to the export endpoint, then the backup file is created and the response body contains the file`() {
         val userId = UserId(1L)
         val user = UserEntity(userId.id, "user", "test@google.com", "", true, "", AuthProvider.local, "")
         userRepository.save(user)
-        val workspaceRequest = WorkspaceRequest("workspaceTest")
-        val workspaceEntity = WorkspaceEntity(workspaceRequest.name, userId.id)
-        workspaceRepository.save(workspaceEntity)
+        val workspaceRequest = WorkspaceRequest("workspaceId")
+        val workspace = WorkspaceEntity(workspaceRequest.id, "Workspace Name", userId.id)
+        workspaceRepository.save(workspace)
         val cardId = CardId("a1900ca7-dc58-4360-b41c-537d933bc9c1")
-        val cardEntity = CardEntity(cardId.id, workspaceRequest.name, "This is a \"question\"", "This, is a response")
+        val cardEntity = CardEntity(cardId.id, workspaceRequest.id, "This is a \"question\"", "This, is a response")
         cardRepository.save(cardEntity)
         val outputValues = OutputValues(0, 0, 1.3f)
         val review = Instant.ofEpochMilli(1637090403000)
@@ -137,9 +137,9 @@ class ExportIntegrationTest {
         headers.accept = listOf(MediaType.APPLICATION_OCTET_STREAM)
         val request = HttpEntity(null, headers)
 
-        val responseEntity = testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/${workspaceRequest.name}/export"), HttpMethod.GET, request, Resource::class.java)
+        val responseEntity = testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/${workspaceRequest.id}/export"), HttpMethod.GET, request, Resource::class.java)
 
-        // Store the zip file
+        // Store the zip file. This file is used in the ImportIntegrationTest.
         // val outputStream: OutputStream = FileOutputStream(File("src/test/resources/backup.zip"))
         // IOUtils.copy(responseEntity.body!!.inputStream, outputStream)
 
@@ -160,13 +160,13 @@ class ExportIntegrationTest {
             assertTrue(expectedFileNames.contains(file.filename))
             when (file.filename) {
                 "/workspaces.csv" -> {
-                    assertEquals("name\r\nworkspaceTest\r\n", String(file.content))
+                    assertEquals("name\r\nWorkspace Name\r\n", String(file.content))
                 }
                 "/cards.csv" -> {
-                    assertEquals("id,workspace_name,question,response\r\n" + cardId.id + ",workspaceTest,\"This is a \"\"question\"\"\",\"This, is a response\"\r\n", String(file.content))
+                    assertEquals("id,question,response\r\n" + cardId.id + ",\"This is a \"\"question\"\"\",\"This, is a response\"\r\n", String(file.content))
                 }
                 "/learn_cards.csv" -> {
-                    assertEquals("id,workspace_name,last_review,next_review,repetitions,ease_factor,interval_days\r\n" + cardId.id + ",workspaceTest,2021-11-16T19:20:03Z,2021-11-16T19:20:03Z,0,1.3,0\r\n", String(file.content))
+                    assertEquals("id,last_review,next_review,repetitions,ease_factor,interval_days\r\n" + cardId.id + ",2021-11-16T19:20:03Z,2021-11-16T19:20:03Z,0,1.3,0\r\n", String(file.content))
                 }
             }
         }
