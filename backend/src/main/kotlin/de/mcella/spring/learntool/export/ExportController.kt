@@ -15,16 +15,16 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/workspaces/{workspaceName}/export")
+@RequestMapping("/api/workspaces/{workspaceId}/export")
 class ExportController(private val exportService: ExportService) {
 
     @GetMapping(produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     @PreAuthorize("hasRole('USER')")
     fun export(
-        @PathVariable(value = "workspaceName") workspaceName: String,
+        @PathVariable(value = "workspaceId") workspaceId: String,
         @AuthenticationPrincipal user: UserPrincipal
     ): ResponseEntity<InputStreamResource> {
-        val backup = exportService.exportBackup(WorkspaceRequest(workspaceName), user)
+        val backup = exportService.exportBackup(WorkspaceRequest(workspaceId), user)
         val backupStream = InputStreamResource(FileInputStream(backup))
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + backup.name + "\"")

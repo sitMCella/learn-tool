@@ -6,6 +6,8 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface CardRepository : PagingAndSortingRepository<CardEntity, String> {
-    fun findByWorkspaceNameOrderByCreationDateDesc(workspaceName: String, pageable: Pageable): List<CardEntity>
-    fun countByWorkspaceName(workspaceName: String): Long
+
+    fun findByWorkspaceIdOrderByCreationDateDesc(workspaceId: String, pageable: Pageable): List<CardEntity>
+
+    fun countByWorkspaceId(workspaceId: String): Long
 }

@@ -26,7 +26,7 @@ class CardSearchService(private val entityManager: EntityManager, private val wo
                 .where { f -> f.bool { b ->
                         run {
                             b.must(f.matchAll())
-                            b.must(f.match().fields("workspaceName").matching(workspaceRequest.name))
+                            b.must(f.match().fields("workspaceId").matching(workspaceRequest.id))
                             b.must(f.match().fields("question", "response").matching(searchPattern.content))
                         }
                     }

@@ -2,7 +2,7 @@ package de.mcella.spring.learntool.workspace
 
 import de.mcella.spring.learntool.security.UserPrincipal
 import de.mcella.spring.learntool.workspace.dto.Workspace
-import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
+import de.mcella.spring.learntool.workspace.dto.WorkspaceCreateRequest
 import java.net.URI
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -22,11 +22,14 @@ class WorkspaceController(private val workspaceService: WorkspaceService) {
 
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
     @PreAuthorize("hasRole('USER')")
-    fun create(@RequestBody workspaceRequest: WorkspaceRequest, @AuthenticationPrincipal user: UserPrincipal): ResponseEntity<Workspace> {
-        val createdWorkspace = workspaceService.create(workspaceRequest, user)
+    fun create(
+        @RequestBody workspaceCreateRequest: WorkspaceCreateRequest,
+        @AuthenticationPrincipal user: UserPrincipal
+    ): ResponseEntity<Workspace> {
+        val workspace = workspaceService.create(workspaceCreateRequest, user)
         val bodyBuilder = ResponseEntity.status(HttpStatus.CREATED)
-        bodyBuilder.location(URI("/api/workspaces/${workspaceRequest.name}"))
-        return bodyBuilder.body(createdWorkspace)
+        bodyBuilder.location(URI("/api/workspaces/${workspace.id}"))
+        return bodyBuilder.body(workspace)
     }
 
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])

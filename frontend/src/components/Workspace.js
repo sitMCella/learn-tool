@@ -35,12 +35,12 @@ function Workspace (props) {
       return await response.json()
     }
     createWorkspace()
-      .then(() => {
-        props.handleSubmit(newWorkspaceName)
+      .then((workspace) => {
+        props.handleSubmit(workspace.id, newWorkspaceName)
         setNewWorkspaceName('')
       })
       .catch((err) => {
-        console.log('Error while creating the Workspace ' + newWorkspaceName + ': ' + err.message)
+        console.log('Error while creating the Workspace with name "' + newWorkspaceName + '": ' + err.message)
         props.handleError(err.message)
         setNewWorkspaceName('')
       })
@@ -73,7 +73,7 @@ function Workspace (props) {
     )
   } else {
     return (
-            <ListItem button selected={props.selected} component={Link} to={'/workspaces/' + props.name + '/cards'} >
+            <ListItem button selected={props.selected} component={Link} to={'/workspaces/' + props.id + '/cards'} >
                 <ListItemText primary={props.name} />
             </ListItem>
     )

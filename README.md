@@ -8,7 +8,7 @@ Learn Tool consists of an active recall learning tool, and offers a whole range 
 ## Configuration
 
 Learn Tool application makes use of Oauth 2.0 and JWT authentication. Learn Tool supports local authentication and Google authentication.
-Read the page [google_authentication](https://github.com/sitMCella/toggl-trello-kpi/google_authentication.md) in order to configure Google Cloud Platform.
+Read the page [google_authentication](google_authentication.md) in order to configure Google Cloud Platform.
 
 ## Development
 

@@ -23,24 +23,23 @@ class CardSearchServiceTest {
     private val cardSearchService = CardSearchService(entityManager, workspaceService)
 
     @Test(expected = WorkspaceNotExistsException::class)
-    fun `given a non existent Workspace name and a SearchPattern content, when searching the Cards, then throw WorkspaceNotExistsException`() {
-        val workspaceRequest = WorkspaceRequest("workspaceTest")
+    fun `given a Workspace request and a SearchPattern content, when searching the Cards and the Workspace does not exist, then throw WorkspaceNotExistsException`() {
+        val workspaceRequest = WorkspaceRequest("workspaceId")
         val searchPattern = SearchPattern("content")
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
-        Mockito.`when`(workspaceService.verifyIfUserIsAuthorized(workspaceRequest, user)).thenReturn(true)
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(false)
 
-        cardSearchService.searchCards(workspaceRequest, searchPattern, user)
+        cardSearchService.searchCards(workspaceRequest, searchPattern, userPrincipal)
     }
 
     @Test(expected = UserNotAuthorizedException::class)
-    fun `given a Workspace name and a SearchPattern content, when searching the Cards and the user does not own the Workspace, then throw UserNotAuthorizedException`() {
-        val workspaceRequest = WorkspaceRequest("workspaceTest")
+    fun `given a Workspace request and a SearchPattern content, when searching the Cards and the User does not own the Workspace, then throw UserNotAuthorizedException`() {
+        val workspaceRequest = WorkspaceRequest("workspaceId")
         val searchPattern = SearchPattern("content")
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
-        Mockito.`when`(workspaceService.verifyIfUserIsAuthorized(workspaceRequest, user)).thenThrow(UserNotAuthorizedException(user))
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(true)
+        Mockito.`when`(workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)).thenThrow(UserNotAuthorizedException(userPrincipal))
 
-        cardSearchService.searchCards(workspaceRequest, searchPattern, user)
+        cardSearchService.searchCards(workspaceRequest, searchPattern, userPrincipal)
     }
 }

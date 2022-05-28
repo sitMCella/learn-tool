@@ -9,8 +9,8 @@ data class UserId(
     val id: Long
 ) {
     companion object {
-        fun create(user: UserPrincipal): UserId {
-            val userId = user.id ?: throw UserNotExistentException()
+        fun create(userPrincipal: UserPrincipal): UserId {
+            val userId = userPrincipal.id ?: throw UserNotExistentException()
             return UserId(userId)
         }
 

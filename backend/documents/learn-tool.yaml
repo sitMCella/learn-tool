@@ -19,7 +19,7 @@ paths:
       tags:
         - workspace
       requestBody:
-        description: Workspace payload.
+        description: Workspace create payload.
         required: true
         content:
           application/json:
@@ -41,25 +41,33 @@ paths:
               schema:
                 type: string
               example:
-                location: /workspaces/workspaceTest
+                location: /workspaces/35ba10c1-8a85-49a0-9904-f25eac1b4c25
           content:
             application/json:
               schema:
                 type: object
                 properties:
+                  id:
+                    type: string
                   name:
                     type: string
                   userId:
-                    type: number
+                    type: object
+                    properties:
+                      id:
+                        type: number
               example:
-                name: "workspaceTest"
+                id: "35ba10c1-8a85-49a0-9904-f25eac1b4c25"
+                name: "Workspace Name"
+                userId:
+                  id: 1
         '401':
           description: The user is not authorized to perform the operation.
         '409':
-          description: A Workspace already exists with this name.
+          description: A Workspace already exists with this id.
         '422':
           description: >-
-            Either the JWT Token has not been provided or the workspace name is empty or incorrect. Allowed characters: [a-zA-Z0-9-_].
+            Either the JWT Token has not been provided or the workspace name is empty or incorrect. Allowed characters: [a-zA-Z0-9-_ ].
         '500':
           description: An error occured while creating the Workspace.
     get:
@@ -79,16 +87,26 @@ paths:
                 items:
                   type: object
                   properties:
+                    id:
+                      type: string
                     name:
                       type: string
+                    userId:
+                      type: object
+                      properties:
+                        id:
+                          type: number
                 example:
-                  - name: "workspaceTest"
+                  - id: "35ba10c1-8a85-49a0-9904-f25eac1b4c25"
+                    name: "Workspace Name"
+                    userId:
+                      id: 1
         '401':
           description: The user is not authorized to perform the operation.
         '422':
           description: >-
             The JWT Token has not been provided.
-  /api/workspaces/{workspaceName}/cards:
+  /api/workspaces/{workspaceId}/cards:
     post:
       security:
         - bearerAuth: [ ]
@@ -97,13 +115,13 @@ paths:
       tags:
         - card
       parameters:
-        - name: workspaceName
+        - name: workspaceId
           in: path
-          description: The name of the Workspace.
+          description: The Workspace ID.
           required: true
           schema:
             type: string
-          example: "workspaceTest"
+          example: "35ba10c1-8a85-49a0-9904-f25eac1b4c25"
       requestBody:
         description: Card content payload.
         required: true
@@ -131,7 +149,7 @@ paths:
               schema:
                 type: string
               example:
-                location: "/workspaces/workspaceTest/cards/3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
+                location: "/workspaces/35ba10c1-8a85-49a0-9904-f25eac1b4c25/cards/3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
           content:
             application/json:
               schema:
@@ -139,7 +157,7 @@ paths:
                 properties:
                   id:
                     type: string
-                  workspaceName:
+                  workspaceId:
                     type: string
                   question:
                     type: string
@@ -147,7 +165,7 @@ paths:
                     type: string
               example:
                 id: "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
-                workspaceName: "workspaceTest"
+                workspaceId: "35ba10c1-8a85-49a0-9904-f25eac1b4c25"
                 question: "This is a question"
                 response: "This is a response"
         '401':
@@ -168,13 +186,13 @@ paths:
       tags:
         - card
       parameters:
-        - name: workspaceName
+        - name: workspaceId
           in: path
-          description: The name of the Workspace.
+          description: The Workspace ID.
           required: true
           schema:
             type: string
-          example: "workspaceTest"
+          example: "35ba10c1-8a85-49a0-9904-f25eac1b4c25"
         - name: page
           in: query
           description: The page parameter of the pagination.
@@ -203,17 +221,17 @@ paths:
                   properties:
                     id:
                       type: string
-                    workspaceName:
+                    workspaceId:
                       type: string
                     question:
                       type: string
                     response:
                       type: string
                 example:
-                  - id: "123"
-                    workspaceName: "workspaceTest"
-                    question: "Question"
-                    response: "Response"
+                  - id: "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
+                    workspaceId: "35ba10c1-8a85-49a0-9904-f25eac1b4c25"
+                    question: "This is a question"
+                    response: "This is a response"
           headers:
             count:
               description: The total count of Cards.
@@ -226,7 +244,7 @@ paths:
           description: The Workspace does not exist.
         '422':
           description: The JWT Token has not been provided.
-  /api/workspaces/{workspaceName}/cards/{cardId}:
+  /api/workspaces/{workspaceId}/cards/{cardId}:
     put:
       security:
         - bearerAuth: [ ]
@@ -235,16 +253,16 @@ paths:
       tags:
         - card
       parameters:
-        - name: workspaceName
+        - name: workspaceId
           in: path
-          description: The name of the Workspace.
+          description: The Workspace ID.
           required: true
           schema:
             type: string
-          example: "workspaceTest"
+          example: "35ba10c1-8a85-49a0-9904-f25eac1b4c25"
         - name: cardId
           in: path
-          description: The Id of the Card.
+          description: The Card ID.
           required: true
           schema:
             type: string
@@ -276,7 +294,7 @@ paths:
               schema:
                 type: string
               example:
-                location: "/workspaces/workspaceTest/cards/3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
+                location: "/workspaces/35ba10c1-8a85-49a0-9904-f25eac1b4c25/cards/3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
           content:
             application/json:
               schema:
@@ -284,7 +302,7 @@ paths:
                 properties:
                   id:
                     type: string
-                  workspaceName:
+                  workspaceId:
                     type: string
                   question:
                     type: string
@@ -292,7 +310,7 @@ paths:
                     type: string
               example:
                 id: "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
-                workspaceName: "workspaceTest"
+                workspaceId: "35ba10c1-8a85-49a0-9904-f25eac1b4c25"
                 question: "This is a question"
                 response: "This is a response"
         '401':
@@ -312,16 +330,16 @@ paths:
       tags:
         - card
       parameters:
-        - name: workspaceName
+        - name: workspaceId
           in: path
-          description: The name of the Workspace.
+          description: The Workspace ID.
           required: true
           schema:
             type: string
-          example: "workspaceTest"
+          example: "35ba10c1-8a85-49a0-9904-f25eac1b4c25"
         - name: cardId
           in: path
-          description: The Id of the Card.
+          description: The Card ID.
           required: true
           schema:
             type: string
@@ -337,7 +355,7 @@ paths:
           description: Either the JWT Token has not been provided or the Card does not belong to the Workspace.
         '500':
           description: An error occured while deleting the Card.
-  /api/workspaces/{workspaceName}/cards/many.csv:
+  /api/workspaces/{workspaceId}/cards/many.csv:
     post:
       security:
         - bearerAuth: [ ]
@@ -346,13 +364,13 @@ paths:
       tags:
         - card
       parameters:
-        - name: workspaceName
+        - name: workspaceId
           in: path
-          description: The name of the Workspace.
+          description: The Workspace ID.
           required: true
           schema:
             type: string
-          example: "workspaceTest"
+          example: "35ba10c1-8a85-49a0-9904-f25eac1b4c25"
       requestBody:
         description: Cards content payload.
         required: true
@@ -378,7 +396,7 @@ paths:
             Either the JWT Token has not been provided or the CSV fields are null or empty, or missing headers.
         '500':
           description: An error occured while creating the Cards.
-  /api/workspaces/{workspaceName}/learn:
+  /api/workspaces/{workspaceId}/learn:
     get:
       security:
         - bearerAuth: [ ]
@@ -388,13 +406,13 @@ paths:
         - card
         - learn
       parameters:
-        - name: workspaceName
+        - name: workspaceId
           in: path
-          description: The name of the Workspace.
+          description: The Workspace ID.
           required: true
           schema:
             type: string
-          example: "workspaceTest"
+          example: "35ba10c1-8a85-49a0-9904-f25eac1b4c25"
       responses:
         '200':
           description: Card content.
@@ -405,7 +423,7 @@ paths:
                 properties:
                   id:
                     type: string
-                  workspaceName:
+                  workspaceId:
                     type: string
                   question:
                     type: string
@@ -413,7 +431,7 @@ paths:
                     type: string
               example:
                 id: "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
-                workspaceName: "workspaceTest"
+                workspaceId: "35ba10c1-8a85-49a0-9904-f25eac1b4c25"
                 question: "This is a question"
                 response: "This is a response"
         '401':
@@ -422,7 +440,7 @@ paths:
           description: The Workspace or the Card do not exist.
         '422':
           description: The JWT Token has not been provided.
-  /api/workspaces/{workspaceName}/learn/{cardId}:
+  /api/workspaces/{workspaceId}/learn/{cardId}:
     post:
       security:
         - bearerAuth: [ ]
@@ -432,13 +450,13 @@ paths:
         - card
         - learn
       parameters:
-        - name: workspaceName
+        - name: workspaceId
           in: path
-          description: The name of the Workspace.
+          description: The Workspace ID.
           required: true
           schema:
             type: string
-          example: "workspaceTest"
+          example: "35ba10c1-8a85-49a0-9904-f25eac1b4c25"
         - name: cardId
           in: path
           description: The Card ID.
@@ -456,7 +474,7 @@ paths:
                 properties:
                   id:
                     type: string
-                  workspaceName:
+                  workspaceId:
                     type: string
                   lastReview:
                     type: string
@@ -473,7 +491,7 @@ paths:
                     type: integer
               example:
                 id: "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
-                workspaceName: "workspaceTest"
+                workspaceId: "35ba10c1-8a85-49a0-9904-f25eac1b4c25"
                 lastReview: "2020-04-10T19:46:06.167117Z"
                 nextReview: "2020-04-10T19:46:06.167117Z"
                 repetitions: 0
@@ -500,13 +518,13 @@ paths:
         - card
         - learn
       parameters:
-        - name: workspaceName
+        - name: workspaceId
           in: path
-          description: The name of the Workspace.
+          description: The Workspace ID.
           required: true
           schema:
             type: string
-          example: "workspaceTest"
+          example: "35ba10c1-8a85-49a0-9904-f25eac1b4c25"
         - name: cardId
           in: path
           description: The Card ID.
@@ -539,7 +557,7 @@ paths:
                 properties:
                   id:
                     type: string
-                  workspaceName:
+                  workspaceId:
                     type: string
                   lastReview:
                     type: string
@@ -556,7 +574,7 @@ paths:
                     type: integer
               example:
                 id: "3cf14a93-f8c7-4b6b-ac24-a662ca500c21"
-                workspaceName: "workspaceTest"
+                workspaceId: "35ba10c1-8a85-49a0-9904-f25eac1b4c25"
                 lastReview: "2020-04-10T19:46:06.167117Z"
                 nextReview: "2020-04-10T19:47:06.167117Z"
                 repetitions: 1
@@ -575,19 +593,19 @@ paths:
     delete:
       security:
         - bearerAuth: [ ]
-      summary: Delete a new LearnCard
+      summary: Delete a LearnCard
       operationId: delete-learn-card
       tags:
         - card
         - learn
       parameters:
-        - name: workspaceName
+        - name: workspaceId
           in: path
-          description: The name of the Workspace.
+          description: The Workspace ID.
           required: true
           schema:
             type: string
-          example: "workspaceTest"
+          example: "35ba10c1-8a85-49a0-9904-f25eac1b4c25"
         - name: cardId
           in: path
           description: The Card ID.
@@ -608,7 +626,7 @@ paths:
           description: The JWT Token has not been provided.
         '500':
           description: An error occured while deleting the LearnCard.
-  /api/workspaces/{workspaceName}/search:
+  /api/workspaces/{workspaceId}/search:
     post:
       security:
         - bearerAuth: [ ]
@@ -619,13 +637,13 @@ paths:
         - search
         - card
       parameters:
-        - name: workspaceName
+        - name: workspaceId
           in: path
-          description: The name of the Workspace.
+          description: The Workspace ID.
           required: true
           schema:
             type: string
-          example: "workspaceTest"
+          example: "35ba10c1-8a85-49a0-9904-f25eac1b4c25"
         - name: content
           in: query
           description: The search pattern content.
@@ -644,7 +662,7 @@ paths:
           description: The JWT Token has not been provided.
         '500':
           description: An error occured while searching the Cards.
-  /api/workspaces/{workspaceName}/export:
+  /api/workspaces/{workspaceId}/export:
     get:
       security:
         - bearerAuth: [ ]
@@ -654,13 +672,13 @@ paths:
         - workspace
         - export
       parameters:
-        - name: workspaceName
+        - name: workspaceId
           in: path
-          description: The name of the Workspace.
+          description: The Workspace ID.
           required: true
           schema:
             type: string
-          example: "workspaceTest"
+          example: "35ba10c1-8a85-49a0-9904-f25eac1b4c25"
       responses:
         '200':
           description: Workspace backup file.

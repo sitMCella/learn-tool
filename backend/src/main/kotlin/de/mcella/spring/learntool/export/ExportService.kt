@@ -5,7 +5,6 @@ import de.mcella.spring.learntool.learn.LearnService
 import de.mcella.spring.learntool.security.UserPrincipal
 import de.mcella.spring.learntool.workspace.WorkspaceService
 import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
-import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
@@ -21,7 +20,11 @@ import org.apache.commons.csv.CSVPrinter
 import org.springframework.stereotype.Service
 
 @Service
-class ExportService(private val workspaceService: WorkspaceService, private val cardService: CardService, private val learnService: LearnService) {
+class ExportService(
+    private val workspaceService: WorkspaceService,
+    private val cardService: CardService,
+    private val learnService: LearnService
+) {
 
     fun exportBackup(workspaceRequest: WorkspaceRequest, userPrincipal: UserPrincipal): File {
         val tempDirectory = Files.createTempDirectory("backup")
@@ -45,15 +48,13 @@ class ExportService(private val workspaceService: WorkspaceService, private val 
     }
 
     private fun exportWorkspaceBackup(workspaceRequest: WorkspaceRequest, tempDirectory: Path, userPrincipal: UserPrincipal): File {
-        if (!workspaceService.exists(workspaceRequest)) {
-            throw WorkspaceNotExistsException(workspaceRequest)
-        }
+        val workspace = workspaceService.get(workspaceRequest)
         workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)
         val file = File(tempDirectory.toString(), "workspaces.csv")
         val writer = Files.newBufferedWriter(Paths.get(file.toURI()))
         val csvPrinter = CSVPrinter(writer, CSVFormat.RFC4180
                 .withHeader("name"))
-        csvPrinter.printRecord(workspaceRequest.name)
+        csvPrinter.printRecord(workspace.name)
         csvPrinter.flush()
         csvPrinter.close()
         return file
@@ -63,9 +64,9 @@ class ExportService(private val workspaceService: WorkspaceService, private val 
         val file = File(tempDirectory.toString(), "cards.csv")
         val writer = Files.newBufferedWriter(Paths.get(file.toURI()))
         val csvPrinter = CSVPrinter(writer, CSVFormat.RFC4180
-                .withHeader("id", "workspace_name", "question", "response").withEscape('"'))
+                .withHeader("id", "question", "response").withEscape('"'))
         cardService.findByWorkspace(workspaceRequest, null, userPrincipal).stream()
-                .forEach { card -> csvPrinter.printRecord(card.id, card.workspaceName, card.question, card.response) }
+                .forEach { card -> csvPrinter.printRecord(card.id, card.question, card.response) }
         csvPrinter.flush()
         csvPrinter.close()
         return file
@@ -75,9 +76,9 @@ class ExportService(private val workspaceService: WorkspaceService, private val 
         val file = File(tempDirectory.toString(), "learn_cards.csv")
         val writer = Files.newBufferedWriter(Paths.get(file.toURI()))
         val csvPrinter = CSVPrinter(writer, CSVFormat.RFC4180
-                .withHeader("id", "workspace_name", "last_review", "next_review", "repetitions", "ease_factor", "interval_days"))
+                .withHeader("id", "last_review", "next_review", "repetitions", "ease_factor", "interval_days"))
         learnService.getLearnCardsByWorkspace(workspaceRequest).stream().forEach {
-            learnCard -> csvPrinter.printRecord(learnCard.id, learnCard.workspaceName, learnCard.lastReview, learnCard.nextReview, learnCard.repetitions, learnCard.easeFactor, learnCard.intervalDays)
+            learnCard -> csvPrinter.printRecord(learnCard.id, learnCard.lastReview, learnCard.nextReview, learnCard.repetitions, learnCard.easeFactor, learnCard.intervalDays)
         }
         csvPrinter.flush()
         csvPrinter.close()

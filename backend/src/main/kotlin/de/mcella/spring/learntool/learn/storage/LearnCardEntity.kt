@@ -17,7 +17,7 @@ import javax.validation.constraints.NotNull
 @Table(name = "learn_cards")
 data class LearnCardEntity(
     @Id val id: String = "",
-    @field:NotNull @field:NotEmpty val workspaceName: String = "",
+    @field:NotNull @field:NotEmpty val workspaceId: String = "",
     @field:NotNull val lastReview: Instant = Instant.now(),
     @field:NotNull val nextReview: Instant,
     @field:NotNull val repetitions: Int,
@@ -26,17 +26,17 @@ data class LearnCardEntity(
 ) {
     companion object {
         fun createInitial(cardId: CardId, workspaceRequest: WorkspaceRequest, reviewTime: Instant): LearnCardEntity {
-            return LearnCardEntity(cardId.id, workspaceRequest.name, reviewTime, reviewTime, 0, MIN_EASE_FACTOR, 0)
+            return LearnCardEntity(cardId.id, workspaceRequest.id, reviewTime, reviewTime, 0, MIN_EASE_FACTOR, 0)
         }
 
         fun create(cardId: CardId, workspaceRequest: WorkspaceRequest, outputValues: OutputValues, reviewTime: Instant): LearnCardEntity {
             val intervalDays = outputValues.interval.toLong()
             val nextReview = reviewTime.plus(Duration.ofDays(intervalDays))
-            return LearnCardEntity(cardId.id, workspaceRequest.name, reviewTime, nextReview, outputValues.repetitions, outputValues.easeFactor, outputValues.interval)
+            return LearnCardEntity(cardId.id, workspaceRequest.id, reviewTime, nextReview, outputValues.repetitions, outputValues.easeFactor, outputValues.interval)
         }
 
         fun create(learnCard: LearnCard): LearnCardEntity {
-            return LearnCardEntity(learnCard.id, learnCard.workspaceName, learnCard.lastReview, learnCard.nextReview, learnCard.repetitions, learnCard.easeFactor, learnCard.intervalDays)
+            return LearnCardEntity(learnCard.id, learnCard.workspaceId, learnCard.lastReview, learnCard.nextReview, learnCard.repetitions, learnCard.easeFactor, learnCard.intervalDays)
         }
     }
 }

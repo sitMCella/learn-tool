@@ -18,24 +18,25 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/workspaces/{workspaceName}/search")
+@RequestMapping("/api/workspaces/{workspaceId}/search")
 class SearchController(private val cardSearchService: CardSearchService) {
 
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     @PreAuthorize("hasRole('USER')")
     @ResponseStatus(HttpStatus.OK)
     fun search(
-        @PathVariable(value = "workspaceName") workspaceName: String,
+        @PathVariable(value = "workspaceId") workspaceId: String,
         @RequestParam(value = "content") content: String,
         @AuthenticationPrincipal user: UserPrincipal
     ): List<Card> {
+        val workspaceRequest = WorkspaceRequest(workspaceId)
         try {
-            return cardSearchService.searchCards(WorkspaceRequest(workspaceName), SearchPattern(content), user)
+            return cardSearchService.searchCards(workspaceRequest, SearchPattern(content), user)
         } catch (e: Exception) {
             when (e) {
                 is WorkspaceNotExistsException -> throw e
                 is UserNotAuthorizedException -> throw e
-                else -> throw CardSearchException(WorkspaceRequest(workspaceName), e)
+                else -> throw CardSearchException(workspaceRequest, e)
             }
         }
     }

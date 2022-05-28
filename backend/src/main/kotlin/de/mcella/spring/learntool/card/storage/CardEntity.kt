@@ -25,7 +25,7 @@ const val RESPONSE = "response"
 data class CardEntity(
     @Id @Pattern(regexp = UUID_REGEXP) val id: String = "",
     @KeywordField
-    @field:NotNull @field:NotEmpty val workspaceName: String = "",
+    @field:NotNull @field:NotEmpty val workspaceId: String = "",
     @FullTextField
     @field:NotNull @field:NotEmpty val question: String = "",
     @FullTextField
@@ -33,16 +33,20 @@ data class CardEntity(
     @field:NotNull val creationDate: Instant = Instant.now()
 ) {
     companion object {
-        fun create(cardId: CardId, workspace: WorkspaceRequest, cardContent: CardContent): CardEntity {
-            return CardEntity(cardId.id, workspace.name, cardContent.question, cardContent.response)
+        fun create(cardId: CardId, workspaceRequest: WorkspaceRequest, cardContent: CardContent): CardEntity {
+            return CardEntity(cardId.id, workspaceRequest.id, cardContent.question, cardContent.response)
         }
 
-        fun create(cardId: CardId, workspace: WorkspaceRequest, cardContent: CardContent, creationDate: Instant): CardEntity {
-            return CardEntity(cardId.id, workspace.name, cardContent.question, cardContent.response, creationDate)
+        fun create(cardId: CardId, workspaceRequest: WorkspaceRequest, cardContent: CardContent, creationDate: Instant): CardEntity {
+            return CardEntity(cardId.id, workspaceRequest.id, cardContent.question, cardContent.response, creationDate)
         }
 
         fun create(card: Card): CardEntity {
-            return CardEntity(card.id, card.workspaceName, card.question, card.response)
+            return CardEntity(card.id, card.workspaceId, card.question, card.response)
+        }
+
+        fun hasWorkspaceId(cardEntity: CardEntity, workspaceRequest: WorkspaceRequest): Boolean {
+            return cardEntity.workspaceId == workspaceRequest.id
         }
     }
 }

@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull
 
 data class LearnCard(
     @Id val id: String = "",
-    @field:NotNull @field:NotEmpty val workspaceName: String = "",
+    @field:NotNull @field:NotEmpty val workspaceId: String = "",
     @field:NotNull val lastReview: Instant = Instant.now(),
     @field:NotNull val nextReview: Instant,
     @field:NotNull val repetitions: Int,
@@ -17,7 +17,7 @@ data class LearnCard(
 ) {
     companion object {
         fun create(learnCardEntity: LearnCardEntity): LearnCard {
-            return LearnCard(learnCardEntity.id, learnCardEntity.workspaceName, learnCardEntity.lastReview, learnCardEntity.nextReview, learnCardEntity.repetitions, learnCardEntity.easeFactor, learnCardEntity.intervalDays)
+            return LearnCard(learnCardEntity.id, learnCardEntity.workspaceId, learnCardEntity.lastReview, learnCardEntity.nextReview, learnCardEntity.repetitions, learnCardEntity.easeFactor, learnCardEntity.intervalDays)
         }
     }
 }
