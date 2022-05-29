@@ -76,7 +76,6 @@ function Workspace (props) {
     updateWorkspace()
       .then((workspace) => {
         props.handleUpdateWorkspaceComplete(workspace.id, newWorkspaceName)
-        setNewWorkspaceName('')
       })
       .catch((err) => {
         console.log('Error while updating the Workspace with id "' + props.id + '": ' + err.message)
@@ -152,7 +151,7 @@ function Workspace (props) {
                 <CardUi className={classes.workspace}>
                     <CardContent component={Link} to={'/workspaces/' + props.id + '/cards'} style={{ textDecoration: 'none' }}>
                         <Box display="flex" flexWrap="wrap" p={0} m={0}>
-                            <Box pl={2} pr={2}>
+                            <Box pl={2}>
                                 <Typography variant="body1" color="textSecondary" component="p" gutterBottom>
                                     <b>{props.name}</b>
                                 </Typography>

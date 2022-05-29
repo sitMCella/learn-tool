@@ -118,27 +118,33 @@ function Profile (props) {
                   <Grid container justify="center" direction="column" spacing={0} className={classes.profileAvatar}>
                       <Grid item>
                           {
-                              props.currentUser.imageUrl
-                                ? (
-                                      <img src={props.currentUser.imageUrl} alt={props.currentUser.name}/>
-                                  )
-                                : (
-                                      <div className={classes.textAvatar}>
-                                          <Avatar className={classes.large}>{props.currentUser.name && props.currentUser.name[0]}</Avatar>
-                                      </div>
-                                  )
+                              props.currentUser && (
+                                props.currentUser.imageUrl
+                                  ? (
+                                          <img src={props.currentUser.imageUrl} alt={props.currentUser.name}/>
+                                    )
+                                  : (
+                                          <div className={classes.textAvatar}>
+                                              <Avatar className={classes.large}>{props.currentUser.name && props.currentUser.name[0]}</Avatar>
+                                          </div>
+                                    )
+                              )
                           }
                       </Grid>
+                      {props.currentUser && (
                       <Grid item>
                           <div className={classes.profileName}>
                               <h2>{props.currentUser.name}</h2>
                           </div>
                       </Grid>
+                      )}
+                      {props.currentUser && (
                       <Grid item>
                           <div className={classes.profileEmail}>
                               <p>{props.currentUser.email}</p>
                           </div>
                       </Grid>
+                      )}
                   </Grid>
                 </Grid>
               </Grid>

@@ -70,7 +70,7 @@ function Card (props) {
       })
       .catch((err) => {
         console.log('Error while creating the Card: ' + err.message)
-        props.handleCraeteCardError()
+        props.handleCreateCardError()
         setNewQuestion('')
         setNewResponse('')
       })

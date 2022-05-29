@@ -17,7 +17,6 @@ function Login (props) {
         })
       }, 100)
     }
-    props.loadCurrentLoggedInUser()
   }, [])
 
   const useStyles = makeStyles((theme) => ({

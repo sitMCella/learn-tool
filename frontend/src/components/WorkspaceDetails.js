@@ -425,8 +425,8 @@ const WorkspaceDetails = (props) => {
                 </Box>
                 <List component="nav" aria-label="cards">
                     {cards.map(card => <Card key={card.id} workspaceId={params.id} id={card.id} question={card.question} response={card.response} selected={false} new={card.new} change={card.change}
-    handleCreateCard={createCardHandler} handleCreateCardCancel={createCardCancelHandler} handleUpdateCard={updateCardHandler} handleCraeteCardError={createCardErrorHandler}
-    handleUpdateCardComplete={updateCardCompleteHandler} handleUpdateCardCancel={updateCardCancelHandler} handleUpdateCardError={updateCardErrorHandler}
+    handleCreateCard={createCardHandler} handleCreateCardCancel={createCardCancelHandler} handleCreateCardError={createCardErrorHandler}
+    handleUpdateCard={updateCardHandler} handleUpdateCardComplete={updateCardCompleteHandler} handleUpdateCardCancel={updateCardCancelHandler} handleUpdateCardError={updateCardErrorHandler}
     handleDeleteCardComplete={deleteCardCompleteHandler}/>)}
                 </List>
                 <Pagination count={pagesCount} defaultPage={1} siblingCount={0} boundaryCount={2} onChange={handlePaginationChange} />
