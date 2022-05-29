@@ -120,9 +120,7 @@ function Card (props) {
   const deleteCardHandler = (event) => {
     event.preventDefault()
     const deleteLearnCard = async () => {
-      const headers = {
-        'Content-Type': 'application/json'
-      }
+      const headers = {}
       if (localStorage.getItem(ACCESS_TOKEN)) {
         headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
       }
@@ -135,9 +133,7 @@ function Card (props) {
       }
     }
     const deleteCard = async () => {
-      const headers = {
-        'Content-Type': 'application/json'
-      }
+      const headers = {}
       if (localStorage.getItem(ACCESS_TOKEN)) {
         headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
       }
@@ -159,6 +155,7 @@ function Card (props) {
       })
       .catch((err) => {
         console.log('Error while deleting the Card: ' + err.message)
+        props.handleDeleteCardError(err.message)
       })
   }
 

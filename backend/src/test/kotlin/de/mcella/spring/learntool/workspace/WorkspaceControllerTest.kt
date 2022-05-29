@@ -208,7 +208,7 @@ class WorkspaceControllerTest {
     @WithMockUser
     fun `given a Workspace create request, when sending a PUT REST request to the workspaces endpoint and the Workspace does not exist, then an NOT_FOUND http status response is returned`() {
         val workspaceRequest = WorkspaceRequest("workspaceId")
-        val workspaceCreateRequest = WorkspaceCreateRequest("workspace-InvalidName!")
+        val workspaceCreateRequest = WorkspaceCreateRequest("Workspace Update Name")
         val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val contentBody = objectMapper.writeValueAsString(workspaceCreateRequest)
         Mockito.`when`(workspaceService.update(workspaceRequest, workspaceCreateRequest, userPrincipal)).thenThrow(WorkspaceNotExistsException(workspaceRequest))
@@ -224,7 +224,7 @@ class WorkspaceControllerTest {
     @WithMockUser
     fun `given a Workspace create request, when sending a PUT REST request to the workspaces endpoint and the User does not own the Workspace, then an UNAUTHORIZED http status response is returned`() {
         val workspaceRequest = WorkspaceRequest("workspaceId")
-        val workspaceCreateRequest = WorkspaceCreateRequest("workspace-InvalidName!")
+        val workspaceCreateRequest = WorkspaceCreateRequest("Workspace Update Name")
         val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val contentBody = objectMapper.writeValueAsString(workspaceCreateRequest)
         Mockito.`when`(workspaceService.update(workspaceRequest, workspaceCreateRequest, userPrincipal)).thenThrow(UserNotAuthorizedException(userPrincipal))
@@ -233,6 +233,52 @@ class WorkspaceControllerTest {
                 MockMvcRequestBuilders.put("/api/workspaces/${workspaceRequest.id}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(contentBody)
+        ).andExpect(MockMvcResultMatchers.status().isUnauthorized)
+    }
+
+    @Test
+    @WithMockUser
+    fun `given a Workspace Id, when sending a DELETE REST request to the workspaces endpoint, then the delete method of WorkspaceService is called`() {
+        val workspaceRequest = WorkspaceRequest("workspaceId")
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/api/workspaces/${workspaceRequest.id}")
+        ).andExpect(MockMvcResultMatchers.status().isOk)
+
+        Mockito.verify(workspaceService).delete(workspaceRequest, userPrincipal)
+    }
+
+    @Test
+    fun `when sending a DELETE REST request to workspaces endpoint without JWT authentication, then an UNPROCESSABLE_ENTITY http status response is returned`() {
+        val workspaceRequest = WorkspaceRequest("workspaceId")
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/api/workspaces/${workspaceRequest.id}")
+        ).andExpect(MockMvcResultMatchers.status().isUnprocessableEntity)
+    }
+
+    @Test
+    @WithMockUser
+    fun `given a Workspace Id, when sending a DELETE REST request to the workspaces endpoint and the Workspace does not exist, then an NOT_FOUND http status response is returned`() {
+        val workspaceRequest = WorkspaceRequest("workspaceId")
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        Mockito.`when`(workspaceService.delete(workspaceRequest, userPrincipal)).thenThrow(WorkspaceNotExistsException(workspaceRequest))
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/api/workspaces/${workspaceRequest.id}")
+        ).andExpect(MockMvcResultMatchers.status().isNotFound)
+    }
+
+    @Test
+    @WithMockUser
+    fun `given a Workspace Id, when sending a DELETE REST request to the workspaces endpoint and the User does not own the Workspace, then an UNAUTHORIZED http status response is returned`() {
+        val workspaceRequest = WorkspaceRequest("workspaceId")
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        Mockito.`when`(workspaceService.delete(workspaceRequest, userPrincipal)).thenThrow(UserNotAuthorizedException(userPrincipal))
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/api/workspaces/${workspaceRequest.id}")
         ).andExpect(MockMvcResultMatchers.status().isUnauthorized)
     }
 

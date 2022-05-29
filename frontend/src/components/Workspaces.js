@@ -99,7 +99,7 @@ function Workspaces (props) {
     setNewWorkspaceStatus(false)
     setWorkspaceError(true)
     if (errCode === '422') {
-      setWorkspaceErrorMessage('Cannot create the Workspace.')
+      setWorkspaceErrorMessage('Cannot create the Workspace. Please refresh the page.')
     } else if (errCode === '409') {
       setWorkspaceErrorMessage('Cannot create the Workspace. The Workspace already exists.')
     } else {
@@ -135,6 +135,23 @@ function Workspaces (props) {
     setNewWorkspaceStatus(true)
     const newWorkspaces = workspaces.map(workspace => (workspace.id === workspaceId ? { ...workspace, name: workspaceName, change: false } : workspace))
     setWorkspaces(newWorkspaces)
+  }
+
+  const deleteWorkspaceCompleteHandler = (workspaceId) => {
+    const index = workspaces.map(workspace => { return workspace.id }).indexOf(workspaceId)
+    const newWorkspaces = [...workspaces.slice(0, index), ...workspaces.slice(index + 1)]
+    setWorkspaces(newWorkspaces)
+  }
+
+  const deleteWorkspaceErrorHandler = (errCode) => {
+    setWorkspaceError(true)
+    if (errCode === '422') {
+      setWorkspaceErrorMessage('Cannot delete the Workspace. Please refresh the page.')
+    } else if (errCode === '404') {
+      setWorkspaceErrorMessage('Cannot delete the Workspace. The Workspace does not exist.')
+    } else {
+      setWorkspaceErrorMessage('Cannot delete the Workspace.')
+    }
   }
 
   const handleUploadFileData = (event) => {
@@ -284,7 +301,8 @@ function Workspaces (props) {
                 <List component="nav" aria-label="main mailbox folders">
                     {workspaces.map(workspace => <Workspace key={workspace.id} id={workspace.id} name={workspace.name} selected={false} new={workspace.new} change={workspace.change}
     handleCreateWorkspace={createWorkspaceHandler} handleCreateWorkspaceError={createWorkspaceErrorHandler} handleCreateWorkspaceCancel={createWorkspaceCancelHandler}
-    handleUpdateWorkspace={updateWorkspaceHandler} handleUpdateWorkspaceComplete={updateWorkspaceCompleteHandler} handleUpdateWorkspaceError={updateWorkspaceErrorHandler} handleUpdateWorkspaceCancel={updateWorkspaceCancelHandler}/>)}
+    handleUpdateWorkspace={updateWorkspaceHandler} handleUpdateWorkspaceComplete={updateWorkspaceCompleteHandler} handleUpdateWorkspaceError={updateWorkspaceErrorHandler} handleUpdateWorkspaceCancel={updateWorkspaceCancelHandler}
+    handleDeleteWorkspaceComplete={deleteWorkspaceCompleteHandler} handleDeleteWorkspaceError={deleteWorkspaceErrorHandler}/>)}
                 </List>
             </div>
         </Box>

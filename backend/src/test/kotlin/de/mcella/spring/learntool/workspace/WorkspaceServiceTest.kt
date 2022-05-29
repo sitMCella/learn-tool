@@ -145,6 +145,49 @@ class WorkspaceServiceTest {
         assertEquals(workspace, updatedWorkspace)
     }
 
+    @Test(expected = WorkspaceNotExistsException::class)
+    fun `given a Workspace request, when deleting a Workspace and the Workspace does not exist, then throw WorkspaceNotExistsException`() {
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val workspaceRequest = WorkspaceRequest("workspaceId")
+        Mockito.`when`(workspaceRepository.findById(workspaceRequest.id)).thenReturn(Optional.empty())
+
+        workspaceService.delete(workspaceRequest, userPrincipal)
+    }
+
+    @Test(expected = UserNotExistentException::class)
+    fun `given a Workspace request and a UserPrincipal, when deleting the Workspace and the User does not exist, then throw UserNotExistentException`() {
+        val userPrincipal = UserPrincipal(null, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val workspaceRequest = WorkspaceRequest("workspaceId")
+        val workspaceEntity = WorkspaceEntity(workspaceRequest.id, "Workspace Name", 1L)
+        Mockito.`when`(workspaceRepository.findById(workspaceRequest.id)).thenReturn(Optional.of(workspaceEntity))
+
+        workspaceService.delete(workspaceRequest, userPrincipal)
+    }
+
+    @Test(expected = UserNotAuthorizedException::class)
+    fun `given a Workspace request and a UserPrincipal, when deleting the Workspace and the User does not own the Workspace, then throw UserNotAuthorizedException`() {
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val workspaceRequest = WorkspaceRequest("workspaceId")
+        Mockito.`when`(workspaceRepository.existsById(workspaceRequest.id)).thenReturn(true)
+        val workspaceEntity = WorkspaceEntity(workspaceRequest.id, "Workspace Name", 2L)
+        Mockito.`when`(workspaceRepository.findById(workspaceRequest.id)).thenReturn(Optional.of(workspaceEntity))
+
+        workspaceService.delete(workspaceRequest, userPrincipal)
+    }
+
+    @Test
+    fun `given a Workspace request, when deleting the Workspace, then call the method delete of WorkspaceRepository`() {
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val workspaceRequest = WorkspaceRequest("workspaceId")
+        Mockito.`when`(workspaceRepository.existsById(workspaceRequest.id)).thenReturn(true)
+        val workspaceEntity = WorkspaceEntity(workspaceRequest.id, "Workspace Name", userPrincipal.id!!)
+        Mockito.`when`(workspaceRepository.findById(workspaceRequest.id)).thenReturn(Optional.of(workspaceEntity))
+
+        workspaceService.delete(workspaceRequest, userPrincipal)
+
+        Mockito.verify(workspaceRepository).delete(workspaceEntity)
+    }
+
     @Test
     fun `when retrieving all the Workspaces of the authenticated User, then call the method findAll of WorkspaceRepository and return the list of Workspaces`() {
         val userId = UserId(1L)

@@ -43,6 +43,15 @@ class WorkspaceService(
         return Workspace.create(workspaceRepository.save(workspaceEntity))
     }
 
+    fun delete(workspaceRequest: WorkspaceRequest, userPrincipal: UserPrincipal) {
+        val workspaceEntity = workspaceRepository.findById(workspaceRequest.id)
+        if (!workspaceEntity.isPresent) {
+            throw WorkspaceNotExistsException(workspaceRequest)
+        }
+        verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)
+        workspaceRepository.delete(workspaceEntity.get())
+    }
+
     fun getAll(user: UserPrincipal): List<Workspace> {
         val userId = UserId.create(user)
         return workspaceRepository.findByUserId(userId.id)

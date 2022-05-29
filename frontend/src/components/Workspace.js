@@ -11,6 +11,7 @@ import ListItem from '@material-ui/core/ListItem'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
+import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
 
 function Workspace (props) {
@@ -90,6 +91,29 @@ function Workspace (props) {
     props.handleUpdateWorkspaceCancel(props.id)
   }
 
+  const deleteWorkspaceHandler = (event) => {
+    event.preventDefault()
+    const deleteWorkspace = async () => {
+      const headers = {}
+      if (localStorage.getItem(ACCESS_TOKEN)) {
+        headers.Authorization = 'Bearer ' + localStorage.getItem(ACCESS_TOKEN)
+      }
+      const response = await fetch('/api/workspaces/' + props.id, {
+        method: 'DELETE',
+        headers: headers
+      })
+      if (!response.ok) {
+        throw new Error(JSON.stringify(response))
+      }
+    }
+    deleteWorkspace()
+      .then(() => props.handleDeleteWorkspaceComplete(props.id))
+      .catch((err) => {
+        console.log('Error while deleting the Workspace with id "' + props.id + '": ' + err.message)
+        props.handleDeleteWorkspaceError(err.message)
+      })
+  }
+
   const useStyles = makeStyles((theme) => ({
     input: {
       width: 260
@@ -161,6 +185,9 @@ function Workspace (props) {
                     <CardActions className={classes.actions}>
                         <IconButton aria-label="edit" onClick={() => props.handleUpdateWorkspace(props.id)}>
                             <EditIcon className={classes.expand}/>
+                        </IconButton>
+                        <IconButton aria-label="delete" onClick={deleteWorkspaceHandler}>
+                            <DeleteIcon/>
                         </IconButton>
                     </CardActions>
                 </CardUi>

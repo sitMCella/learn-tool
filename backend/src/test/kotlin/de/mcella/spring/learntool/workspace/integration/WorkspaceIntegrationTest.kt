@@ -151,6 +151,26 @@ class WorkspaceIntegrationTest {
     }
 
     @Test
+    fun `given a Workspace Id, when a DELETE REST request is sent to the workspaces endpoint, then the Workspace is deleted`() {
+        val userId = UserId(1L)
+        val user = UserEntity(userId.id, "user", "test@google.com", "", true, "", AuthProvider.local, "")
+        userRepository.save(user)
+        val headers = HttpHeaders()
+        headers.add(HttpHeaders.AUTHORIZATION, "Bearer FOO")
+        headers.contentType = MediaType.APPLICATION_JSON
+        val workspaceId = WorkspaceId(UUID.randomUUID().toString())
+        val workspace = Workspace(workspaceId.id, "Workspace Name", userId)
+        val workspaceEntity = WorkspaceEntity.create(workspace)
+        workspaceRepository.save(workspaceEntity)
+        val request = HttpEntity(null, headers)
+
+        testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/${workspaceId.id}"), HttpMethod.DELETE, request, Object::class.java)
+
+        val workspaces = workspaceRepository.findAll()
+        assertTrue { workspaces.size == 0 }
+    }
+
+    @Test
     fun `when a GET REST request is sent to the workspaces endpoint, then the http response body contains the list of Workspaces of the authenticated user`() {
         val userId = UserId(1L)
         val user = UserEntity(userId.id, "user", "test@google.com", "", true, "", AuthProvider.local, "")
