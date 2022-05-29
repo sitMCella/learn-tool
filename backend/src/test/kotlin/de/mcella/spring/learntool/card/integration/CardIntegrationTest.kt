@@ -161,6 +161,7 @@ class CardIntegrationTest {
 
         var responseEntity = testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/${workspaceRequest.id}/cards/${cardId.id}"), HttpMethod.PUT, request, Card::class.java)
 
+        assertEquals(HttpStatus.OK, responseEntity.statusCode)
         assertTrue { cardRepository.count() == 1L }
         cardRepository.findAll().forEach {
             val updatedCard = it
@@ -168,7 +169,6 @@ class CardIntegrationTest {
             assertEquals(workspaceRequest.id, updatedCard.workspaceId)
             assertEquals("updated question", updatedCard.question)
             assertEquals("updated response", updatedCard.response)
-            assertEquals(HttpStatus.OK, responseEntity.statusCode)
         }
     }
 

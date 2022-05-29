@@ -20,12 +20,25 @@ class WorkspaceService(
 ) {
 
     fun create(workspaceCreateRequest: WorkspaceCreateRequest, userPrincipal: UserPrincipal): Workspace {
+        require(!workspaceCreateRequest.name.isNullOrEmpty()) { "The field 'name' is required." }
         WorkspaceNameValidator.validate(workspaceCreateRequest)
         val workspaceId = workspaceIdGenerator.create()
         if (workspaceRepository.existsById(workspaceId.id)) {
             throw WorkspaceAlreadyExistsException(workspaceId)
         }
         val workspace = Workspace.create(workspaceId, workspaceCreateRequest, userPrincipal)
+        val workspaceEntity = WorkspaceEntity.create(workspace)
+        return Workspace.create(workspaceRepository.save(workspaceEntity))
+    }
+
+    fun update(workspaceRequest: WorkspaceRequest, workspaceCreateRequest: WorkspaceCreateRequest, userPrincipal: UserPrincipal): Workspace {
+        require(!workspaceCreateRequest.name.isNullOrEmpty()) { "The field 'name' is required." }
+        WorkspaceNameValidator.validate(workspaceCreateRequest)
+        if (!exists(workspaceRequest)) {
+            throw WorkspaceNotExistsException(workspaceRequest)
+        }
+        verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)
+        val workspace = Workspace.create(workspaceRequest, workspaceCreateRequest, userPrincipal)
         val workspaceEntity = WorkspaceEntity.create(workspace)
         return Workspace.create(workspaceRepository.save(workspaceEntity))
     }

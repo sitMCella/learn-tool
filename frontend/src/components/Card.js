@@ -103,7 +103,7 @@ function Card (props) {
         props.handleUpdateCardComplete(card.id, card.question, card.response)
       })
       .catch((err) => {
-        console.log('Error while updating the Card: ' + err.message)
+        console.log('Error while updating the Card with id "' + props.id + '": ' + err.message)
         props.handleUpdateCardError(props.id, props.question, props.response)
         setNewQuestion('')
         setNewResponse('')

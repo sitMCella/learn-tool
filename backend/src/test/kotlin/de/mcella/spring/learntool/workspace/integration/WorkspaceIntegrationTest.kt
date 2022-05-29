@@ -127,6 +127,30 @@ class WorkspaceIntegrationTest {
     }
 
     @Test
+    fun `given a Workspace create request, when a PUT REST request is sent to the workspaces endpoint, then the Workspace is updated and the http response body contains the Workspace`() {
+        val userId = UserId(1L)
+        val user = UserEntity(userId.id, "user", "test@google.com", "", true, "", AuthProvider.local, "")
+        userRepository.save(user)
+        val headers = HttpHeaders()
+        headers.add(HttpHeaders.AUTHORIZATION, "Bearer FOO")
+        headers.contentType = MediaType.APPLICATION_JSON
+        val workspaceId = WorkspaceId(UUID.randomUUID().toString())
+        val initialWorkspace = Workspace(workspaceId.id, "Workspace Name", userId)
+        val initialWorkspaceEntity = WorkspaceEntity.create(initialWorkspace)
+        workspaceRepository.save(initialWorkspaceEntity)
+        val workspaceCreateRequest = WorkspaceCreateRequest("Workspace Update Name")
+        val request = HttpEntity(workspaceCreateRequest, headers)
+
+        val responseEntity = testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/${workspaceId.id}"), HttpMethod.PUT, request, Workspace::class.java)
+
+        assertEquals(HttpStatus.OK, responseEntity.statusCode)
+        val workspaces = workspaceRepository.findAll()
+        assertTrue { workspaces.size == 1 }
+        val workspaceEntity = WorkspaceEntity(workspaceId.id, workspaceCreateRequest.name, userId.id)
+        assertTrue { workspaces.contains(workspaceEntity) }
+    }
+
+    @Test
     fun `when a GET REST request is sent to the workspaces endpoint, then the http response body contains the list of Workspaces of the authenticated user`() {
         val userId = UserId(1L)
         val user = UserEntity(userId.id, "user", "test@google.com", "", true, "", AuthProvider.local, "")

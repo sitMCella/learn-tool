@@ -9,8 +9,9 @@ import de.mcella.spring.learntool.workspace.dto.Workspace
 import de.mcella.spring.learntool.workspace.dto.WorkspaceCreateRequest
 import de.mcella.spring.learntool.workspace.dto.WorkspaceId
 import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
-import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceIdException
+import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceNameException
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceAlreadyExistsException
+import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.util.Collections
@@ -32,7 +33,15 @@ class WorkspaceServiceTest {
 
     private val workspaceService = WorkspaceService(workspaceRepository, workspaceIdGenerator)
 
-    @Test(expected = InvalidWorkspaceIdException::class)
+    @Test(expected = IllegalArgumentException::class)
+    fun `given a Workspace create request, when creating the Workspace and the Workspace name is empty, then throw IllegalArgumentException`() {
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val workspaceCreateRequest = WorkspaceCreateRequest("")
+
+        workspaceService.create(workspaceCreateRequest, userPrincipal)
+    }
+
+    @Test(expected = InvalidWorkspaceNameException::class)
     fun `given a Workspace create request, when creating the Workspace and the Workspace has an invalid name, then throw InvalidWorkspaceNameException`() {
         val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val workspaceCreateRequest = WorkspaceCreateRequest("workspace-InvalidName!")
@@ -66,6 +75,74 @@ class WorkspaceServiceTest {
         Mockito.verify(workspaceRepository).save(workspaceEntity)
         val workspace = Workspace.create(workspaceId, workspaceCreateRequest, userPrincipal)
         assertEquals(workspace, createdWorkspace)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `given a Workspace create request, when updating the Workspace and the Workspace name is empty, then throw IllegalArgumentException`() {
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val workspaceRequest = WorkspaceRequest("workspaceId")
+        val workspaceCreateRequest = WorkspaceCreateRequest("")
+
+        workspaceService.update(workspaceRequest, workspaceCreateRequest, userPrincipal)
+    }
+
+    @Test(expected = InvalidWorkspaceNameException::class)
+    fun `given a Workspace create request, when updating the Workspace and the Workspace has an invalid name, then throw InvalidWorkspaceNameException`() {
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val workspaceRequest = WorkspaceRequest("workspaceId")
+        val workspaceCreateRequest = WorkspaceCreateRequest("workspace-InvalidName!")
+
+        workspaceService.update(workspaceRequest, workspaceCreateRequest, userPrincipal)
+    }
+
+    @Test(expected = WorkspaceNotExistsException::class)
+    fun `given a Workspace create request, when updating the Workspace and the Workspace does not exist, then throw WorkspaceNotExistsException`() {
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val workspaceRequest = WorkspaceRequest("workspaceId")
+        val workspaceCreateRequest = WorkspaceCreateRequest("Workspace Name")
+        Mockito.`when`(workspaceRepository.existsById(workspaceRequest.id)).thenReturn(false)
+
+        workspaceService.update(workspaceRequest, workspaceCreateRequest, userPrincipal)
+    }
+
+    @Test(expected = UserNotExistentException::class)
+    fun `given a Workspace request and a UserPrincipal, when updating the Workspace and the User does not exist, then throw UserNotExistentException`() {
+        val userPrincipal = UserPrincipal(null, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val workspaceRequest = WorkspaceRequest("workspaceId")
+        val workspaceCreateRequest = WorkspaceCreateRequest("Workspace Name")
+        Mockito.`when`(workspaceRepository.existsById(workspaceRequest.id)).thenReturn(true)
+
+        workspaceService.update(workspaceRequest, workspaceCreateRequest, userPrincipal)
+    }
+
+    @Test(expected = UserNotAuthorizedException::class)
+    fun `given a Workspace request and a UserPrincipal, when updating the Workspace and the User does not own the Workspace, then throw UserNotAuthorizedException`() {
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val workspaceRequest = WorkspaceRequest("workspaceId")
+        val workspaceCreateRequest = WorkspaceCreateRequest("Workspace Updated Name")
+        Mockito.`when`(workspaceRepository.existsById(workspaceRequest.id)).thenReturn(true)
+        val workspaceEntity = WorkspaceEntity(workspaceRequest.id, "Workspace Name", 2L)
+        Mockito.`when`(workspaceRepository.findById(workspaceRequest.id)).thenReturn(Optional.of(workspaceEntity))
+
+        workspaceService.update(workspaceRequest, workspaceCreateRequest, userPrincipal)
+    }
+
+    @Test
+    fun `given a Workspace create request, when updating the Workspace, then call the method save of WorkspaceRepository and return the Workspace`() {
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val workspaceRequest = WorkspaceRequest("workspaceId")
+        val workspaceCreateRequest = WorkspaceCreateRequest("Workspace Updated Name")
+        Mockito.`when`(workspaceRepository.existsById(workspaceRequest.id)).thenReturn(true)
+        val originalWorkspaceEntity = WorkspaceEntity(workspaceRequest.id, "Workspace Name", userPrincipal.id!!)
+        Mockito.`when`(workspaceRepository.findById(workspaceRequest.id)).thenReturn(Optional.of(originalWorkspaceEntity))
+        val workspaceEntity = WorkspaceEntity(workspaceRequest.id, workspaceCreateRequest.name, userPrincipal.id!!)
+        Mockito.`when`(workspaceRepository.save(workspaceEntity)).thenReturn(workspaceEntity)
+
+        val updatedWorkspace = workspaceService.update(workspaceRequest, workspaceCreateRequest, userPrincipal)
+
+        Mockito.verify(workspaceRepository).save(workspaceEntity)
+        val workspace = Workspace.create(workspaceRequest, workspaceCreateRequest, userPrincipal)
+        assertEquals(workspace, updatedWorkspace)
     }
 
     @Test

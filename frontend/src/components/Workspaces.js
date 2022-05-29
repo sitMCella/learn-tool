@@ -81,19 +81,19 @@ function Workspaces (props) {
     if (newWorkspaceStatus) {
       return
     }
-    const newWorkspaces = [{ id: -1, name: 'New Workspace Name', new: true }, ...list]
+    const newWorkspaces = [{ id: -1, name: 'New Workspace', new: true }, ...list]
     setList(newWorkspaces)
     setNewWorkspaceStatus(true)
     setWorkspaceError(false)
   }
 
-  const submitHandler = (workspaceId, workspaceName) => {
+  const createWorkspaceHandler = (workspaceId, workspaceName) => {
     const newWorkspaces = [{ id: workspaceId, name: workspaceName, new: false }, ...list.slice(1)]
     setList(newWorkspaces)
     setNewWorkspaceStatus(false)
   }
 
-  const createErrorHandler = (errCode) => {
+  const createWorkspaceErrorHandler = (errCode) => {
     const newWorkspaces = list.slice(1)
     setList(newWorkspaces)
     setNewWorkspaceStatus(false)
@@ -107,10 +107,34 @@ function Workspaces (props) {
     }
   }
 
-  const cancelButtonClickHandler = () => {
+  const createWorkspaceCancelHandler = () => {
     const newWorkspaces = list.slice(1)
     setList(newWorkspaces)
     setNewWorkspaceStatus(false)
+  }
+
+  const updateWorkspaceHandler = (workspaceId) => {
+    setNewWorkspaceStatus(true)
+    const newWorkspaces = list.map(workspace => (workspace.id === workspaceId ? { ...workspace, change: true } : workspace))
+    setList(newWorkspaces)
+  }
+
+  const updateWorkspaceCompleteHandler = (workspaceId, workspaceName) => {
+    setNewWorkspaceStatus(false)
+    const newWorkspaces = list.map(workspace => (workspace.id === workspaceId ? { ...workspace, name: workspaceName, change: false } : workspace))
+    setList(newWorkspaces)
+  }
+
+  const updateWorkspaceCancelHandler = (workspaceId) => {
+    setNewWorkspaceStatus(false)
+    const newWorkspaces = list.map(workspace => (workspace.id === workspaceId ? { ...workspace, change: false } : workspace))
+    setList(newWorkspaces)
+  }
+
+  const updateWorkspaceErrorHandler = (workspaceId, workspaceName) => {
+    setNewWorkspaceStatus(true)
+    const newWorkspaces = list.map(workspace => (workspace.id === workspaceId ? { ...workspace, name: workspaceName, change: false } : workspace))
+    setList(newWorkspaces)
   }
 
   const handleUploadFileData = (event) => {
@@ -258,7 +282,9 @@ function Workspaces (props) {
                   </Box>
                 </Box>
                 <List component="nav" aria-label="main mailbox folders">
-                    {list.map(workspace => <Workspace key={workspace.id} id={workspace.id} name={workspace.name} selected={false} new={workspace.new} handleSubmit={submitHandler} handleError={createErrorHandler} handleCancel={cancelButtonClickHandler}></Workspace>)}
+                    {list.map(workspace => <Workspace key={workspace.id} id={workspace.id} name={workspace.name} selected={false} new={workspace.new} change={workspace.change}
+    handleCreateWorkspace={createWorkspaceHandler} handleCreateWorkspaceError={createWorkspaceErrorHandler} handleCreateWorkspaceCancel={createWorkspaceCancelHandler}
+    handleUpdateWorkspace={updateWorkspaceHandler} handleUpdateWorkspaceComplete={updateWorkspaceCompleteHandler} handleUpdateWorkspaceError={updateWorkspaceErrorHandler} handleUpdateWorkspaceCancel={updateWorkspaceCancelHandler}></Workspace>)}
                 </List>
             </div>
         </Box>

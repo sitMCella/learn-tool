@@ -260,7 +260,7 @@ class CardControllerTest {
         val cardContent = CardContent("request", "response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
         val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
-        Mockito.`when`(cardService.update(cardId, workspace, cardContent, user)).thenThrow(InvalidWorkspaceIdException("The provided workspace id does not match with the card workspace id"))
+        Mockito.`when`(cardService.update(cardId, workspace, cardContent, user)).thenThrow(InvalidWorkspaceIdException("The provided Workspace Id does not match with the Card Workspace Id"))
 
         mockMvc.perform(
                 MockMvcRequestBuilders.put("/api/workspaces/${workspace.id}/cards/${cardId.id}")
@@ -338,7 +338,7 @@ class CardControllerTest {
         val workspace = WorkspaceRequest("workspaceId")
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
-        Mockito.`when`(cardService.delete(cardId, workspace, user)).thenThrow(InvalidWorkspaceIdException("The provided workspace id does not match with the card workspace id"))
+        Mockito.`when`(cardService.delete(cardId, workspace, user)).thenThrow(InvalidWorkspaceIdException("The provided Workspace Id does not match with the Card Workspace Id"))
 
         mockMvc.perform(
                 MockMvcRequestBuilders.delete("/api/workspaces/${workspace.id}/cards/${cardId.id}")

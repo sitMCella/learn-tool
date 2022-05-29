@@ -31,7 +31,7 @@ paths:
                 name:
                   type: string
             example:
-              name: "workspaceTest"
+              name: "Workspace Name"
       responses:
         '201':
           description: Workspace successfully created.
@@ -41,7 +41,7 @@ paths:
               schema:
                 type: string
               example:
-                location: /workspaces/35ba10c1-8a85-49a0-9904-f25eac1b4c25
+                location: /api/workspaces/35ba10c1-8a85-49a0-9904-f25eac1b4c25
           content:
             application/json:
               schema:
@@ -106,6 +106,74 @@ paths:
         '422':
           description: >-
             The JWT Token has not been provided.
+  /api/workspaces/{workspaceId}:
+    put:
+      security:
+        - bearerAuth: [ ]
+      summary: Update a Workspace
+      operationId: update-workspace
+      tags:
+        - workspace
+      parameters:
+        - name: workspaceId
+          in: path
+          description: The Workspace ID.
+          required: true
+          schema:
+            type: string
+          example: "35ba10c1-8a85-49a0-9904-f25eac1b4c25"
+      requestBody:
+        description: Workspace create payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+            example:
+              name: "Workspace Name"
+      responses:
+        '201':
+          description: Workspace successfully updated.
+          headers:
+            location:
+              description: The location of the Workspace.
+              schema:
+                type: string
+              example:
+                location: /api/workspaces/35ba10c1-8a85-49a0-9904-f25eac1b4c25
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  userId:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+              example:
+                id: "35ba10c1-8a85-49a0-9904-f25eac1b4c25"
+                name: "Workspace Name"
+                userId:
+                  id: 1
+        '401':
+          description: The user is not authorized to perform the operation.
+        '404':
+          description: Workspace not found.
+        '422':
+          description: >-
+            Either the JWT Token has not been provided or the workspace name is empty or incorrect. Allowed characters: [a-zA-Z0-9-_ ].
+        '500':
+          description: An error occured while updating the Workspace.
   /api/workspaces/{workspaceId}/cards:
     post:
       security:

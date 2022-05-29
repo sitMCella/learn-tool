@@ -17,6 +17,11 @@ data class Workspace(
             return Workspace(workspaceId.id, workspaceCreateRequest.name, userId)
         }
 
+        fun create(workspaceRequest: WorkspaceRequest, workspaceCreateRequest: WorkspaceCreateRequest, userPrincipal: UserPrincipal): Workspace {
+            val userId = UserId.create(userPrincipal)
+            return Workspace(workspaceRequest.id, workspaceCreateRequest.name, userId)
+        }
+
         fun create(workspaceEntity: WorkspaceEntity): Workspace {
             val userId = UserId.create(workspaceEntity)
             return Workspace(workspaceEntity.id, workspaceEntity.name, userId)

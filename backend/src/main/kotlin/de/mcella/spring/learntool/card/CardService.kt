@@ -56,7 +56,7 @@ class CardService(private val cardRepository: CardRepository, private val worksp
         workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)
         val cardEntity = cardRepository.findById(cardId.id).orElseThrow { CardNotFoundException(cardId) }
         if (!CardEntity.hasWorkspaceId(cardEntity, workspaceRequest)) {
-            throw InvalidWorkspaceIdException("The provided workspace id does not match with the card workspace id")
+            throw InvalidWorkspaceIdException("The provided Workspace Id does not match with the Card Workspace Id")
         }
         val cardCreationDate = CardCreationDate.create(cardEntity)
         val updatedCard = CardEntity.create(cardId, workspaceRequest, cardContent, cardCreationDate.creationDate)
@@ -69,7 +69,7 @@ class CardService(private val cardRepository: CardRepository, private val worksp
         workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)
         val cardEntity = cardRepository.findById(cardId.id).orElseThrow { CardNotFoundException(cardId) }
         if (!CardEntity.hasWorkspaceId(cardEntity, workspaceRequest)) {
-            throw InvalidWorkspaceIdException("The provided workspace id does not match with the card workspace id")
+            throw InvalidWorkspaceIdException("The provided Workspace Id does not match with the Card Workspace Id")
         }
         cardRepository.delete(cardEntity)
     }
