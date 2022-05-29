@@ -198,40 +198,62 @@ const WorkspaceDetails = (props) => {
     setBackupCards(newCards)
     setNewCardStatus(false)
   }
+
   const createCardCancelHandler = () => {
     const newCards = cards.slice(1)
     setCards(newCards)
     setNewCardStatus(false)
   }
+
   const createCardErrorHandler = () => {
     const newCards = cards.slice(1)
     setCards(newCards)
     setNewCardStatus(false)
+    setWorkspaceDetailsError(true)
+    setWorkspaceDetailsErrorMessage('Cannot create the Card.')
   }
+
   const updateCardHandler = (cardId) => {
     setNewCardStatus(true)
     const newCards = cards.map(card => (card.id === cardId ? { ...card, change: true } : card))
     setCards(newCards)
   }
+
   const updateCardCompleteHandler = (cardId, question, response) => {
     setNewCardStatus(false)
     const newCards = cards.map(card => (card.id === cardId ? { ...card, question: question, response: response, change: false } : card))
     setCards(newCards)
   }
+
   const updateCardCancelHandler = (cardId) => {
     setNewCardStatus(false)
     const newCards = cards.map(card => (card.id === cardId ? { ...card, change: false } : card))
     setCards(newCards)
   }
+
   const updateCardErrorHandler = (cardId, question, response) => {
     setNewCardStatus(true)
     const newCards = cards.map(card => (card.id === cardId ? { ...card, question: question, response: response, change: false } : card))
     setCards(newCards)
+    setWorkspaceDetailsError(true)
+    setWorkspaceDetailsErrorMessage('Cannot update the Card.')
   }
+
   const deleteCardCompleteHandler = (cardId) => {
     const index = cards.map(card => { return card.id }).indexOf(cardId)
     const newCards = [...cards.slice(0, index), ...cards.slice(index + 1)]
     setCards(newCards)
+  }
+
+  const updateDeleteErrorHandler = (errCode) => {
+    setWorkspaceDetailsError(true)
+    if (errCode === '422') {
+      setWorkspaceDetailsErrorMessage('Cannot delete the Card. Please refresh the page.')
+    } else if (errCode === '404') {
+      setWorkspaceDetailsErrorMessage('Cannot delete the Card. The Workspace does not exist.')
+    } else {
+      setWorkspaceDetailsErrorMessage('Cannot delete the Card.')
+    }
   }
 
   const handleExport = () => {
@@ -425,9 +447,9 @@ const WorkspaceDetails = (props) => {
                 </Box>
                 <List component="nav" aria-label="cards">
                     {cards.map(card => <Card key={card.id} workspaceId={params.id} id={card.id} question={card.question} response={card.response} selected={false} new={card.new} change={card.change}
-    handleCreateCard={createCardHandler} handleCreateCardCancel={createCardCancelHandler} handleUpdateCard={updateCardHandler} handleCraeteCardError={createCardErrorHandler}
-    handleUpdateCardComplete={updateCardCompleteHandler} handleUpdateCardCancel={updateCardCancelHandler} handleUpdateCardError={updateCardErrorHandler}
-    handleDeleteCardComplete={deleteCardCompleteHandler}/>)}
+    handleCreateCard={createCardHandler} handleCreateCardCancel={createCardCancelHandler} handleCreateCardError={createCardErrorHandler}
+    handleUpdateCard={updateCardHandler} handleUpdateCardComplete={updateCardCompleteHandler} handleUpdateCardCancel={updateCardCancelHandler} handleUpdateCardError={updateCardErrorHandler}
+    handleDeleteCardComplete={deleteCardCompleteHandler} handleDeleteCardError={updateDeleteErrorHandler}/>)}
                 </List>
                 <Pagination count={pagesCount} defaultPage={1} siblingCount={0} boundaryCount={2} onChange={handlePaginationChange} />
             </Box>

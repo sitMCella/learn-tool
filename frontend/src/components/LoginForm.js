@@ -45,6 +45,7 @@ function LoginForm (props) {
         setLoginError(false)
         localStorage.setItem(ACCESS_TOKEN, response.accessToken)
         console.log('You are successfully logged in.')
+        props.loadCurrentLoggedInUser()
         props.history.push({
           pathname: '/',
           key: Math.random()

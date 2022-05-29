@@ -14,7 +14,6 @@ import de.mcella.spring.learntool.workspace.dto.WorkspaceId
 import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
-import java.util.Collections
 import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -98,8 +97,8 @@ class WorkspaceIntegrationTest {
         scope.add("user")
         scope.add("test@google.com")
         val token = DefaultOAuth2AccessToken("FOO")
-        val oAuth2Request = OAuth2Request(null, "1", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), true, scope, null, null, null, null)
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val oAuth2Request = OAuth2Request(null, "1", listOf(SimpleGrantedAuthority("ROLE_USER")), true, scope, null, null, null, null)
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val auth = OAuth2Authentication(oAuth2Request, TestingAuthenticationToken(userPrincipal, null, "ROLE_USER"))
         tokenStore.storeAccessToken(token, auth)
     }
@@ -121,9 +120,53 @@ class WorkspaceIntegrationTest {
         assertTrue { workspaces.size == 1 }
         val workspaceEntity = WorkspaceEntity(workspaces[0].id, "Workspace Name", userId.id)
         assertTrue { workspaces.contains(workspaceEntity) }
-        val userPrincipal = UserPrincipal(userId.id, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(userId.id, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val workspace = Workspace.create(WorkspaceId(workspaces[0].id), workspaceCreateRequest, userPrincipal)
         assertEquals(workspace, responseEntity)
+    }
+
+    @Test
+    fun `given a Workspace create request, when a PUT REST request is sent to the workspaces endpoint, then the Workspace is updated and the http response body contains the Workspace`() {
+        val userId = UserId(1L)
+        val user = UserEntity(userId.id, "user", "test@google.com", "", true, "", AuthProvider.local, "")
+        userRepository.save(user)
+        val headers = HttpHeaders()
+        headers.add(HttpHeaders.AUTHORIZATION, "Bearer FOO")
+        headers.contentType = MediaType.APPLICATION_JSON
+        val workspaceId = WorkspaceId(UUID.randomUUID().toString())
+        val initialWorkspace = Workspace(workspaceId.id, "Workspace Name", userId)
+        val initialWorkspaceEntity = WorkspaceEntity.create(initialWorkspace)
+        workspaceRepository.save(initialWorkspaceEntity)
+        val workspaceCreateRequest = WorkspaceCreateRequest("Workspace Update Name")
+        val request = HttpEntity(workspaceCreateRequest, headers)
+
+        val responseEntity = testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/${workspaceId.id}"), HttpMethod.PUT, request, Workspace::class.java)
+
+        assertEquals(HttpStatus.OK, responseEntity.statusCode)
+        val workspaces = workspaceRepository.findAll()
+        assertTrue { workspaces.size == 1 }
+        val workspaceEntity = WorkspaceEntity(workspaceId.id, workspaceCreateRequest.name, userId.id)
+        assertTrue { workspaces.contains(workspaceEntity) }
+    }
+
+    @Test
+    fun `given a Workspace Id, when a DELETE REST request is sent to the workspaces endpoint, then the Workspace is deleted`() {
+        val userId = UserId(1L)
+        val user = UserEntity(userId.id, "user", "test@google.com", "", true, "", AuthProvider.local, "")
+        userRepository.save(user)
+        val headers = HttpHeaders()
+        headers.add(HttpHeaders.AUTHORIZATION, "Bearer FOO")
+        headers.contentType = MediaType.APPLICATION_JSON
+        val workspaceId = WorkspaceId(UUID.randomUUID().toString())
+        val workspace = Workspace(workspaceId.id, "Workspace Name", userId)
+        val workspaceEntity = WorkspaceEntity.create(workspace)
+        workspaceRepository.save(workspaceEntity)
+        val request = HttpEntity(null, headers)
+
+        testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/${workspaceId.id}"), HttpMethod.DELETE, request, Object::class.java)
+
+        val workspaces = workspaceRepository.findAll()
+        assertTrue { workspaces.size == 0 }
     }
 
     @Test

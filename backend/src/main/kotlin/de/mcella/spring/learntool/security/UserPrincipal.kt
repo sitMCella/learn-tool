@@ -1,7 +1,6 @@
 package de.mcella.spring.learntool.security
 
 import de.mcella.spring.learntool.user.storage.UserEntity
-import java.util.Collections
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.NotNull
 import org.springframework.security.core.GrantedAuthority
@@ -18,12 +17,12 @@ data class UserPrincipal(
 ) : OAuth2User, UserDetails {
     companion object {
         fun create(userEntity: UserEntity): UserPrincipal {
-            val authorities = Collections.singletonList(SimpleGrantedAuthority("ROLE_USER"))
+            val authorities = listOf(SimpleGrantedAuthority("ROLE_USER"))
             return UserPrincipal(userEntity.id, userEntity.email, userEntity.password, authorities, attributes = emptyMap())
         }
 
         fun create(userEntity: UserEntity, attributes: Map<String, Any>): UserPrincipal {
-            val authorities = Collections.singletonList(SimpleGrantedAuthority("ROLE_USER"))
+            val authorities = listOf(SimpleGrantedAuthority("ROLE_USER"))
             return UserPrincipal(userEntity.id, userEntity.email, userEntity.password, authorities, attributes = attributes)
         }
     }

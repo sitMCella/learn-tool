@@ -15,7 +15,6 @@ import de.mcella.spring.learntool.workspace.WorkspaceService
 import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceIdException
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
-import java.util.Collections
 import java.util.Optional
 import kotlin.test.assertEquals
 import org.junit.Test
@@ -41,7 +40,7 @@ class CardServiceTest {
     fun `given a Workspace request and a Card content with empty question, when creating the Card, then throw IllegalArgumentException`() {
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val cardContent = CardContent("", "response")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
 
         cardService.create(workspaceRequest, cardContent, userPrincipal)
     }
@@ -50,7 +49,7 @@ class CardServiceTest {
     fun `given a Workspace request and a Card content with empty response, when creating the Card, then throw IllegalArgumentException`() {
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val cardContent = CardContent("question", "")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
 
         cardService.create(workspaceRequest, cardContent, userPrincipal)
     }
@@ -59,7 +58,7 @@ class CardServiceTest {
     fun `given a Workspace request and a Card content, when creating the Card and the Workspace does not exist, then throw WorkspaceNotExistsException`() {
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val cardContent = CardContent("question", "response")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(false)
 
         cardService.create(workspaceRequest, cardContent, userPrincipal)
@@ -69,7 +68,7 @@ class CardServiceTest {
     fun `given a Workspace request and a Card content, when creating the Card and the user does not own the Workspace, then throw UserNotAuthorizedException`() {
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val cardContent = CardContent("question", "response")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(true)
         Mockito.`when`(workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)).thenThrow(UserNotAuthorizedException(userPrincipal))
 
@@ -81,7 +80,7 @@ class CardServiceTest {
         val cardId = CardId("cardIdTest")
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val cardContent = CardContent("question", "response")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(true)
         Mockito.`when`(workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)).thenReturn(true)
         Mockito.`when`(cardRepository.existsById(anyString())).thenReturn(true)
@@ -95,7 +94,7 @@ class CardServiceTest {
         val cardId = CardId("cardIdTest")
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val cardContent = CardContent("question", "response")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(true)
         Mockito.`when`(workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)).thenReturn(true)
         Mockito.`when`(cardRepository.existsById(anyString())).thenReturn(false)
@@ -117,7 +116,7 @@ class CardServiceTest {
     @Test(expected = IllegalArgumentException::class)
     fun `given a Card with empty id, when creating the Card, then throw IllegalArgumentException`() {
         val card = Card("", "workspaceId", "question", "response")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
 
         cardService.create(card, userPrincipal)
     }
@@ -125,7 +124,7 @@ class CardServiceTest {
     @Test(expected = IllegalArgumentException::class)
     fun `given a Card with empty workspace id, when creating the Card, then throw IllegalArgumentException`() {
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", "", "question", "response")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
 
         cardService.create(card, userPrincipal)
     }
@@ -133,7 +132,7 @@ class CardServiceTest {
     @Test(expected = IllegalArgumentException::class)
     fun `given a Card with empty question, when creating the Card, then throw IllegalArgumentException`() {
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", "workspaceId", "", "response")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
 
         cardService.create(card, userPrincipal)
     }
@@ -141,7 +140,7 @@ class CardServiceTest {
     @Test(expected = IllegalArgumentException::class)
     fun `given a Card with empty response, when creating the Card, then throw IllegalArgumentException`() {
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", "workspaceId", "question", "")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
 
         cardService.create(card, userPrincipal)
     }
@@ -150,7 +149,7 @@ class CardServiceTest {
     fun `given a Card, when creating the Card and the Workspace does not exist, then throw WorkspaceNotExistsException`() {
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspaceRequest.id, "question", "response")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(false)
 
         cardService.create(card, userPrincipal)
@@ -161,7 +160,7 @@ class CardServiceTest {
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val card = Card(cardId.id, workspaceRequest.id, "question", "response")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(true)
         Mockito.`when`(cardRepository.existsById(cardId.id)).thenReturn(true)
 
@@ -173,7 +172,7 @@ class CardServiceTest {
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val originalCard = Card(cardId.id, workspaceRequest.id, "question", "response")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(true)
         Mockito.`when`(cardRepository.existsById(cardId.id)).thenReturn(false)
         Mockito.`when`(cardRepository.save(any(CardEntity::class.java))).thenReturn(CardEntity(cardId.id, workspaceRequest.id, "question", "response"))
@@ -196,7 +195,7 @@ class CardServiceTest {
         val cardId = CardId("cardIdTest")
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val cardContent = CardContent("question", "response")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(false)
 
         cardService.update(cardId, workspaceRequest, cardContent, userPrincipal)
@@ -207,7 +206,7 @@ class CardServiceTest {
         val cardId = CardId("cardIdTest")
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val cardContent = CardContent("question", "response")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(true)
         Mockito.`when`(workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)).thenThrow(UserNotAuthorizedException(userPrincipal))
 
@@ -219,7 +218,7 @@ class CardServiceTest {
         val cardId = CardId("cardIdTest")
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val cardContent = CardContent("question", "response")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(true)
         Mockito.`when`(workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)).thenReturn(true)
         Mockito.`when`(cardRepository.findById(cardId.id)).thenReturn(Optional.empty())
@@ -232,7 +231,7 @@ class CardServiceTest {
         val cardId = CardId("cardIdTest")
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val cardContent = CardContent("question", "response")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val wrongWorkspace = WorkspaceRequest("wrongWorkspaceId")
         Mockito.`when`(workspaceService.exists(wrongWorkspace)).thenReturn(true)
         Mockito.`when`(workspaceService.verifyIfUserIsAuthorized(wrongWorkspace, userPrincipal)).thenReturn(true)
@@ -249,7 +248,7 @@ class CardServiceTest {
         val cardId = CardId("cardIdTest")
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val cardContent = CardContent("question", "response")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(true)
         Mockito.`when`(workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)).thenReturn(true)
         val cardEntity = CardEntity.create(cardId, workspaceRequest, cardContent)
@@ -274,7 +273,7 @@ class CardServiceTest {
     fun `given a Card Id and a Workspace request, when deleting a Card and the Workspace does not exist, then throw WorkspaceNotExistsException`() {
         val cardId = CardId("cardIdTest")
         val workspaceRequest = WorkspaceRequest("workspaceId")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(false)
 
         cardService.delete(cardId, workspaceRequest, userPrincipal)
@@ -284,7 +283,7 @@ class CardServiceTest {
     fun `given a Card Id and a Workspace request, when deleting a Card and the User does not own the Workspace, then throw UserNotAuthorizedException`() {
         val cardId = CardId("cardIdTest")
         val workspaceRequest = WorkspaceRequest("workspaceId")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(true)
         Mockito.`when`(workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)).thenThrow(UserNotAuthorizedException(userPrincipal))
 
@@ -295,7 +294,7 @@ class CardServiceTest {
     fun `given a Card Id and a Workspace request, when deleting a non existent Card, then throw CardNotFoundException`() {
         val cardId = CardId("cardIdTest")
         val workspaceRequest = WorkspaceRequest("workspaceId")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(true)
         Mockito.`when`(workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)).thenReturn(true)
         Mockito.`when`(cardRepository.findById(cardId.id)).thenReturn(Optional.empty())
@@ -308,7 +307,7 @@ class CardServiceTest {
         val cardId = CardId("cardIdTest")
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val cardContent = CardContent("question", "response")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val wrongWorkspaceRequest = WorkspaceRequest("wrongWorkspaceId")
         Mockito.`when`(workspaceService.exists(wrongWorkspaceRequest)).thenReturn(true)
         Mockito.`when`(workspaceService.verifyIfUserIsAuthorized(wrongWorkspaceRequest, userPrincipal)).thenReturn(true)
@@ -323,7 +322,7 @@ class CardServiceTest {
         val cardId = CardId("cardIdTest")
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val cardContent = CardContent("question", "response")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(true)
         Mockito.`when`(workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)).thenReturn(true)
         val cardEntity = CardEntity.create(cardId, workspaceRequest, cardContent)
@@ -338,7 +337,7 @@ class CardServiceTest {
     fun `given a Workspace request, when retrieving the Cards by Workspace and the Workspace does not exist, then throw WorkspaceNotExistsException`() {
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val cardPagination = CardPagination(0, 20)
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(false)
 
         cardService.findByWorkspace(workspaceRequest, cardPagination, userPrincipal)
@@ -348,7 +347,7 @@ class CardServiceTest {
     fun `given a Workspace request, when retrieving the Cards by Workspace and the User does not own the Workspace, then throw UserNotAuthorizedException`() {
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val cardPagination = CardPagination(0, 20)
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(true)
         Mockito.`when`(workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)).thenThrow(UserNotAuthorizedException(userPrincipal))
 
@@ -360,7 +359,7 @@ class CardServiceTest {
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val cardPagination = CardPagination(0, 20)
         val pageRequest = PageRequest.of(cardPagination.page, cardPagination.size)
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val cardEntity = CardEntity(cardId.id, "workspaceId", "question", "response")
         val cardEntities = listOf(cardEntity)
@@ -379,7 +378,7 @@ class CardServiceTest {
     @Test(expected = WorkspaceNotExistsException::class)
     fun `given a Workspace request, when retrieving the count of Cards by Workspace and the Workspace does not exist, then throw WorkspaceNotExistsException`() {
         val workspaceRequest = WorkspaceRequest("workspaceId")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(false)
 
         cardService.countByWorkspace(workspaceRequest, userPrincipal)
@@ -388,7 +387,7 @@ class CardServiceTest {
     @Test
     fun `given a Workspace request, when retrieving the count of Cards by Workspace, then call the method countByWorkspaceId of CardRepository and return the count of Cards`() {
         val workspaceRequest = WorkspaceRequest("workspaceId")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(true)
         Mockito.`when`(cardRepository.countByWorkspaceId(workspaceRequest.id)).thenReturn(1L)
 

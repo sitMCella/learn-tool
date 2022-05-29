@@ -9,7 +9,6 @@ import de.mcella.spring.learntool.user.exceptions.UserNotAuthorizedException
 import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import java.io.ByteArrayInputStream
-import java.util.Collections
 import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.mockito.Mockito
@@ -27,7 +26,7 @@ class CardImportServiceTest {
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val streamContent = "question,response\nquestionTest1,responseTest1\nquestionTest2,responseTest2"
         val cardContent = CardContent("questionTest1", "responseTest1")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(cardService.create(workspaceRequest, cardContent, userPrincipal)).thenThrow(WorkspaceNotExistsException(workspaceRequest))
 
         cardImportService.createMany(workspaceRequest, ByteArrayInputStream(streamContent.toByteArray()), userPrincipal)
@@ -38,7 +37,7 @@ class CardImportServiceTest {
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val streamContent = "question,response\nquestionTest1,responseTest1\nquestionTest2,responseTest2"
         val cardContent = CardContent("questionTest1", "responseTest1")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(cardService.create(workspaceRequest, cardContent, userPrincipal)).thenThrow(CardAlreadyExistsException(CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")))
 
         cardImportService.createMany(workspaceRequest, ByteArrayInputStream(streamContent.toByteArray()), userPrincipal)
@@ -49,7 +48,7 @@ class CardImportServiceTest {
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val streamContent = "question,response\nquestionTest1,responseTest1\nquestionTest2,responseTest2"
         val cardContent = CardContent("questionTest1", "responseTest1")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(cardService.create(workspaceRequest, cardContent, userPrincipal)).thenThrow(UserNotAuthorizedException(userPrincipal))
 
         cardImportService.createMany(workspaceRequest, ByteArrayInputStream(streamContent.toByteArray()), userPrincipal)
@@ -59,7 +58,7 @@ class CardImportServiceTest {
     fun `given a Workspace request and a Cards stream content, when creating the Cards, then call the method create of CardService`() {
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val streamContent = "question,response\nquestionTest1,responseTest1\nquestionTest2,responseTest2"
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
 
         cardImportService.createMany(workspaceRequest, ByteArrayInputStream(streamContent.toByteArray()), userPrincipal)
 

@@ -6,7 +6,6 @@ import de.mcella.spring.learntool.user.exceptions.UserNotAuthorizedException
 import de.mcella.spring.learntool.workspace.WorkspaceService
 import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
-import java.util.Collections
 import javax.persistence.EntityManager
 import org.junit.Test
 import org.junit.experimental.categories.Category
@@ -26,7 +25,7 @@ class CardSearchServiceTest {
     fun `given a Workspace request and a SearchPattern content, when searching the Cards and the Workspace does not exist, then throw WorkspaceNotExistsException`() {
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val searchPattern = SearchPattern("content")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(false)
 
         cardSearchService.searchCards(workspaceRequest, searchPattern, userPrincipal)
@@ -36,7 +35,7 @@ class CardSearchServiceTest {
     fun `given a Workspace request and a SearchPattern content, when searching the Cards and the User does not own the Workspace, then throw UserNotAuthorizedException`() {
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val searchPattern = SearchPattern("content")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(true)
         Mockito.`when`(workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)).thenThrow(UserNotAuthorizedException(userPrincipal))
 

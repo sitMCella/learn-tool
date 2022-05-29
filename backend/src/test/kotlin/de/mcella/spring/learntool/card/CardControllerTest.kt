@@ -17,7 +17,6 @@ import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceIdException
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import java.lang.IllegalArgumentException
-import java.util.Collections
 import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
@@ -74,7 +73,7 @@ class CardControllerTest {
         val cardContent = CardContent("question", "response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspace.id, "question", "response")
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(cardService.create(workspace, cardContent, user)).thenReturn(card)
 
         mockMvc.perform(
@@ -107,7 +106,7 @@ class CardControllerTest {
         val workspace = WorkspaceRequest("workspaceId")
         val cardContent = CardContent("", "response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(cardService.create(workspace, cardContent, user)).thenThrow(IllegalArgumentException::class.java)
 
         mockMvc.perform(
@@ -123,7 +122,7 @@ class CardControllerTest {
         val workspace = WorkspaceRequest("workspaceId")
         val cardContent = CardContent("request", "response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(cardService.create(workspace, cardContent, user)).thenThrow(WorkspaceNotExistsException(workspace))
 
         mockMvc.perform(
@@ -139,7 +138,7 @@ class CardControllerTest {
         val workspace = WorkspaceRequest("workspaceId")
         val cardContent = CardContent("request", "response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(cardService.create(workspace, cardContent, user)).thenThrow(CardAlreadyExistsException(CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")))
 
         mockMvc.perform(
@@ -155,7 +154,7 @@ class CardControllerTest {
         val workspace = WorkspaceRequest("workspaceId")
         val cardContent = CardContent("request", "response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(cardService.create(workspace, cardContent, user)).thenThrow(UserNotAuthorizedException(user))
 
         mockMvc.perform(
@@ -172,7 +171,7 @@ class CardControllerTest {
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val cardContent = CardContent("updated question", "updated response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val card = Card(cardId.id, workspace.id, "updated question", "updated response")
         Mockito.`when`(cardService.update(cardId, workspace, cardContent, user)).thenReturn(card)
 
@@ -208,7 +207,7 @@ class CardControllerTest {
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val cardContent = CardContent("", "response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(cardService.update(cardId, workspace, cardContent, user)).thenThrow(IllegalArgumentException::class.java)
 
         mockMvc.perform(
@@ -225,7 +224,7 @@ class CardControllerTest {
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val cardContent = CardContent("request", "response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(cardService.update(cardId, workspace, cardContent, user)).thenThrow(WorkspaceNotExistsException(workspace))
 
         mockMvc.perform(
@@ -242,7 +241,7 @@ class CardControllerTest {
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val cardContent = CardContent("request", "response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(cardService.update(cardId, workspace, cardContent, user)).thenThrow(UserNotAuthorizedException(user))
 
         mockMvc.perform(
@@ -259,8 +258,8 @@ class CardControllerTest {
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val cardContent = CardContent("request", "response")
         val contentBody = objectMapper.writeValueAsString(cardContent)
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
-        Mockito.`when`(cardService.update(cardId, workspace, cardContent, user)).thenThrow(InvalidWorkspaceIdException("The provided workspace id does not match with the card workspace id"))
+        val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        Mockito.`when`(cardService.update(cardId, workspace, cardContent, user)).thenThrow(InvalidWorkspaceIdException("The provided Workspace Id does not match with the Card Workspace Id"))
 
         mockMvc.perform(
                 MockMvcRequestBuilders.put("/api/workspaces/${workspace.id}/cards/${cardId.id}")
@@ -274,7 +273,7 @@ class CardControllerTest {
     fun `given a Workspace id and a Card Id, when sending a DELETE REST request to the cards endpoint, then the delete method of CardService is called`() {
         val workspace = WorkspaceRequest("workspaceId")
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
 
         mockMvc.perform(
                 MockMvcRequestBuilders.delete("/api/workspaces/${workspace.id}/cards/${cardId.id}")
@@ -298,7 +297,7 @@ class CardControllerTest {
     fun `given a Workspace id and a Card Id, when sending a DELETE REST request to the cards endpoint and the CardService delete method throws IllegalArgumentException, then an UNPROCESSABLE_ENTITY http status response is returned`() {
         val workspace = WorkspaceRequest("workspaceId")
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(cardService.delete(cardId, workspace, user)).thenThrow(IllegalArgumentException::class.java)
 
         mockMvc.perform(
@@ -311,7 +310,7 @@ class CardControllerTest {
     fun `given a Workspace id and a Card Id, when sending a DELETE REST request to the cards endpoint and the Workspace does not exist, then a NOT_FOUND http status response is returned`() {
         val workspace = WorkspaceRequest("workspaceTest")
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(cardService.delete(cardId, workspace, user)).thenThrow(WorkspaceNotExistsException(workspace))
 
         mockMvc.perform(
@@ -324,7 +323,7 @@ class CardControllerTest {
     fun `given a Workspace id and a Card Id, when sending a DELETE REST request to the cards endpoint and the cardService update method throws UserNotAuthorizedException, then an UNAUTHORIZED http status response is returned`() {
         val workspace = WorkspaceRequest("workspaceId")
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(cardService.delete(cardId, workspace, user)).thenThrow(UserNotAuthorizedException(user))
 
         mockMvc.perform(
@@ -337,8 +336,8 @@ class CardControllerTest {
     fun `given a Workspace id and a Card Id, when sending a DELETE REST request to the cards endpoint and the cardService update method throws InvalidWorkspaceIdException, then an UNPROCESSABLE_ENTITY http status response is returned`() {
         val workspace = WorkspaceRequest("workspaceId")
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
-        Mockito.`when`(cardService.delete(cardId, workspace, user)).thenThrow(InvalidWorkspaceIdException("The provided workspace id does not match with the card workspace id"))
+        val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        Mockito.`when`(cardService.delete(cardId, workspace, user)).thenThrow(InvalidWorkspaceIdException("The provided Workspace Id does not match with the Card Workspace Id"))
 
         mockMvc.perform(
                 MockMvcRequestBuilders.delete("/api/workspaces/${workspace.id}/cards/${cardId.id}")
@@ -350,7 +349,7 @@ class CardControllerTest {
     fun `given a Workspace id, when sending a GET REST request to the cards endpoint without pagination query parameters, then the findByWorkspace method of CardService is called and the retrieved Cards are returned`() {
         val workspace = WorkspaceRequest("workspaceId")
         val cardPagination = CardPagination(0, 20)
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspace.id, "question", "response content")
         val cards = listOf(card)
         Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination, user)).thenReturn(cards)
@@ -377,7 +376,7 @@ class CardControllerTest {
     fun `given a Workspace id, when sending a GET REST request to the cards endpoint and the CardService findByWorkspace method throws WorkspaceNotExistsException exception, then an INTERNAL_SERVER_ERROR http status response is returned`() {
         val workspace = WorkspaceRequest("workspaceId")
         val cardPagination = CardPagination(0, 20)
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination, user)).thenThrow(WorkspaceNotExistsException(workspace))
 
         mockMvc.perform(
@@ -390,7 +389,7 @@ class CardControllerTest {
     fun `given a Workspace id, when sending a GET REST request to the cards endpoint and the cardService findByWorkspace method throws UserNotAuthorizedException, then an UNAUTHORIZED http status response is returned`() {
         val workspace = WorkspaceRequest("workspaceId")
         val cardPagination = CardPagination(0, 20)
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination, user)).thenThrow(UserNotAuthorizedException(user))
 
         mockMvc.perform(
@@ -403,7 +402,7 @@ class CardControllerTest {
     fun `given a Workspace id, when sending a GET REST request to the cards endpoint with page query parameter, then the findByWorkspace method of CardService is called and the retrieved Cards are returned`() {
         val workspace = WorkspaceRequest("workspaceId")
         val cardPagination = CardPagination(2, 20)
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspace.id, "question", "response content")
         val cards = listOf(card)
         Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination, user)).thenReturn(cards)
@@ -421,7 +420,7 @@ class CardControllerTest {
     fun `given a Workspace id, when sending a GET REST request to the cards endpoint with page and size query parameters, then the findByWorkspace method of CardService is called and the retrieved Cards are returned`() {
         val workspace = WorkspaceRequest("workspaceId")
         val cardPagination = CardPagination(0, 10)
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspace.id, "question", "response content")
         val cards = listOf(card)
         Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination, user)).thenReturn(cards)
@@ -440,7 +439,7 @@ class CardControllerTest {
     fun `given a Workspace id, when sending a GET REST request to the cards endpoint with page and size query parameters, then the countByWorkspace method of CardService is called and the count of Cards is returned as Header`() {
         val workspace = WorkspaceRequest("workspaceId")
         val cardPagination = CardPagination(0, 10)
-        val user = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspace.id, "question", "response content")
         val cards = listOf(card)
         Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination, user)).thenReturn(cards)

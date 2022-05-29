@@ -1,7 +1,7 @@
 package de.mcella.spring.learntool.workspace
 
 import de.mcella.spring.learntool.workspace.dto.WorkspaceCreateRequest
-import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceIdException
+import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceNameException
 import java.util.regex.Pattern
 
 object WorkspaceNameValidator {
@@ -15,7 +15,7 @@ object WorkspaceNameValidator {
 
     fun validate(workspaceCreateRequest: WorkspaceCreateRequest) {
         if (!isValid(workspaceCreateRequest.name))
-            throw InvalidWorkspaceIdException("Invalid workspace name: ${workspaceCreateRequest.name}")
+            throw InvalidWorkspaceNameException("Invalid workspace name: ${workspaceCreateRequest.name}")
     }
 
     private fun isValid(workspaceName: String): Boolean {

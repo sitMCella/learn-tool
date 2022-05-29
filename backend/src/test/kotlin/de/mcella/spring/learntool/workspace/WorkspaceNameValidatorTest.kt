@@ -2,7 +2,7 @@ package de.mcella.spring.learntool.workspace
 
 import de.mcella.spring.learntool.UnitTest
 import de.mcella.spring.learntool.workspace.dto.WorkspaceCreateRequest
-import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceIdException
+import de.mcella.spring.learntool.workspace.exceptions.InvalidWorkspaceNameException
 import org.junit.Test
 import org.junit.experimental.categories.Category
 
@@ -51,13 +51,13 @@ class WorkspaceNameValidatorTest {
         WorkspaceNameValidator.validate(workspaceCreateRequest)
     }
 
-    @Test(expected = InvalidWorkspaceIdException::class)
+    @Test(expected = InvalidWorkspaceNameException::class)
     fun `given a Workspace name with slash characters, when validating the name, then throw InvalidWorkspaceNameException exception`() {
         val workspaceCreateRequest = WorkspaceCreateRequest("Workspace/test/1")
         WorkspaceNameValidator.validate(workspaceCreateRequest)
     }
 
-    @Test(expected = InvalidWorkspaceIdException::class)
+    @Test(expected = InvalidWorkspaceNameException::class)
     fun `given a Workspace name with backslash characters, when validating the name, then throw InvalidWorkspaceNameException exception`() {
         val workspaceCreateRequest = WorkspaceCreateRequest("Workspace\\test\\1")
         WorkspaceNameValidator.validate(workspaceCreateRequest)
