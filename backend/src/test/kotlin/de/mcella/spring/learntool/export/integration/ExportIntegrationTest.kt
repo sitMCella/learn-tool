@@ -19,7 +19,6 @@ import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
 import java.time.Instant
-import java.util.Collections
 import java.util.zip.ZipInputStream
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -111,8 +110,8 @@ class ExportIntegrationTest {
         scope.add("user")
         scope.add("test@google.com")
         val token = DefaultOAuth2AccessToken("FOO")
-        val oAuth2Request = OAuth2Request(null, "1", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), true, scope, null, null, null, null)
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val oAuth2Request = OAuth2Request(null, "1", listOf(SimpleGrantedAuthority("ROLE_USER")), true, scope, null, null, null, null)
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val auth = OAuth2Authentication(oAuth2Request, TestingAuthenticationToken(userPrincipal, null, "ROLE_USER"))
         tokenStore.storeAccessToken(token, auth)
     }

@@ -14,7 +14,6 @@ import de.mcella.spring.learntool.workspace.dto.WorkspaceId
 import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
-import java.util.Collections
 import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -98,8 +97,8 @@ class WorkspaceIntegrationTest {
         scope.add("user")
         scope.add("test@google.com")
         val token = DefaultOAuth2AccessToken("FOO")
-        val oAuth2Request = OAuth2Request(null, "1", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), true, scope, null, null, null, null)
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val oAuth2Request = OAuth2Request(null, "1", listOf(SimpleGrantedAuthority("ROLE_USER")), true, scope, null, null, null, null)
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val auth = OAuth2Authentication(oAuth2Request, TestingAuthenticationToken(userPrincipal, null, "ROLE_USER"))
         tokenStore.storeAccessToken(token, auth)
     }
@@ -121,7 +120,7 @@ class WorkspaceIntegrationTest {
         assertTrue { workspaces.size == 1 }
         val workspaceEntity = WorkspaceEntity(workspaces[0].id, "Workspace Name", userId.id)
         assertTrue { workspaces.contains(workspaceEntity) }
-        val userPrincipal = UserPrincipal(userId.id, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(userId.id, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val workspace = Workspace.create(WorkspaceId(workspaces[0].id), workspaceCreateRequest, userPrincipal)
         assertEquals(workspace, responseEntity)
     }

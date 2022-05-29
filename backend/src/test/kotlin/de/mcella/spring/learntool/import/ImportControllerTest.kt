@@ -6,7 +6,6 @@ import de.mcella.spring.learntool.config.AppProperties
 import de.mcella.spring.learntool.security.CustomUserDetailsService
 import de.mcella.spring.learntool.security.TokenAuthenticationFilter
 import de.mcella.spring.learntool.security.UserPrincipal
-import java.util.Collections
 import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
@@ -59,7 +58,7 @@ class ImportControllerTest {
                 MockMvcRequestBuilders.multipart("/api/workspaces/import").file(backup)
         ).andExpect(MockMvcResultMatchers.status().isOk)
 
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.verify(importService).importBackup(backup, userPrincipal)
     }
 }

@@ -10,7 +10,6 @@ import de.mcella.spring.learntool.user.exceptions.UserNotAuthorizedException
 import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import de.mcella.spring.learntool.workspace.exceptions.WorkspaceNotExistsException
 import java.io.File
-import java.util.Collections
 import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
@@ -58,7 +57,7 @@ class ExportControllerTest {
     @WithMockUser
     fun `given a Workspace Id, when sending a GET REST request to the export endpoint and the Workspace exists, then the exportBackup method of ExportService is called and a backup file is returned`() {
         val workspaceRequest = WorkspaceRequest("workspaceId")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val backup = File.createTempFile("backup", ".zip")
         Mockito.`when`(exportService.exportBackup(workspaceRequest, userPrincipal)).thenReturn(backup)
 
@@ -84,7 +83,7 @@ class ExportControllerTest {
     @WithMockUser
     fun `given a Workspace Id, when sending a GET REST request to the export endpoint and the exportBackup method of the ExportService throws UserNotAuthorizedException, then an UNAUTHORIZED http status response is returned`() {
         val workspaceRequest = WorkspaceRequest("workspaceId")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(exportService.exportBackup(workspaceRequest, userPrincipal)).thenThrow(UserNotAuthorizedException(userPrincipal))
 
         mockMvc.perform(
@@ -96,7 +95,7 @@ class ExportControllerTest {
     @WithMockUser
     fun `given a Workspace Id, when sending a GET REST request to the export endpoint and the Workspace does not exist, then a NOT_FOUND http status response is returned`() {
         val workspaceRequest = WorkspaceRequest("workspaceId")
-        val userPrincipal = UserPrincipal(1L, "test@google.com", "password", Collections.singletonList(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
+        val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(exportService.exportBackup(workspaceRequest, userPrincipal)).thenThrow(WorkspaceNotExistsException(workspaceRequest))
 
         mockMvc.perform(
