@@ -1,6 +1,7 @@
 package de.mcella.spring.learntool.export
 
 import de.mcella.spring.learntool.card.CardService
+import de.mcella.spring.learntool.card.CardSort
 import de.mcella.spring.learntool.learn.LearnService
 import de.mcella.spring.learntool.security.UserPrincipal
 import de.mcella.spring.learntool.workspace.WorkspaceService
@@ -28,23 +29,28 @@ class ExportService(
 
     fun exportBackup(workspaceRequest: WorkspaceRequest, userPrincipal: UserPrincipal): File {
         val tempDirectory = Files.createTempDirectory("backup")
-        val workspaceFile = exportWorkspaceBackup(workspaceRequest, tempDirectory, userPrincipal)
-        val cardsFile = exportCardsBackup(workspaceRequest, tempDirectory, userPrincipal)
-        val learnCardsFile = exportLearnCardsBackup(workspaceRequest, tempDirectory)
-        val files = arrayOf(workspaceFile.absolutePath, cardsFile.absolutePath, learnCardsFile.absolutePath)
-        val backup: File = File.createTempFile("backup", ".zip")
-        ZipOutputStream(BufferedOutputStream(FileOutputStream(backup))).use { out ->
-            for (file in files) {
-                FileInputStream(file).use { fi ->
-                    BufferedInputStream(fi).use { origin ->
-                        val entry = ZipEntry(file.substring(file.lastIndexOf("/")))
-                        out.putNextEntry(entry)
-                        origin.copyTo(out, 1024)
+        try {
+            val workspaceFile = exportWorkspaceBackup(workspaceRequest, tempDirectory, userPrincipal)
+            val cardIdsMapping = mutableMapOf<String, Long>()
+            val cardsFile = exportCardsBackup(workspaceRequest, tempDirectory, cardIdsMapping, userPrincipal)
+            val learnCardsFile = exportLearnCardsBackup(workspaceRequest, tempDirectory, cardIdsMapping)
+            val files = arrayOf(workspaceFile.absolutePath, cardsFile.absolutePath, learnCardsFile.absolutePath)
+            val backup: File = File.createTempFile("backup", ".zip")
+            ZipOutputStream(BufferedOutputStream(FileOutputStream(backup))).use { out ->
+                for (file in files) {
+                    FileInputStream(file).use { fi ->
+                        BufferedInputStream(fi).use { origin ->
+                            val entry = ZipEntry(file.substring(file.lastIndexOf("/")))
+                            out.putNextEntry(entry)
+                            origin.copyTo(out, 1024)
+                        }
                     }
                 }
             }
+            return backup
+        } finally {
+            tempDirectory.toFile().deleteRecursively()
         }
-        return backup
     }
 
     private fun exportWorkspaceBackup(workspaceRequest: WorkspaceRequest, tempDirectory: Path, userPrincipal: UserPrincipal): File {
@@ -60,25 +66,34 @@ class ExportService(
         return file
     }
 
-    private fun exportCardsBackup(workspaceRequest: WorkspaceRequest, tempDirectory: Path, userPrincipal: UserPrincipal): File {
+    private fun exportCardsBackup(workspaceRequest: WorkspaceRequest, tempDirectory: Path, cardIdsMapping: MutableMap<String, Long>, userPrincipal: UserPrincipal): File {
         val file = File(tempDirectory.toString(), "cards.csv")
         val writer = Files.newBufferedWriter(Paths.get(file.toURI()))
+        var i: Long = 0
         val csvPrinter = CSVPrinter(writer, CSVFormat.RFC4180
                 .withHeader("id", "question", "response").withEscape('"'))
-        cardService.findByWorkspace(workspaceRequest, null, userPrincipal).stream()
-                .forEach { card -> csvPrinter.printRecord(card.id, card.question, card.response) }
+        cardService.findByWorkspace(workspaceRequest, null, CardSort.asc, userPrincipal).stream()
+                .forEach {
+                    card -> run {
+                        cardIdsMapping[card.id] = ++i
+                        csvPrinter.printRecord(i, card.question, card.response)
+                    }
+                }
         csvPrinter.flush()
         csvPrinter.close()
         return file
     }
 
-    private fun exportLearnCardsBackup(workspaceRequest: WorkspaceRequest, tempDirectory: Path): File {
+    private fun exportLearnCardsBackup(workspaceRequest: WorkspaceRequest, tempDirectory: Path, cardIdsMapping: Map<String, Long>): File {
         val file = File(tempDirectory.toString(), "learn_cards.csv")
         val writer = Files.newBufferedWriter(Paths.get(file.toURI()))
         val csvPrinter = CSVPrinter(writer, CSVFormat.RFC4180
                 .withHeader("id", "last_review", "next_review", "repetitions", "ease_factor", "interval_days"))
         learnService.getLearnCardsByWorkspace(workspaceRequest).stream().forEach {
-            learnCard -> csvPrinter.printRecord(learnCard.id, learnCard.lastReview, learnCard.nextReview, learnCard.repetitions, learnCard.easeFactor, learnCard.intervalDays)
+            learnCard -> run {
+                val i = cardIdsMapping.get(learnCard.id)
+                csvPrinter.printRecord(i, learnCard.lastReview, learnCard.nextReview, learnCard.repetitions, learnCard.easeFactor, learnCard.intervalDays)
+            }
         }
         csvPrinter.flush()
         csvPrinter.close()

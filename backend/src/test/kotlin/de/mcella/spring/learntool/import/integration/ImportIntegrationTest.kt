@@ -35,6 +35,7 @@ import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -128,25 +129,32 @@ class ImportIntegrationTest {
         headers.contentType = MediaType.MULTIPART_FORM_DATA
         val entity = HttpEntity(parameters, headers)
 
-        testRestTemplate.postForEntity(URI("http://localhost:$port/api/workspaces/import"), entity, String::class.java)
+        val responseEntity = testRestTemplate.postForEntity(URI("http://localhost:$port/api/workspaces/import"), entity, String::class.java)
 
+        assertEquals(HttpStatus.OK, responseEntity.statusCode)
         val workspaceEntities = workspaceRepository.findAll()
         assertEquals(1, workspaceEntities.size)
         val expectedWorkspaceEntity = WorkspaceEntity(workspaceEntities[0].id, "Workspace Name", userId.id)
         val expectedWorkspaceEntities = listOf(expectedWorkspaceEntity)
         assertEquals(expectedWorkspaceEntities, workspaceEntities)
-        assertTrue { cardRepository.count() == 1L }
+        assertTrue { cardRepository.count() == 2L }
         val cardEntities = cardRepository.findAll()
-        cardRepository.findAll().forEach {
-            val expectedCardEntity = CardEntity("a1900ca7-dc58-4360-b41c-537d933bc9c1", workspaceEntities[0].id, "This is a \"question\"", "This, is a response", it.creationDate)
-            val expectedCardEntities = listOf(expectedCardEntity)
-            assertEquals(expectedCardEntities, cardEntities)
+        val expectedCardEntities = mutableListOf<CardEntity>()
+        cardRepository.findAll().forEachIndexed { index, cardEntity ->
+            val expectedCardEntity = when (index) {
+                0 -> CardEntity(cardEntity.id, workspaceEntities[0].id, "This is a \"question\"", "This, is a response", cardEntity.creationDate)
+                1 -> CardEntity(cardEntity.id, workspaceEntities[0].id, "This_is another question?", "This! Is another r\$es%ponse", cardEntity.creationDate)
+                else -> null
+            }
+            expectedCardEntity?.let { expectedCardEntities.add(it) }
         }
+        assertEquals(expectedCardEntities, cardEntities)
         val learnCardEntities = learnCardRepository.findAll()
-        assertEquals(1, learnCardEntities.size)
+        assertEquals(2, learnCardEntities.size)
         val lastReview = Instant.ofEpochMilli(1637090403000)
-        val expectedLearnCardEntity = LearnCardEntity("a1900ca7-dc58-4360-b41c-537d933bc9c1", workspaceEntities[0].id, lastReview, lastReview, 0, 1.3f, 0)
-        val expectedLearnCardEntities = listOf(expectedLearnCardEntity)
+        val expectedLearnCardEntity1 = LearnCardEntity(expectedCardEntities[0].id, workspaceEntities[0].id, lastReview, lastReview, 0, 1.3f, 0)
+        val expectedLearnCardEntity2 = LearnCardEntity(expectedCardEntities[1].id, workspaceEntities[0].id, lastReview, lastReview, 0, 1.3f, 0)
+        val expectedLearnCardEntities = listOf(expectedLearnCardEntity1, expectedLearnCardEntity2)
         assertEquals(expectedLearnCardEntities, learnCardEntities)
     }
 }

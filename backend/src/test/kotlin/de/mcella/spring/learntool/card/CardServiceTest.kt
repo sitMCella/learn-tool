@@ -340,7 +340,7 @@ class CardServiceTest {
         val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(false)
 
-        cardService.findByWorkspace(workspaceRequest, cardPagination, userPrincipal)
+        cardService.findByWorkspace(workspaceRequest, cardPagination, CardSort.desc, userPrincipal)
     }
 
     @Test(expected = UserNotAuthorizedException::class)
@@ -351,7 +351,7 @@ class CardServiceTest {
         Mockito.`when`(workspaceService.exists(workspaceRequest)).thenReturn(true)
         Mockito.`when`(workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)).thenThrow(UserNotAuthorizedException(userPrincipal))
 
-        cardService.findByWorkspace(workspaceRequest, cardPagination, userPrincipal)
+        cardService.findByWorkspace(workspaceRequest, cardPagination, CardSort.desc, userPrincipal)
     }
 
     @Test
@@ -367,7 +367,7 @@ class CardServiceTest {
         Mockito.`when`(workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)).thenReturn(true)
         Mockito.`when`(cardRepository.findByWorkspaceIdOrderByCreationDateDesc(workspaceRequest.id, pageRequest)).thenReturn(cardEntities)
 
-        val cards = cardService.findByWorkspace(workspaceRequest, cardPagination, userPrincipal)
+        val cards = cardService.findByWorkspace(workspaceRequest, cardPagination, CardSort.desc, userPrincipal)
 
         Mockito.verify(cardRepository).findByWorkspaceIdOrderByCreationDateDesc(workspaceRequest.id, pageRequest)
         val expectedCard = Card(cardId.id, "workspaceId", "question", "response")

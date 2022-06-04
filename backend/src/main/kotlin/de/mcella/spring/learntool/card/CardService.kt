@@ -74,15 +74,24 @@ class CardService(private val cardRepository: CardRepository, private val worksp
         cardRepository.delete(cardEntity)
     }
 
-    fun findByWorkspace(workspaceRequest: WorkspaceRequest, cardPagination: CardPagination?, userPrincipal: UserPrincipal): List<Card> {
+    fun findByWorkspace(workspaceRequest: WorkspaceRequest, cardPagination: CardPagination?, cardSort: CardSort, userPrincipal: UserPrincipal): List<Card> {
         verifyIfWorkspaceExists(workspaceRequest)
         workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)
         val pageRequest = cardPagination?.let {
             PageRequest.of(cardPagination.page, cardPagination.size)
         } ?: Pageable.unpaged()
-        return cardRepository.findByWorkspaceIdOrderByCreationDateDesc(workspaceRequest.id, pageRequest).stream()
-                .map { cardEntity -> Card.create(cardEntity) }
-                .toList()
+        return when (cardSort) {
+            CardSort.asc -> {
+                cardRepository.findByWorkspaceIdOrderByCreationDateAsc(workspaceRequest.id, pageRequest).stream()
+                        .map { cardEntity -> Card.create(cardEntity) }
+                        .toList()
+            }
+            CardSort.desc -> {
+                cardRepository.findByWorkspaceIdOrderByCreationDateDesc(workspaceRequest.id, pageRequest).stream()
+                        .map { cardEntity -> Card.create(cardEntity) }
+                        .toList()
+            }
+        }
     }
 
     fun countByWorkspace(workspaceRequest: WorkspaceRequest, userPrincipal: UserPrincipal): Long {

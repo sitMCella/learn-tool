@@ -38,6 +38,7 @@ import org.springframework.core.io.Resource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -127,10 +128,15 @@ class ExportIntegrationTest {
         val cardId = CardId("a1900ca7-dc58-4360-b41c-537d933bc9c1")
         val cardEntity = CardEntity(cardId.id, workspaceRequest.id, "This is a \"question\"", "This, is a response")
         cardRepository.save(cardEntity)
+        val cardId2 = CardId("3cf14a93-f8c7-4b6b-ac24-a662ca500c21")
+        val cardEntity2 = CardEntity(cardId2.id, workspaceRequest.id, "This_is another question?", "This! Is another r\$es%ponse")
+        cardRepository.save(cardEntity2)
         val outputValues = OutputValues(0, 0, 1.3f)
         val review = Instant.ofEpochMilli(1637090403000)
         val learnCard = LearnCardEntity.create(cardId, workspaceRequest, outputValues, review)
         learnCardRepository.save(learnCard)
+        val learnCard2 = LearnCardEntity.create(cardId2, workspaceRequest, outputValues, review)
+        learnCardRepository.save(learnCard2)
         val headers = HttpHeaders()
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer FOO")
         headers.accept = listOf(MediaType.APPLICATION_OCTET_STREAM)
@@ -142,6 +148,7 @@ class ExportIntegrationTest {
         // val outputStream: OutputStream = FileOutputStream(File("src/test/resources/backup.zip"))
         // IOUtils.copy(responseEntity.body!!.inputStream, outputStream)
 
+        assertEquals(HttpStatus.OK, responseEntity.statusCode)
         val zipInputStream = ZipInputStream(responseEntity.body!!.inputStream)
         val files = zipInputStream.use { zipInputStreamResource ->
             generateSequence { zipInputStreamResource.nextEntry }
@@ -162,10 +169,10 @@ class ExportIntegrationTest {
                     assertEquals("name\r\nWorkspace Name\r\n", String(file.content))
                 }
                 "/cards.csv" -> {
-                    assertEquals("id,question,response\r\n" + cardId.id + ",\"This is a \"\"question\"\"\",\"This, is a response\"\r\n", String(file.content))
+                    assertEquals("id,question,response\r\n1,\"This is a \"\"question\"\"\",\"This, is a response\"\r\n2,This_is another question?,This! Is another r\$es%ponse\r\n", String(file.content))
                 }
                 "/learn_cards.csv" -> {
-                    assertEquals("id,last_review,next_review,repetitions,ease_factor,interval_days\r\n" + cardId.id + ",2021-11-16T19:20:03Z,2021-11-16T19:20:03Z,0,1.3,0\r\n", String(file.content))
+                    assertEquals("id,last_review,next_review,repetitions,ease_factor,interval_days\r\n1,2021-11-16T19:20:03Z,2021-11-16T19:20:03Z,0,1.3,0\r\n2,2021-11-16T19:20:03Z,2021-11-16T19:20:03Z,0,1.3,0\r\n", String(file.content))
                 }
             }
         }

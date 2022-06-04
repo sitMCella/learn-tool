@@ -84,7 +84,7 @@ class CardController(private val cardService: CardService, private val cardImpor
         @AuthenticationPrincipal user: UserPrincipal
     ): ResponseEntity<List<Card>> {
         val workspace = WorkspaceRequest(workspaceId)
-        val cards = cardService.findByWorkspace(workspace, CardPagination(page, size), user)
+        val cards = cardService.findByWorkspace(workspace, CardPagination(page, size), CardSort.desc, user)
         val bodyBuilder = ResponseEntity.status(HttpStatus.OK)
         bodyBuilder.header("count", cardService.countByWorkspace(workspace, user).toString())
         return bodyBuilder.body(cards)
