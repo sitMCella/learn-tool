@@ -352,7 +352,7 @@ class CardControllerTest {
         val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspace.id, "question", "response content")
         val cards = listOf(card)
-        Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination, user)).thenReturn(cards)
+        Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination, CardSort.desc, user)).thenReturn(cards)
         val expectedContentBody = objectMapper.writeValueAsString(cards)
 
         mockMvc.perform(
@@ -377,7 +377,7 @@ class CardControllerTest {
         val workspace = WorkspaceRequest("workspaceId")
         val cardPagination = CardPagination(0, 20)
         val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
-        Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination, user)).thenThrow(WorkspaceNotExistsException(workspace))
+        Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination, CardSort.desc, user)).thenThrow(WorkspaceNotExistsException(workspace))
 
         mockMvc.perform(
                 MockMvcRequestBuilders.get("/api/workspaces/${workspace.id}/cards")
@@ -390,7 +390,7 @@ class CardControllerTest {
         val workspace = WorkspaceRequest("workspaceId")
         val cardPagination = CardPagination(0, 20)
         val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
-        Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination, user)).thenThrow(UserNotAuthorizedException(user))
+        Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination, CardSort.desc, user)).thenThrow(UserNotAuthorizedException(user))
 
         mockMvc.perform(
                 MockMvcRequestBuilders.get("/api/workspaces/${workspace.id}/cards")
@@ -405,7 +405,7 @@ class CardControllerTest {
         val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspace.id, "question", "response content")
         val cards = listOf(card)
-        Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination, user)).thenReturn(cards)
+        Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination, CardSort.desc, user)).thenReturn(cards)
         val expectedContentBody = objectMapper.writeValueAsString(cards)
 
         mockMvc.perform(
@@ -423,7 +423,7 @@ class CardControllerTest {
         val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspace.id, "question", "response content")
         val cards = listOf(card)
-        Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination, user)).thenReturn(cards)
+        Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination, CardSort.desc, user)).thenReturn(cards)
         Mockito.`when`(cardService.countByWorkspace(workspace, user)).thenReturn(1L)
         val expectedContentBody = objectMapper.writeValueAsString(cards)
 
@@ -442,7 +442,7 @@ class CardControllerTest {
         val user = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
         val card = Card("9e493dc0-ef75-403f-b5d6-ed510634f8a6", workspace.id, "question", "response content")
         val cards = listOf(card)
-        Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination, user)).thenReturn(cards)
+        Mockito.`when`(cardService.findByWorkspace(workspace, cardPagination, CardSort.desc, user)).thenReturn(cards)
         Mockito.`when`(cardService.countByWorkspace(workspace, user)).thenReturn(1L)
 
         mockMvc.perform(
