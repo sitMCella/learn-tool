@@ -195,8 +195,8 @@ const WorkspaceDetails = (props) => {
     setNewCardStatus(true)
   }
 
-  const createCardHandler = (id, question, response) => {
-    const newCards = [{ id: id, question: question, response: response, new: false, change: false }, ...cards.slice(1)]
+  const createCardHandler = (id, question, response, isCreateReverseCard, reverseCardId) => {
+    const newCards = isCreateReverseCard ? [{ id: reverseCardId, question: response, response: question, new: false, change: false }, { id: id, question: question, response: response, new: false, change: false }, ...cards.slice(1)] : [{ id: id, question: question, response: response, new: false, change: false }, ...cards.slice(1)]
     setCards(newCards)
     setBackupCards(newCards)
     setNewCardStatus(false)

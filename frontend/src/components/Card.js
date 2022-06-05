@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button'
 import CardUi from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import CardActions from '@material-ui/core/CardActions'
+import Checkbox from '@material-ui/core/Checkbox'
 import IconButton from '@material-ui/core/IconButton'
 import ListItem from '@material-ui/core/ListItem'
 import TextField from '@material-ui/core/TextField'
@@ -16,17 +17,23 @@ import EditIcon from '@material-ui/icons/Edit'
 function Card (props) {
   const [newQuestion, setNewQuestion] = useState(props.question)
   const [newResponse, setNewResponse] = useState(props.response)
+  const [createReverseCard, setCreateReverseCard] = useState(false)
 
   const questionChangeHandler = (event) => {
     setNewQuestion(event.target.value)
   }
+
   const responseChangeHandler = (event) => {
     setNewResponse(event.target.value)
   }
 
+  const createReverseCardChangeHandler = (event) => {
+    setCreateReverseCard(event.target.checked)
+  }
+
   const createCardSubmitHandler = (event) => {
     event.preventDefault()
-    const createCard = async () => {
+    const createCard = async (newQuestion, newResponse) => {
       const headers = {
         'Content-Type': 'application/json'
       }
@@ -58,22 +65,54 @@ function Card (props) {
         throw new Error(JSON.stringify(response))
       }
     }
-    createCard()
-      .then((card) => {
-        props.handleCreateCard(card.id, card.question, card.response)
-        setNewQuestion('')
-        setNewResponse('')
-        createLearnCard(card.id)
-          .catch((err) => {
-            throw err
-          })
-      })
-      .catch((err) => {
-        console.log('Error while creating the Card: ' + err.message)
-        props.handleCreateCardError()
-        setNewQuestion('')
-        setNewResponse('')
-      })
+    if (createReverseCard) {
+      createCard(newQuestion, newResponse)
+        .then((card) => {
+          setNewQuestion('')
+          setNewResponse('')
+          createLearnCard(card.id)
+            .catch((err) => {
+              throw err
+            })
+          return card.id
+        }).then((cardId) => {
+          createCard(newResponse, newQuestion)
+            .then((card) => {
+              createLearnCard(card.id)
+                .catch((err) => {
+                  throw err
+                })
+              props.handleCreateCard(cardId, newQuestion, newResponse, createReverseCard, card.id)
+            })
+            .catch((err) => {
+              console.log('Error while creating the Card: ' + err.message)
+              props.handleCreateCardError()
+            })
+        })
+        .catch((err) => {
+          console.log('Error while creating the Card: ' + err.message)
+          props.handleCreateCardError()
+          setNewQuestion('')
+          setNewResponse('')
+        })
+    } else {
+      createCard(newQuestion, newResponse)
+        .then((card) => {
+          setNewQuestion('')
+          setNewResponse('')
+          props.handleCreateCard(card.id, newQuestion, newResponse, createReverseCard)
+          createLearnCard(card.id)
+            .catch((err) => {
+              throw err
+            })
+        })
+        .catch((err) => {
+          console.log('Error while creating the Card: ' + err.message)
+          props.handleCreateCardError()
+          setNewQuestion('')
+          setNewResponse('')
+        })
+    }
   }
 
   const updateCardSubmitHandler = (event) => {
@@ -204,6 +243,10 @@ function Card (props) {
                         <Box p={1}>
                             <Button variant="contained" color="secondary" onClick={props.handleCreateCardCancel}>Cancel</Button>
                         </Box>
+                        <Box p={1} justifyContent="flex-end">
+                            <Checkbox checked={createReverseCard} onChange={createReverseCardChangeHandler} color="primary" />
+                            <Typography variant="body1" display="inline">Create reverse Card</Typography>
+                        </Box>
                     </Box>
                 </form>
             </ListItem>
@@ -261,7 +304,7 @@ function Card (props) {
                     </CardContent>
                     <CardActions className={classes.actions}>
                         <IconButton aria-label="edit" onClick={() => props.handleUpdateCard(props.id)}>
-                            <EditIcon className={classes.expand}/>
+                            <EditIcon className={classes.expand} />
                         </IconButton>
                         <IconButton aria-label="delete" onClick={deleteCardHandler}>
                             <DeleteIcon/>
