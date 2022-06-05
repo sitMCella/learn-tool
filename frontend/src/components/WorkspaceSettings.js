@@ -15,8 +15,8 @@ import CloseIcon from '@material-ui/icons/Close'
 const WorkspaceSettings = (props) => {
   const displayPage = 'display'
   const [settingsPage, setSettingsPage] = useState(displayPage)
-  const [cardQuestionTextColor, setCardQuestionTextColor] = useState('#0000008A')
-  const [cardResponseTextColor, setCardResponseTextColor] = useState('#0000008A')
+  const [cardQuestionTextColor, setCardQuestionTextColor] = useState(props.settings.cardQuestionTextColor)
+  const [cardResponseTextColor, setCardResponseTextColor] = useState(props.settings.cardResponseTextColor)
   const [selectedMenuIndex, setSelectedMenuIndex] = useState(0)
   const options = ['Display']
 
@@ -29,12 +29,20 @@ const WorkspaceSettings = (props) => {
 
   const handlePickCardQuestionTextColor = (event) => {
     setCardQuestionTextColor('#' + event.hex)
-    document.documentElement.style.setProperty('--card-question-text-color', '#' + event.hex)
+    const settings = {
+      ...props.settings,
+      cardQuestionTextColor: '#' + event.hex
+    }
+    props.handleSettingsUpdate(settings)
   }
 
   const handlePickCardResponseTextColor = (event) => {
     setCardResponseTextColor('#' + event.hex)
-    document.documentElement.style.setProperty('--card-response-text-color', '#' + event.hex)
+    const settings = {
+      ...props.settings,
+      cardResponseTextColor: '#' + event.hex
+    }
+    props.handleSettingsUpdate(settings)
   }
 
   const useStyles = makeStyles((theme) => ({
@@ -103,7 +111,7 @@ const WorkspaceSettings = (props) => {
             </ListItem>
             <ListItem className={classes.settingsContent}>
               <Grid container spacing={0}>
-                <Grid item spacing={0} className={classes.settingsMenu}>
+                <Grid item className={classes.settingsMenu}>
                   <Paper className={classes.paper}>
                     {options.map((option, index) => (
                       <MenuList key={option} className={classes.settingsMenuContent}>
@@ -114,7 +122,7 @@ const WorkspaceSettings = (props) => {
                 </Grid>
                 {
                     settingsPage === displayPage && (
-                        <Grid item spacing={1} className={classes.settingsConfiguration}>
+                        <Grid item className={classes.settingsConfiguration}>
                             <Grid container spacing={1}>
                               <Grid container spacing={2} className={classes.settingsGridRow}>
                                   <Grid item className={classes.settingsGrid}>

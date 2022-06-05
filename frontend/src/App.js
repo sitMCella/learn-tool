@@ -19,16 +19,21 @@ class App extends Component {
     this.state = {
       authenticated: false,
       currentUser: null,
-      loading: true
+      loading: true,
+      settings: {
+        cardQuestionTextColor: '#0000008A',
+        cardResponseTextColor: '#0000008A',
+        studyCardQuestionBackgroundColor: '#89CFF0',
+        studyCardQuestionTextColor: '#000000A6',
+        studyCardResponseBackgroundColor: '#FFFFFFFF',
+        studyCardResponseTextColor: '#000000A6'
+      }
     }
     this.loadCurrentlyLoggedInUser = this.loadCurrentlyLoggedInUser.bind(this)
     this.handleLogout = this.handleLogout.bind(this)
-    document.documentElement.style.setProperty('--card-question-text-color', '#0000008A')
-    document.documentElement.style.setProperty('--card-response-text-color', '#0000008A')
-    document.documentElement.style.setProperty('--study-card-question-background-color', '#89CFF0')
-    document.documentElement.style.setProperty('--study-card-question-text-color', '#000000A6')
-    document.documentElement.style.setProperty('--study-card-response-background-color', '#FFFFFFFF')
-    document.documentElement.style.setProperty('--study-card-response-text-color', '#000000A6')
+    this.handleSettingsUpdate = this.handleSettingsUpdate.bind(this)
+    this.assignCssVariables = this.assignCssVariables.bind(this)
+    this.assignCssVariables(this.state.settings)
   }
 
   getCurrentUser () {
@@ -46,6 +51,7 @@ class App extends Component {
     this.getCurrentUser()
       .then(response => {
         this.setState({
+          ...this.state,
           currentUser: response,
           authenticated: true,
           loading: false
@@ -53,6 +59,7 @@ class App extends Component {
       }).catch((err) => {
         console.log(err)
         this.setState({
+          ...this.state,
           currentUser: null,
           authenticated: false,
           loading: false
@@ -63,10 +70,28 @@ class App extends Component {
   handleLogout () {
     localStorage.removeItem(ACCESS_TOKEN)
     this.setState({
+      ...this.state,
       authenticated: false,
       currentUser: null
     })
     console.log('You are safely logged out.')
+  }
+
+  assignCssVariables (settings) {
+    document.documentElement.style.setProperty('--card-question-text-color', settings.cardQuestionTextColor)
+    document.documentElement.style.setProperty('--card-response-text-color', settings.cardResponseTextColor)
+    document.documentElement.style.setProperty('--study-card-question-background-color', settings.studyCardQuestionBackgroundColor)
+    document.documentElement.style.setProperty('--study-card-question-text-color', settings.studyCardQuestionTextColor)
+    document.documentElement.style.setProperty('--study-card-response-background-color', settings.studyCardResponseBackgroundColor)
+    document.documentElement.style.setProperty('--study-card-response-text-color', settings.studyCardResponseTextColor)
+  }
+
+  handleSettingsUpdate (settings) {
+    this.setState({
+      ...this.state,
+      settings: settings
+    })
+    this.assignCssVariables(settings)
   }
 
   componentDidMount () {
@@ -91,8 +116,8 @@ class App extends Component {
                       <Route path="/signup" render={(props) => <Signup authenticated={this.state.authenticated} {...props} />}/>
                       <Route path="/profile" render={(props) => <Profile authenticated={this.state.authenticated} currentUser={this.state.currentUser} onLogout={this.handleLogout} {...props} />} />
                       <Route exact path="/workspaces" render={(props) => <Workspaces key={Math.random()} onLogout={this.handleLogout} {...props} />} />
-                      <Route path="/workspaces/:id/cards" render={(props) => <WorkspaceDetails onLogout={this.handleLogout} {...props} />}/>
-                      <Route path="/workspaces/:id/study" render={(props) => <Study onLogout={this.handleLogout} {...props} />}/>
+                      <Route path="/workspaces/:id/cards" render={(props) => <WorkspaceDetails onLogout={this.handleLogout} onSettingsUpdate={this.handleSettingsUpdate} settings={this.state.settings} {...props} />}/>
+                      <Route path="/workspaces/:id/study" render={(props) => <Study onLogout={this.handleLogout} onSettingsUpdate={this.handleSettingsUpdate} settings={this.state.settings} {...props} />}/>
                       <Route component={NotFound}/>
                   </Switch>
               </BrowserRouter>

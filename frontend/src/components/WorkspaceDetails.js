@@ -459,7 +459,7 @@ const WorkspaceDetails = (props) => {
               {
                 settingsVisible
                   ? (
-                    <WorkspaceSettings handleClose={handleSettingsClose} {...props}></WorkspaceSettings>
+                    <WorkspaceSettings handleClose={handleSettingsClose} handleSettingsUpdate={props.onSettingsUpdate} {...props}></WorkspaceSettings>
                     )
                   : (
                     <div>

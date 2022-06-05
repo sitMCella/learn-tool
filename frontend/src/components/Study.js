@@ -275,7 +275,7 @@ function Study (props) {
                   {
                   settingsVisible
                     ? (
-                        <StudySettings handleClose={handleSettingsClose} {...props}></StudySettings>
+                        <StudySettings handleClose={handleSettingsClose} handleSettingsUpdate={props.onSettingsUpdate} {...props}></StudySettings>
                       )
                     : (
                         <div>
@@ -309,7 +309,7 @@ function Study (props) {
                                     </Box>
                                 </CardContent>
                             </CardUi>
-                            <AppBar position="static" className={classes.appbarBottom} fullWidth>
+                            <AppBar position="static" className={classes.appbarBottom}>
                                 <Toolbar>
                                     {flipButtonVisible && (<Button color="inherit" style={{ width: '100%' }} onClick={flipCardHandler}>Flip</Button>)}
                                     {evaluationButtonsVisible && (
@@ -338,7 +338,7 @@ function Study (props) {
                 <Box className={classes.content}>
                     settingsVisible
                       ? (
-                        <StudySettings handleClose={handleSettingsClose} {...props}></StudySettings>
+                        <StudySettings handleClose={handleSettingsClose} handleSettingsUpdate={props.onSettingsUpdate} {...props}></StudySettings>
                         )
                       : (
                         <div>

@@ -15,10 +15,10 @@ import CloseIcon from '@material-ui/icons/Close'
 const StudySettings = (props) => {
   const displayPage = 'display'
   const [settingsPage, setSettingsPage] = useState(displayPage)
-  const [studyCardQuestionBackgroundColor, setStudyCardQuestionBackgroundColor] = useState('#89CFF0')
-  const [studyCardQuestionTextColor, setStudyCardQuestionTextColor] = useState('#000000A6')
-  const [studyCardResponseBackgroundColor, setStudyCardResponseBackgroundColor] = useState('#FFFFFFFF')
-  const [studyCardResponseTextColor, setStudyCardResponseTextColor] = useState('#000000A6')
+  const [studyCardQuestionBackgroundColor, setStudyCardQuestionBackgroundColor] = useState(props.settings.studyCardQuestionBackgroundColor)
+  const [studyCardQuestionTextColor, setStudyCardQuestionTextColor] = useState(props.settings.studyCardQuestionTextColor)
+  const [studyCardResponseBackgroundColor, setStudyCardResponseBackgroundColor] = useState(props.settings.studyCardResponseBackgroundColor)
+  const [studyCardResponseTextColor, setStudyCardResponseTextColor] = useState(props.settings.studyCardResponseTextColor)
   const [selectedMenuIndex, setSelectedMenuIndex] = useState(0)
   const options = ['Display']
 
@@ -31,22 +31,38 @@ const StudySettings = (props) => {
 
   const handlePickStudyCardQuestionBackgroundColor = (event) => {
     setStudyCardQuestionBackgroundColor('#' + event.hex)
-    document.documentElement.style.setProperty('--study-card-question-background-color', '#' + event.hex)
+    const settings = {
+      ...props.settings,
+      studyCardQuestionBackgroundColor: '#' + event.hex
+    }
+    props.handleSettingsUpdate(settings)
   }
 
   const handlePickStudyCardQuestionTextColor = (event) => {
     setStudyCardQuestionTextColor('#' + event.hex)
-    document.documentElement.style.setProperty('--study-card-question-text-color', '#' + event.hex)
+    const settings = {
+      ...props.settings,
+      studyCardQuestionTextColor: '#' + event.hex
+    }
+    props.handleSettingsUpdate(settings)
   }
 
   const handlePickStudyCardResponseBackgroundColor = (event) => {
     setStudyCardResponseBackgroundColor('#' + event.hex)
-    document.documentElement.style.setProperty('--study-card-response-background-color', '#' + event.hex)
+    const settings = {
+      ...props.settings,
+      studyCardResponseBackgroundColor: '#' + event.hex
+    }
+    props.handleSettingsUpdate(settings)
   }
 
   const handlePickStudyCardResponseTextColor = (event) => {
     setStudyCardResponseTextColor('#' + event.hex)
-    document.documentElement.style.setProperty('--study-card-response-text-color', '#' + event.hex)
+    const settings = {
+      ...props.settings,
+      studyCardResponseTextColor: '#' + event.hex
+    }
+    props.handleSettingsUpdate(settings)
   }
 
   const useStyles = makeStyles((theme) => ({
@@ -126,7 +142,7 @@ const StudySettings = (props) => {
                 </Grid>
                 {
                     settingsPage === displayPage && (
-                        <Grid item spacing={1} className={classes.settingsConfiguration}>
+                        <Grid item className={classes.settingsConfiguration}>
                             <Grid container spacing={1}>
                               <Grid container spacing={2} className={classes.settingsGridRow}>
                                   <Grid item className={classes.settingsGrid}>
