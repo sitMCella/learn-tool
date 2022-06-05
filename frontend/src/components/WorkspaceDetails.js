@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { ACCESS_TOKEN } from '../constants'
 import Card from './Card'
 import ProfileMenu from './ProfileMenu'
+import WorkspaceSettings from './WorkspaceSettings'
 import AppBar from '@material-ui/core/AppBar'
 import Box from '@material-ui/core/Box'
 import Drawer from '@material-ui/core/Drawer'
@@ -22,6 +23,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon'
 import RocketIcon from '@material-ui/icons/EmojiEvents'
 import SaveAltIcon from '@material-ui/icons/SaveAlt'
 import SearchIcon from '@material-ui/icons/Search'
+import SettingsIcon from '@material-ui/icons/Settings'
 
 function Alert (props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -37,6 +39,7 @@ const WorkspaceDetails = (props) => {
   const [typingTimeout, setTypingTimeout] = useState()
   const [workspaceDetailsError, setWorkspaceDetailsError] = useState(false)
   const [workspaceDetailsErrorMessage, setWorkspaceDetailsErrorMessage] = useState('')
+  const [settingsVisible, setSettingsVisible] = useState(false)
   const paginationSize = 5
 
   const getPagesCount = (cardsCount) => {
@@ -287,6 +290,14 @@ const WorkspaceDetails = (props) => {
       })
   }
 
+  const handleSettingsOpen = () => {
+    setSettingsVisible(true)
+  }
+
+  const handleSettingsClose = () => {
+    setSettingsVisible(false)
+  }
+
   const useStyles = makeStyles((theme) => ({
     appBar: {
       '@media only screen and (max-width:768px)': {
@@ -308,6 +319,11 @@ const WorkspaceDetails = (props) => {
       '@media only screen and (max-width:768px)': {
         paddingLeft: 5
       }
+    },
+    drawerFooter: {
+      position: 'fixed',
+      bottom: '0',
+      marginBottom: theme.spacing(2)
     },
     toolbar: {
       display: 'flex',
@@ -429,29 +445,47 @@ const WorkspaceDetails = (props) => {
                         <ListItemIcon><SaveAltIcon /></ListItemIcon>
                     </ListItem>
                 </List>
+                <Box className={classes.drawerFooter}>
+                  <Divider className={classes.divider} />
+                  <List className={classes.drawerList} >
+                    <ListItem button key="Settings" onClick={handleSettingsOpen} className={classes.drawerListItem}>
+                      <ListItemIcon><SettingsIcon /></ListItemIcon>
+                    </ListItem>
+                  </List>
+                </Box>
             </Drawer>
             <Box className={classes.content}>
                 {workspaceDetailsError && (<div className={classes.errors}><Alert severity="error">{workspaceDetailsErrorMessage}</Alert></div>)}
-                <div className={classes.title}>Cards</div>
-                <Box className={classes.events}>
-                  <Box className={classes.eventIcon}>
-                    <Fab size="small" color="primary" aria-label="add" onClick={newCardHandler} disabled={newCardStatus}>
-                        <AddIcon />
-                    </Fab>
-                  </Box>
-                  <Box className={classes.eventIcon}>
-                    <Fab size="small" color="primary" aria-label="add" component={Link} to={'/workspaces/' + params.id + '/study'}>
-                        <RocketIcon />
-                    </Fab>
-                  </Box>
-                </Box>
-                <List component="nav" aria-label="cards">
-                    {cards.map(card => <Card key={card.id} workspaceId={params.id} id={card.id} question={card.question} response={card.response} selected={false} new={card.new} change={card.change}
-    handleCreateCard={createCardHandler} handleCreateCardCancel={createCardCancelHandler} handleCreateCardError={createCardErrorHandler}
-    handleUpdateCard={updateCardHandler} handleUpdateCardComplete={updateCardCompleteHandler} handleUpdateCardCancel={updateCardCancelHandler} handleUpdateCardError={updateCardErrorHandler}
-    handleDeleteCardComplete={deleteCardCompleteHandler} handleDeleteCardError={updateDeleteErrorHandler}/>)}
-                </List>
-                <Pagination count={pagesCount} defaultPage={1} siblingCount={0} boundaryCount={2} onChange={handlePaginationChange} />
+              {
+                settingsVisible
+                  ? (
+                    <WorkspaceSettings handleClose={handleSettingsClose} handleSettingsUpdate={props.onSettingsUpdate} {...props}></WorkspaceSettings>
+                    )
+                  : (
+                    <div>
+                      <div className={classes.title}>Cards</div>
+                      <Box className={classes.events}>
+                        <Box className={classes.eventIcon}>
+                          <Fab size="small" color="primary" aria-label="add" onClick={newCardHandler} disabled={newCardStatus}>
+                              <AddIcon />
+                          </Fab>
+                        </Box>
+                        <Box className={classes.eventIcon}>
+                          <Fab size="small" color="primary" aria-label="add" component={Link} to={'/workspaces/' + params.id + '/study'}>
+                              <RocketIcon />
+                          </Fab>
+                        </Box>
+                      </Box>
+                      <List component="nav" aria-label="cards">
+                          {cards.map(card => <Card key={card.id} workspaceId={params.id} id={card.id} question={card.question} response={card.response} selected={false} new={card.new} change={card.change}
+          handleCreateCard={createCardHandler} handleCreateCardCancel={createCardCancelHandler} handleCreateCardError={createCardErrorHandler}
+          handleUpdateCard={updateCardHandler} handleUpdateCardComplete={updateCardCompleteHandler} handleUpdateCardCancel={updateCardCancelHandler} handleUpdateCardError={updateCardErrorHandler}
+          handleDeleteCardComplete={deleteCardCompleteHandler} handleDeleteCardError={updateDeleteErrorHandler}/>)}
+                      </List>
+                      <Pagination count={pagesCount} defaultPage={1} siblingCount={0} boundaryCount={2} onChange={handlePaginationChange} />
+                    </div>
+                    )
+              }
             </Box>
         </Box>
   )

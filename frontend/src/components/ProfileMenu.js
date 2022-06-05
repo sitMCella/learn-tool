@@ -62,7 +62,7 @@ function ProfileMenu (props) {
                         style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}>
                         <Paper>
                             <ClickAwayListener onClickAway={avatarMenuCloseHandler}>
-                                <MenuList autoFocusItem={avatarMenuOpen} id="avatar-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={avatarMenuCloseHandler}>
+                                <MenuList autoFocusItem={avatarMenuOpen} id="avatar-menu" keepMounted open={Boolean(anchorEl)} onClose={avatarMenuCloseHandler}>
                                     <MenuItem component={Link} to="/profile">Profile</MenuItem>
                                     <MenuItem onClick={logoutHandler}>Logout</MenuItem>
                                 </MenuList>

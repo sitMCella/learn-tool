@@ -241,7 +241,7 @@ function Card (props) {
                                 </Typography>
                             </Box>
                             <Box p={0}>
-                                <Typography variant="body1" color="textSecondary" component="p" gutterBottom>
+                                <Typography variant="body1" color="textSecondary" component="p" gutterBottom style={{ color: 'var(--card-question-text-color)' }}>
                                     {props.question}
                                 </Typography>
                             </Box>
@@ -253,7 +253,7 @@ function Card (props) {
                                 </Typography>
                             </Box>
                             <Box p={0}>
-                                <Typography variant="body1" color="textSecondary" component="p" gutterBottom>
+                                <Typography variant="body1" color="textSecondary" component="p" gutterBottom style={{ color: 'var(--card-response-text-color)' }}>
                                     {props.response}
                                 </Typography>
                             </Box>

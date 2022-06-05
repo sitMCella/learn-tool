@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ACCESS_TOKEN } from '../constants'
 import ProfileMenu from './ProfileMenu'
+import StudySettings from './StudySettings'
 import AppBar from '@material-ui/core/AppBar'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
@@ -21,6 +22,7 @@ import DashboardIcon from '@material-ui/icons/Dashboard'
 import FilterNoneIcon from '@material-ui/icons/FilterNone'
 import StarIcon from '@material-ui/icons/Star'
 import Fab from '@material-ui/core/Fab'
+import SettingsIcon from '@material-ui/icons/Settings'
 import SkipNextIcon from '@material-ui/icons/SkipNext'
 
 function Alert (props) {
@@ -39,6 +41,7 @@ function Study (props) {
   const [qualityValue, setQualityValue] = React.useState(3)
   const [studyError, setStudyError] = useState(false)
   const [studyErrorMessage, setStudyErrorMessage] = useState('')
+  const [settingsVisible, setSettingsVisible] = useState(false)
 
   const getCard = async (signal) => {
     const headers = {
@@ -132,6 +135,14 @@ function Study (props) {
       })
   }
 
+  const handleSettingsOpen = () => {
+    setSettingsVisible(true)
+  }
+
+  const handleSettingsClose = () => {
+    setSettingsVisible(false)
+  }
+
   const useStyles = makeStyles((theme) => ({
     appBar: {
       '@media only screen and (max-width:768px)': {
@@ -153,6 +164,11 @@ function Study (props) {
       '@media only screen and (max-width:768px)': {
         paddingLeft: 5
       }
+    },
+    drawerFooter: {
+      position: 'fixed',
+      bottom: '0',
+      marginBottom: theme.spacing(2)
     },
     toolbar: {
       display: 'flex',
@@ -200,8 +216,7 @@ function Study (props) {
       '@media only screen and (max-width:768px)': {
         width: '90%'
       },
-      width: '95%',
-      backgroundColor: '#89CFF0'
+      width: '95%'
     },
     responseCard: {
       '@media only screen and (max-width:768px)': {
@@ -245,87 +260,113 @@ function Study (props) {
                         <ListItemIcon><FilterNoneIcon /></ListItemIcon>
                     </ListItem>
                 </List>
+                <Box className={classes.drawerFooter}>
+                  <Divider className={classes.divider} />
+                  <List className={classes.drawerList} >
+                    <ListItem button key="Settings" onClick={handleSettingsOpen} className={classes.drawerListItem}>
+                      <ListItemIcon><SettingsIcon /></ListItemIcon>
+                    </ListItem>
+                  </List>
+                </Box>
             </Drawer>
             { !noCardsLft
               ? (
-                <div className={classes.content}>
-                  {studyError && (<div className={classes.errors}><Alert severity="error">{studyErrorMessage}</Alert></div>)}
-                    <div className={classes.title}>Learn</div>
-                    <Box className={classes.events}>
-                      <Box className={classes.eventIcon}>
-                        <Fab size="small" color="primary" aria-label="add">
-                          <SkipNextIcon onClick={flipCardHandler} />
-                        </Fab>
-                      </Box>
-                    </Box>
-                  <List component="nav" aria-label="cards">
-                    <CardUi className={classes.card}>
-                        <CardContent className={classes.cardContent}>
-                            <Box display="flex" flexWrap="wrap" p={0} m={0}>
-                                <Box display="flex" flexWrap="wrap" pl={1} pt={1} pb={1} m={0} className={classes.questionCard}>
-                                    <Typography variant="body1" color="textSecondary" component="p" gutterBottom >
-                                        {cardQuestion}
-                                    </Typography>
-                                </Box>
+                  <Box className={classes.content}>
+                  {
+                  settingsVisible
+                    ? (
+                        <StudySettings handleClose={handleSettingsClose} handleSettingsUpdate={props.onSettingsUpdate} {...props}></StudySettings>
+                      )
+                    : (
+                        <div>
+                          {studyError && (<div className={classes.errors}><Alert severity="error">{studyErrorMessage}</Alert></div>)}
+                            <div className={classes.title}>Learn</div>
+                            <Box className={classes.events}>
+                              <Box className={classes.eventIcon}>
+                                <Fab size="small" color="primary" aria-label="add">
+                                  <SkipNextIcon onClick={flipCardHandler} />
+                                </Fab>
+                              </Box>
                             </Box>
-                            <Box display={responseVisibility}>
-                                <Box display="flex" flexWrap="wrap" pl={1} pt={1} pb={1} m={0} className={classes.responseCard}>
-                                    <Box p={0}>
-                                        <Typography variant="body1" color="textSecondary" component="p" gutterBottom >
-                                            {cardResponse}
-                                        </Typography>
+                          <List component="nav" aria-label="cards">
+                            <CardUi className={classes.card}>
+                                <CardContent className={classes.cardContent}>
+                                    <Box display="flex" flexWrap="wrap" p={0} m={0}>
+                                        <Box display="flex" flexWrap="wrap" pl={1} pt={1} pb={1} m={0} className={classes.questionCard} style={{ backgroundColor: 'var(--study-card-question-background-color)' }}>
+                                            <Typography variant="body1" color="textSecondary" component="p" gutterBottom style={{ color: 'var(--study-card-question-text-color)' }}>
+                                                {cardQuestion}
+                                            </Typography>
+                                        </Box>
                                     </Box>
-                                </Box>
-                            </Box>
-                        </CardContent>
-                    </CardUi>
-                    <AppBar position="static" className={classes.appbarBottom} fullWidth>
-                        <Toolbar>
-                            {flipButtonVisible && (<Button color="inherit" style={{ width: '100%' }} onClick={flipCardHandler}>Flip</Button>)}
-                            {evaluationButtonsVisible && (
-                                <Box component="span" display={responseVisibility} style={{ width: '100%' }}>
-                                  <Rating display={responseVisibility}
-                                      name="hover-feedback"
-                                      value={qualityValue}
-                                      precision={1}
-                                      onChange={(event, newQualityValue) => {
-                                        setQualityValue(newQualityValue)
-                                        evaluateCardHandler({ newQualityValue })
-                                      }}
-                                      emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
-                                  />
-                                </Box>
-                            )}
-                        </Toolbar>
-                    </AppBar>
-                  </List>
-                </div>
+                                    <Box display={responseVisibility}>
+                                        <Box display="flex" flexWrap="wrap" pl={1} pt={1} pb={1} m={0} className={classes.responseCard} style={{ backgroundColor: 'var(--study-card-response-background-color)' }}>
+                                            <Box p={0}>
+                                                <Typography variant="body1" color="textSecondary" component="p" gutterBottom style={{ color: 'var(--study-card-response-text-color)' }}>
+                                                    {cardResponse}
+                                                </Typography>
+                                            </Box>
+                                        </Box>
+                                    </Box>
+                                </CardContent>
+                            </CardUi>
+                            <AppBar position="static" className={classes.appbarBottom}>
+                                <Toolbar>
+                                    {flipButtonVisible && (<Button color="inherit" style={{ width: '100%' }} onClick={flipCardHandler}>Flip</Button>)}
+                                    {evaluationButtonsVisible && (
+                                        <Box component="span" display={responseVisibility} style={{ width: '100%' }}>
+                                          <Rating display={responseVisibility}
+                                              name="hover-feedback"
+                                              value={qualityValue}
+                                              precision={1}
+                                              onChange={(event, newQualityValue) => {
+                                                setQualityValue(newQualityValue)
+                                                evaluateCardHandler({ newQualityValue })
+                                              }}
+                                              emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
+                                          />
+                                        </Box>
+                                    )}
+                                </Toolbar>
+                            </AppBar>
+                          </List>
+                        </div>
+                      )
+                  }
+                  </Box>
                 )
               : (
-                <div className={classes.content}>
-                    <div className={classes.title}>Learn</div>
-                    <Box className={classes.events}>
-                      <Box className={classes.eventIcon}>
-                        <Fab size="small" color="primary" aria-label="add">
-                          <SkipNextIcon />
-                        </Fab>
-                      </Box>
-                    </Box>
-                    <List component="nav" aria-label="cards">
-                        <CardUi>
-                            <CardContent>
-                                <Typography variant="body2" color="textSecondary" component="p">
-                                    No cards left
-                                </Typography>
-                            </CardContent>
-                        </CardUi>
-                        <Box component="span" m={3}>
-                          <div className={classes.close}>
-                            <Button variant="contained" color="primary" component={Link} to={'/workspaces/' + params.id + '/cards'}>Close</Button>
-                          </div>
-                        </Box>
-                    </List>
-                </div>
+                <Box className={classes.content}>
+                    settingsVisible
+                      ? (
+                        <StudySettings handleClose={handleSettingsClose} handleSettingsUpdate={props.onSettingsUpdate} {...props}></StudySettings>
+                        )
+                      : (
+                        <div>
+                          <div className={classes.title}>Learn</div>
+                          <Box className={classes.events}>
+                            <Box className={classes.eventIcon}>
+                              <Fab size="small" color="primary" aria-label="add">
+                                <SkipNextIcon />
+                              </Fab>
+                            </Box>
+                          </Box>
+                          <List component="nav" aria-label="cards">
+                              <CardUi>
+                                  <CardContent>
+                                      <Typography variant="body2" color="textSecondary" component="p">
+                                          No cards left
+                                      </Typography>
+                                  </CardContent>
+                              </CardUi>
+                              <Box component="span" m={3}>
+                                <div className={classes.close}>
+                                  <Button variant="contained" color="primary" component={Link} to={'/workspaces/' + params.id + '/cards'}>Close</Button>
+                                </div>
+                              </Box>
+                          </List>
+                        </div>
+                        )
+                </Box>
                 )}
         </Box>
   )
