@@ -131,7 +131,7 @@ const StudySettings = (props) => {
             </ListItem>
             <ListItem className={classes.settingsContent}>
               <Grid container spacing={0}>
-                <Grid item spacing={0} className={classes.settingsMenu}>
+                <Grid item className={classes.settingsMenu}>
                   <Paper className={classes.paper}>
                     {options.map((option, index) => (
                       <MenuList key={option} className={classes.settingsMenuContent}>

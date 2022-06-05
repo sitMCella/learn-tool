@@ -23,7 +23,7 @@ import FilterNoneIcon from '@material-ui/icons/FilterNone'
 import StarIcon from '@material-ui/icons/Star'
 import Fab from '@material-ui/core/Fab'
 import SettingsIcon from '@material-ui/icons/Settings'
-import SkipNextIcon from '@material-ui/icons/SkipNext'
+import FlipIcon from '@material-ui/icons/Flip'
 
 function Alert (props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -284,7 +284,7 @@ function Study (props) {
                             <Box className={classes.events}>
                               <Box className={classes.eventIcon}>
                                 <Fab size="small" color="primary" aria-label="add">
-                                  <SkipNextIcon onClick={flipCardHandler} />
+                                  <FlipIcon onClick={flipCardHandler} />
                                 </Fab>
                               </Box>
                             </Box>
@@ -346,7 +346,7 @@ function Study (props) {
                           <Box className={classes.events}>
                             <Box className={classes.eventIcon}>
                               <Fab size="small" color="primary" aria-label="add">
-                                <SkipNextIcon />
+                                <FlipIcon />
                               </Fab>
                             </Box>
                           </Box>
