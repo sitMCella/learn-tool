@@ -21,9 +21,14 @@ class App extends Component {
       currentUser: null,
       loading: true
     }
-
     this.loadCurrentlyLoggedInUser = this.loadCurrentlyLoggedInUser.bind(this)
     this.handleLogout = this.handleLogout.bind(this)
+    document.documentElement.style.setProperty('--card-question-text-color', '#0000008A')
+    document.documentElement.style.setProperty('--card-response-text-color', '#0000008A')
+    document.documentElement.style.setProperty('--study-card-question-background-color', '#89CFF0')
+    document.documentElement.style.setProperty('--study-card-question-text-color', '#000000A6')
+    document.documentElement.style.setProperty('--study-card-response-background-color', '#FFFFFFFF')
+    document.documentElement.style.setProperty('--study-card-response-text-color', '#000000A6')
   }
 
   getCurrentUser () {
