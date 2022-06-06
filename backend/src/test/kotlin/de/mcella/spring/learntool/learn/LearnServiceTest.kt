@@ -168,7 +168,7 @@ class LearnServiceTest {
     }
 
     @Test
-    fun `given a Workspace request, when retrieving a Card from the Workspace, then call the method findFirstByWorkspaceIdAndNextReviewBeforeOrderByNextReview of LearnCardRepository`() {
+    fun `given a Workspace request, when retrieving a Card from the Workspace, then call the method findByWorkspaceIdAndNextReviewBefore of LearnCardRepository`() {
         val workspaceRequest = WorkspaceRequest("workspaceId")
         val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
         val userPrincipal = UserPrincipal(1L, "test@google.com", "PassW@rD!", listOf(SimpleGrantedAuthority("ROLE_USER")), emptyMap())
@@ -177,12 +177,12 @@ class LearnServiceTest {
         val learnCardEntity = LearnCardEntity.createInitial(cardId, workspaceRequest, Instant.now())
         val today = LocalDate.now()
         val end = today.plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC)
-        Mockito.`when`(learnCardRepository.findFirstByWorkspaceIdAndNextReviewBeforeOrderByNextReview(workspaceRequest.id, end)).thenReturn(Optional.of(learnCardEntity))
+        Mockito.`when`(learnCardRepository.findByWorkspaceIdAndNextReviewBefore(workspaceRequest.id, end)).thenReturn(listOf(learnCardEntity))
         Mockito.`when`(cardService.findById(cardId)).thenReturn(expectedCard)
 
         learnService.getCard(workspaceRequest, userPrincipal)
 
-        Mockito.verify(learnCardRepository).findFirstByWorkspaceIdAndNextReviewBeforeOrderByNextReview(workspaceRequest.id, end)
+        Mockito.verify(learnCardRepository).findByWorkspaceIdAndNextReviewBefore(workspaceRequest.id, end)
     }
 
     @Test
@@ -195,7 +195,7 @@ class LearnServiceTest {
         val learnCard = LearnCardEntity.createInitial(cardId, workspaceRequest, Instant.now())
         val today = LocalDate.now()
         val end = today.plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC)
-        Mockito.`when`(learnCardRepository.findFirstByWorkspaceIdAndNextReviewBeforeOrderByNextReview(workspaceRequest.id, end)).thenReturn(Optional.of(learnCard))
+        Mockito.`when`(learnCardRepository.findByWorkspaceIdAndNextReviewBefore(workspaceRequest.id, end)).thenReturn(listOf(learnCard))
         Mockito.`when`(cardService.findById(cardId)).thenReturn(expectedCard)
 
         val card = learnService.getCard(workspaceRequest, userPrincipal)
@@ -211,7 +211,7 @@ class LearnServiceTest {
         Mockito.`when`(workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)).thenReturn(true)
         val today = LocalDate.now()
         val end = today.plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC)
-        Mockito.`when`(learnCardRepository.findFirstByWorkspaceIdAndNextReviewBeforeOrderByNextReview(workspaceRequest.id, end)).thenReturn(Optional.empty())
+        Mockito.`when`(learnCardRepository.findByWorkspaceIdAndNextReviewBefore(workspaceRequest.id, end)).thenReturn(emptyList())
 
         learnService.getCard(workspaceRequest, userPrincipal)
     }
@@ -225,7 +225,7 @@ class LearnServiceTest {
         val learnCard = LearnCardEntity.createInitial(cardId, workspaceRequest, Instant.now())
         val today = LocalDate.now()
         val end = today.plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC)
-        Mockito.`when`(learnCardRepository.findFirstByWorkspaceIdAndNextReviewBeforeOrderByNextReview(workspaceRequest.id, end)).thenReturn(Optional.of(learnCard))
+        Mockito.`when`(learnCardRepository.findByWorkspaceIdAndNextReviewBefore(workspaceRequest.id, end)).thenReturn(listOf(learnCard))
         Mockito.`when`(cardService.findById(cardId)).thenThrow(CardNotFoundException(cardId))
 
         learnService.getCard(workspaceRequest, userPrincipal)
