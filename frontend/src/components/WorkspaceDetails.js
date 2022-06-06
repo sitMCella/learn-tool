@@ -190,7 +190,7 @@ const WorkspaceDetails = (props) => {
     if (newCardStatus) {
       return
     }
-    const newCards = [{ id: null, question: 'Question', response: 'Response', new: true, change: false }, ...cards]
+    const newCards = [{ id: null, question: '', response: '', new: true, change: false }, ...cards]
     setCards(newCards)
     setNewCardStatus(true)
   }
