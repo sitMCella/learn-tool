@@ -20,6 +20,7 @@ import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
+import kotlin.random.Random
 import kotlin.streams.toList
 import org.springframework.stereotype.Service
 
@@ -50,8 +51,12 @@ class LearnService(
         workspaceService.verifyIfUserIsAuthorized(workspaceRequest, userPrincipal)
         val today = LocalDate.now()
         val end = today.plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC)
-        val learnCard = learnCardRepository.findFirstByWorkspaceIdAndNextReviewBeforeOrderByNextReview(workspaceRequest.id, end).toNullable() ?: throw LearnCardsNotFoundException(workspaceRequest)
-        return cardService.findById(CardId(learnCard.id))
+        val learnCards = learnCardRepository.findByWorkspaceIdAndNextReviewBefore(workspaceRequest.id, end)
+        if (learnCards.isEmpty()) {
+            throw LearnCardsNotFoundException(workspaceRequest)
+        }
+        val randomIndex = Random.nextInt(learnCards.size)
+        return cardService.findById(CardId(learnCards[randomIndex].id))
     }
 
     fun evaluateCard(workspaceRequest: WorkspaceRequest, cardId: CardId, evaluationParameters: EvaluationParameters, userPrincipal: UserPrincipal): LearnCard {
