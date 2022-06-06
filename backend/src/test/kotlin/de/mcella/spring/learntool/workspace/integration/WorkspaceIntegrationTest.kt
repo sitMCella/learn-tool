@@ -3,6 +3,11 @@ package de.mcella.spring.learntool.workspace.integration
 import de.mcella.spring.learntool.BackendApplication
 import de.mcella.spring.learntool.IntegrationTest
 import de.mcella.spring.learntool.TestSecurityConfiguration
+import de.mcella.spring.learntool.card.dto.CardId
+import de.mcella.spring.learntool.card.storage.CardEntity
+import de.mcella.spring.learntool.card.storage.CardRepository
+import de.mcella.spring.learntool.learn.storage.LearnCardEntity
+import de.mcella.spring.learntool.learn.storage.LearnCardRepository
 import de.mcella.spring.learntool.security.UserPrincipal
 import de.mcella.spring.learntool.user.AuthProvider
 import de.mcella.spring.learntool.user.dto.UserId
@@ -11,9 +16,11 @@ import de.mcella.spring.learntool.user.storage.UserRepository
 import de.mcella.spring.learntool.workspace.dto.Workspace
 import de.mcella.spring.learntool.workspace.dto.WorkspaceCreateRequest
 import de.mcella.spring.learntool.workspace.dto.WorkspaceId
+import de.mcella.spring.learntool.workspace.dto.WorkspaceRequest
 import de.mcella.spring.learntool.workspace.storage.WorkspaceEntity
 import de.mcella.spring.learntool.workspace.storage.WorkspaceRepository
 import java.net.URI
+import java.time.Instant
 import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -90,6 +97,12 @@ class WorkspaceIntegrationTest {
     @Autowired
     lateinit var workspaceRepository: WorkspaceRepository
 
+    @Autowired
+    lateinit var cardRepository: CardRepository
+
+    @Autowired
+    lateinit var learnCardRepository: LearnCardRepository
+
     @Before
     fun setUp() {
         workspaceRepository.deleteAll()
@@ -161,6 +174,12 @@ class WorkspaceIntegrationTest {
         val workspace = Workspace(workspaceId.id, "Workspace Name", userId)
         val workspaceEntity = WorkspaceEntity.create(workspace)
         workspaceRepository.save(workspaceEntity)
+        val cardId = CardId("9e493dc0-ef75-403f-b5d6-ed510634f8a6")
+        val cardEntity = CardEntity(cardId.id, workspaceId.id, "question", "response")
+        cardRepository.save(cardEntity)
+        val workspaceRequest = WorkspaceRequest(workspaceId.id)
+        val learnCard = LearnCardEntity.createInitial(cardId, workspaceRequest, Instant.now())
+        learnCardRepository.save(learnCard)
         val request = HttpEntity(null, headers)
 
         testRestTemplate.exchange(URI("http://localhost:$port/api/workspaces/${workspaceId.id}"), HttpMethod.DELETE, request, Object::class.java)
