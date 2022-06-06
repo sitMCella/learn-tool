@@ -207,6 +207,7 @@ function Study (props) {
     },
     cardContent: {
       textAlign: 'left',
+      padding: theme.spacing(0, 0),
       width: '100%'
     },
     appbarBottom: {
@@ -214,17 +215,13 @@ function Study (props) {
       width: '100%'
     },
     questionCard: {
-      '@media only screen and (max-width:768px)': {
-        width: '90%'
-      },
-      width: '95%'
+      minWidth: '90%',
+      maxWidth: '100%'
     },
     responseCard: {
-      '@media only screen and (max-width:768px)': {
-        width: '90%'
-      },
       paddingTop: 10,
-      width: '95%'
+      minWidth: '90%',
+      maxWidth: '100%'
     },
     events: {
       display: 'flex',
@@ -292,15 +289,15 @@ function Study (props) {
                           <List component="nav" aria-label="cards">
                             <CardUi className={classes.card}>
                                 <CardContent className={classes.cardContent}>
-                                    <Box display="flex" flexWrap="wrap" p={0} m={0}>
-                                        <Box display="flex" flexWrap="wrap" pl={1} pt={1} pb={1} m={0} className={classes.questionCard} style={{ backgroundColor: 'var(--study-card-question-background-color)' }}>
+                                    <Box display="flex" flexWrap="wrap" p={0} m={0} style={{ backgroundColor: 'var(--study-card-question-background-color)' }}>
+                                        <Box display="flex" flexWrap="wrap" pl={1} pt={1} pr={1} pb={1} m={0} className={classes.questionCard}>
                                             <Typography variant="body1" color="textSecondary" component="p" gutterBottom style={{ color: 'var(--study-card-question-text-color)' }}>
                                                 {cardQuestion}
                                             </Typography>
                                         </Box>
                                     </Box>
-                                    <Box display={responseVisibility}>
-                                        <Box display="flex" flexWrap="wrap" pl={1} pt={1} pb={1} m={0} className={classes.responseCard} style={{ backgroundColor: 'var(--study-card-response-background-color)' }}>
+                                    <Box display={responseVisibility} style={{ backgroundColor: 'var(--study-card-response-background-color)' }}>
+                                        <Box display="flex" flexWrap="wrap" pl={1} pt={1} pr={1} pb={1} m={0} className={classes.responseCard}>
                                             <Box p={0}>
                                                 <Typography variant="body1" color="textSecondary" component="p" gutterBottom style={{ color: 'var(--study-card-response-text-color)' }}>
                                                     {cardResponse}
