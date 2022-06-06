@@ -34,7 +34,6 @@ const WorkspaceDetails = (props) => {
   const [cards, setCards] = useState([])
   const [pagesCount, setPagesCount] = useState(0)
   const [newCardStatus, setNewCardStatus] = useState(false)
-  const [backupCards, setBackupCards] = useState([])
   const [searchPattern, setSearchPattern] = useState('')
   const [typingTimeout, setTypingTimeout] = useState()
   const [workspaceDetailsError, setWorkspaceDetailsError] = useState(false)
@@ -75,7 +74,6 @@ const WorkspaceDetails = (props) => {
       })
     }
     setCards(loadedCards)
-    setBackupCards(loadedCards)
   }
 
   useEffect(() => {
@@ -121,7 +119,6 @@ const WorkspaceDetails = (props) => {
         })
       }
       setCards(loadedCards)
-      setBackupCards(loadedCards)
     }
     getCards()
       .then(() => setWorkspaceDetailsError(false))
@@ -134,7 +131,13 @@ const WorkspaceDetails = (props) => {
 
   const resetSearchHandler = () => {
     setSearchPattern('')
-    setCards(backupCards)
+    getCards()
+      .then(() => setWorkspaceDetailsError(false))
+      .catch((err) => {
+        console.log('Error while retrieving the cards from the Workspace with id ' + params.id + ': ' + err.message)
+        setWorkspaceDetailsError(true)
+        setWorkspaceDetailsErrorMessage('Cannot retrieve the Cards, please refresh the page.')
+      })
   }
 
   const searchOnChangeHandler = (event) => {
@@ -163,17 +166,19 @@ const WorkspaceDetails = (props) => {
           new: false
         })
       }
+      const pagesCount = 1
+      setPagesCount(pagesCount)
       setCards(loadedCards)
     }
     setSearchPattern(event.target.value)
     if (event.target.value === '') {
-      setCards(backupCards)
+      resetSearchHandler()
       return
     }
     if (typingTimeout) clearTimeout(typingTimeout)
     setTypingTimeout(setTimeout(() => {
       if (event.target.value === '') {
-        setCards(backupCards)
+        resetSearchHandler()
         return
       }
       getSearchCards()
@@ -198,7 +203,6 @@ const WorkspaceDetails = (props) => {
   const createCardHandler = (id, question, response, isCreateReverseCard, reverseCardId) => {
     const newCards = isCreateReverseCard ? [{ id: reverseCardId, question: response, response: question, new: false, change: false }, { id: id, question: question, response: response, new: false, change: false }, ...cards.slice(1)] : [{ id: id, question: question, response: response, new: false, change: false }, ...cards.slice(1)]
     setCards(newCards)
-    setBackupCards(newCards)
     setNewCardStatus(false)
   }
 
@@ -459,7 +463,7 @@ const WorkspaceDetails = (props) => {
               {
                 settingsVisible
                   ? (
-                    <WorkspaceSettings handleClose={handleSettingsClose} handleSettingsUpdate={props.onSettingsUpdate} {...props}></WorkspaceSettings>
+                    <WorkspaceSettings handleClose={handleSettingsClose} handleSettingsUpdate={props.onSettingsUpdate} {...props}/>
                     )
                   : (
                     <div>
