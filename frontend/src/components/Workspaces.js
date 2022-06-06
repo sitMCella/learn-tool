@@ -81,7 +81,7 @@ function Workspaces (props) {
     if (newWorkspaceStatus) {
       return
     }
-    const newWorkspaces = [{ id: -1, name: 'New Workspace', new: true }, ...workspaces]
+    const newWorkspaces = [{ id: -1, name: '', new: true }, ...workspaces]
     setWorkspaces(newWorkspaces)
     setNewWorkspaceStatus(true)
     setWorkspaceError(false)

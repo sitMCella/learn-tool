@@ -114,17 +114,15 @@ function Study (props) {
         setEvaluationButtonsVisible(false)
         setResponseVisibility('none')
         setFlipButtonVisible(true)
-        setQualityValue(3)
         getCard()
           .catch((err) => {
-            console.log('Error while evaluating the card from the Workspace with id ' + params.id + ' status: ' + err.message)
+            console.log('Error while retrieving the next card from the Workspace with id ' + params.id + ' status: ' + err.message)
             setStudyError(true)
-            setStudyErrorMessage('Cannot evaluate the Card, please refresh the page.')
+            setStudyErrorMessage('Cannot retrieve the next Card, please refresh the page.')
             setNoCardsLeft(true)
             setCardId('')
             setCardQuestion('')
             setCardResponse('')
-            setQualityValue(3)
           })
       })
       .catch((err) => {
@@ -134,8 +132,8 @@ function Study (props) {
         setCardId('')
         setCardQuestion('')
         setCardResponse('')
-        setQualityValue(3)
       })
+    setQualityValue(3)
   }
 
   const handleSettingsOpen = () => {
@@ -276,11 +274,11 @@ function Study (props) {
               ? (
                   <Box className={classes.content}>
                   {
-                  settingsVisible
-                    ? (
-                        <StudySettings handleClose={handleSettingsClose} handleSettingsUpdate={props.onSettingsUpdate} {...props}></StudySettings>
-                      )
-                    : (
+                    settingsVisible
+                      ? (
+                        <StudySettings handleClose={handleSettingsClose} handleSettingsUpdate={props.onSettingsUpdate} {...props}/>
+                        )
+                      : (
                         <div>
                           {studyError && (<div className={classes.errors}><Alert severity="error">{studyErrorMessage}</Alert></div>)}
                             <div className={classes.title}>Learn</div>
@@ -333,42 +331,45 @@ function Study (props) {
                             </AppBar>
                           </List>
                         </div>
-                      )
+                        )
                   }
                   </Box>
                 )
               : (
                 <Box className={classes.content}>
+                  {
                     settingsVisible
                       ? (
-                        <StudySettings handleClose={handleSettingsClose} handleSettingsUpdate={props.onSettingsUpdate} {...props}></StudySettings>
+                          <StudySettings handleClose={handleSettingsClose} handleSettingsUpdate={props.onSettingsUpdate} {...props}/>
                         )
                       : (
-                        <div>
-                          <div className={classes.title}>Learn</div>
-                          <Box className={classes.events}>
-                            <Box className={classes.eventIcon}>
-                              <Fab size="small" color="primary" aria-label="add">
-                                <FlipIcon />
-                              </Fab>
+                          <div>
+                            <div className={classes.title}>Learn</div>
+                            <Box className={classes.events}>
+                              <Box className={classes.eventIcon}>
+                                <Fab size="small" color="primary" aria-label="add">
+                                  <FlipIcon/>
+                                </Fab>
+                              </Box>
                             </Box>
-                          </Box>
-                          <List component="nav" aria-label="cards">
+                            <List component="nav" aria-label="cards">
                               <CardUi>
-                                  <CardContent>
-                                      <Typography variant="body2" color="textSecondary" component="p">
-                                          No cards left
-                                      </Typography>
-                                  </CardContent>
+                                <CardContent>
+                                  <Typography variant="body2" color="textSecondary" component="p">
+                                    No cards left
+                                  </Typography>
+                                </CardContent>
                               </CardUi>
                               <Box component="span" m={3}>
                                 <div className={classes.close}>
-                                  <Button variant="contained" color="primary" component={Link} to={'/workspaces/' + params.id + '/cards'}>Close</Button>
+                                  <Button variant="contained" color="primary" component={Link}
+                                          to={'/workspaces/' + params.id + '/cards'}>Close</Button>
                                 </div>
                               </Box>
-                          </List>
-                        </div>
+                            </List>
+                          </div>
                         )
+                  }
                 </Box>
                 )}
         </Box>
