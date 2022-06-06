@@ -114,6 +114,7 @@ function Study (props) {
         setEvaluationButtonsVisible(false)
         setResponseVisibility('none')
         setFlipButtonVisible(true)
+        setQualityValue(3)
         getCard()
           .catch((err) => {
             console.log('Error while evaluating the card from the Workspace with id ' + params.id + ' status: ' + err.message)
@@ -123,6 +124,7 @@ function Study (props) {
             setCardId('')
             setCardQuestion('')
             setCardResponse('')
+            setQualityValue(3)
           })
       })
       .catch((err) => {
@@ -132,6 +134,7 @@ function Study (props) {
         setCardId('')
         setCardQuestion('')
         setCardResponse('')
+        setQualityValue(3)
       })
   }
 

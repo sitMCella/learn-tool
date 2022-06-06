@@ -13,7 +13,7 @@ CREATE TABLE if not exists workspaces (
   id varchar (36) primary key,
   name varchar (255) NOT NULL,
   user_id bigserial NOT NULL,
-  CONSTRAINT fkUserId FOREIGN KEY (user_id) REFERENCES users(id)
+  CONSTRAINT fkUserId FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE if not exists cards (
@@ -22,7 +22,7 @@ CREATE TABLE if not exists cards (
   question text NOT NULL,
   response text NOT NULL,
   creation_date timestamp NOT NULL,
-  CONSTRAINT fkWorkspaceId FOREIGN KEY (workspace_id) REFERENCES workspaces(id)
+  CONSTRAINT fkWorkspaceId FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE CASCADE
 );
 
 CREATE TABLE if not exists learn_cards (
@@ -33,5 +33,5 @@ CREATE TABLE if not exists learn_cards (
   repetitions integer NOT NULL,
   ease_factor real NOT NULL,
   interval_days integer NOT NULL,
-  CONSTRAINT fkWorkspaceId FOREIGN KEY (workspace_id) REFERENCES workspaces(id)
+  CONSTRAINT fkWorkspaceId FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE CASCADE
 );
