@@ -106,15 +106,9 @@ function Study (props) {
         throw new Error(JSON.stringify(response))
       }
       setCardId('')
-      setCardQuestion('')
-      setCardResponse('')
     }
     evaluateCard()
       .then(() => {
-        setStudyError(false)
-        setEvaluationButtonsVisible(false)
-        setResponseVisibility('none')
-        setFlipButtonVisible(true)
         getCard()
           .catch((err) => {
             console.log('Error while retrieving the next card from the Workspace with id ' + params.id + ' status: ' + err.message)
@@ -124,6 +118,12 @@ function Study (props) {
             setCardId('')
             setCardQuestion('')
             setCardResponse('')
+          })
+          .finally(() => {
+            setStudyError(false)
+            setEvaluationButtonsVisible(false)
+            setResponseVisibility('none')
+            setFlipButtonVisible(true)
           })
       })
       .catch((err) => {
