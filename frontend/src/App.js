@@ -23,7 +23,7 @@ class App extends Component {
       settings: {
         cardQuestionTextColor: '#0000008A',
         cardResponseTextColor: '#0000008A',
-        studyCardQuestionBackgroundColor: '#89CFF0',
+        studyCardQuestionBackgroundColor: '#EFD469',
         studyCardQuestionTextColor: '#000000A6',
         studyCardResponseBackgroundColor: '#FFFFFFFF',
         studyCardResponseTextColor: '#000000A6'

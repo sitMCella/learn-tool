@@ -212,7 +212,6 @@ function Study (props) {
       display: 'flex',
       position: 'absolute',
       alignItems: 'center',
-      fontSize: 'x-large',
       padding: theme.spacing(0, 1)
     },
     learnCard: {
@@ -300,7 +299,11 @@ function Study (props) {
                       : (
                         <div>
                           {studyError && (<div className={classes.errors}><Alert severity="error">{studyErrorMessage}</Alert></div>)}
-                            <div className={classes.title}>Learn</div>
+                            <div className={classes.title}>
+                              <Typography variant="h5" color="textSecondary" component="p" gutterBottom>
+                                Learn
+                              </Typography>
+                            </div>
                             <Box className={classes.events}>
                               <Box className={classes.eventIcon}>
                                 <Fab size="small" color="primary" aria-label="add" disabled={evaluationButtonsVisible}>
