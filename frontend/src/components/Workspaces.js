@@ -28,6 +28,7 @@ function Workspaces (props) {
   const [newWorkspaceStatus, setNewWorkspaceStatus] = useState(false)
   const [workspaceError, setWorkspaceError] = useState(false)
   const [workspaceErrorMessage, setWorkspaceErrorMessage] = useState('')
+  const [workspaceImporting, setWorkspaceImporting] = useState(false)
 
   const getWorkspaces = async (signal) => {
     const headers = {
@@ -188,9 +189,13 @@ function Workspaces (props) {
       }
       await response
     }
+    setWorkspaceImporting(true)
     importBackup()
       .catch((err) => {
         console.log('Error while importing the backup: ' + err.message)
+      })
+      .finally(() => {
+        setWorkspaceImporting(false)
       })
   }
 
@@ -234,7 +239,7 @@ function Workspaces (props) {
       },
       marginRight: 0
     },
-    errors: {
+    alerts: {
       marginBottom: theme.spacing(2)
     },
     title: {
@@ -280,7 +285,7 @@ function Workspaces (props) {
                     </ListItem>
                 </List>
                 <List className={classes.drawerList}>
-                    <ListItem button key="Workspaces" className={classes.drawerListItem}>
+                    <ListItem button key="Workspaces" className={classes.drawerListItem} disabled={workspaceImporting}>
                         <input style={{ display: 'none' }} id="import" type="file" onChange={handleUploadFileData} />
                         <label htmlFor="import">
                             <ListItemIcon><UploadIcon/></ListItemIcon>
@@ -289,7 +294,8 @@ function Workspaces (props) {
                 </List>
             </Drawer>
             <div className={classes.content}>
-              {workspaceError && (<div className={classes.errors}><Alert severity="error">{workspaceErrorMessage}</Alert></div>)}
+              {workspaceError && (<div className={classes.alerts}><Alert severity="error">{workspaceErrorMessage}</Alert></div>)}
+              {workspaceImporting && (<div className={classes.alerts}><Alert severity="info">Importing Workspace</Alert></div>)}
                 <div className={classes.title}>Workspaces</div>
                 <Box className={classes.events}>
                   <Box className={classes.eventIcon}>
