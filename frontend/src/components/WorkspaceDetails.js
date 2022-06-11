@@ -14,6 +14,7 @@ import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import MuiAlert from '@material-ui/lab/Alert'
 import Pagination from '@material-ui/lab/Pagination'
+import Typography from '@material-ui/core/Typography'
 import Toolbar from '@material-ui/core/Toolbar'
 import { fade, makeStyles } from '@material-ui/core/styles'
 import AddIcon from '@material-ui/icons/Add'
@@ -398,7 +399,6 @@ const WorkspaceDetails = (props) => {
       flex: 0,
       position: 'absolute',
       alignItems: 'center',
-      fontSize: 'x-large',
       padding: theme.spacing(0, 1)
     },
     events: {
@@ -467,7 +467,13 @@ const WorkspaceDetails = (props) => {
                     )
                   : (
                     <div>
-                      <div className={classes.title}>Cards</div>
+                      <div className={classes.title}>
+                        <div className={classes.title}>
+                          <Typography variant="h5" color="textSecondary" component="p" gutterBottom>
+                            Cards
+                          </Typography>
+                        </div>
+                      </div>
                       <Box className={classes.events}>
                         <Box className={classes.eventIcon}>
                           <Fab size="small" color="primary" aria-label="add" onClick={newCardHandler} disabled={newCardStatus}>

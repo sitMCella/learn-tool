@@ -12,6 +12,7 @@ import Fab from '@material-ui/core/Fab'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
+import Typography from '@material-ui/core/Typography'
 import Toolbar from '@material-ui/core/Toolbar'
 import MuiAlert from '@material-ui/lab/Alert'
 import { makeStyles } from '@material-ui/core/styles'
@@ -247,7 +248,6 @@ function Workspaces (props) {
       display: 'flex',
       position: 'absolute',
       alignItems: 'center',
-      fontSize: 'x-large',
       padding: theme.spacing(0, 1)
     },
     addIcon: {
@@ -296,7 +296,11 @@ function Workspaces (props) {
             <div className={classes.content}>
               {workspaceError && (<div className={classes.alerts}><Alert severity="error">{workspaceErrorMessage}</Alert></div>)}
               {workspaceImporting && (<div className={classes.alerts}><Alert severity="info">Importing Workspace</Alert></div>)}
-                <div className={classes.title}>Workspaces</div>
+                <div className={classes.title}>
+                  <Typography variant="h5" color="textSecondary" component="p" gutterBottom>
+                    Workspaces
+                  </Typography>
+                </div>
                 <Box className={classes.events}>
                   <Box className={classes.eventIcon}>
                     <Fab size="small" color="primary" aria-label="add" onClick={newWorkspaceHandler} disabled={newWorkspaceStatus}>
