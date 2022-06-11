@@ -6,6 +6,7 @@ import StudySettings from './StudySettings'
 import AppBar from '@material-ui/core/AppBar'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
+import ButtonBase from '@material-ui/core/ButtonBase'
 import CardUi from '@material-ui/core/Card/Card'
 import CardContent from '@material-ui/core/CardContent'
 import Divider from '@material-ui/core/Divider'
@@ -23,7 +24,7 @@ import FilterNoneIcon from '@material-ui/icons/FilterNone'
 import StarIcon from '@material-ui/icons/Star'
 import Fab from '@material-ui/core/Fab'
 import SettingsIcon from '@material-ui/icons/Settings'
-import FlipIcon from '@material-ui/icons/Flip'
+import SkipNext from '@material-ui/icons/SkipNext'
 
 function Alert (props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -136,6 +137,20 @@ function Study (props) {
     setQualityValue(3)
   }
 
+  const handleNextCard = () => {
+    getCard()
+      .then(() => setStudyError(false))
+      .catch((err) => {
+        console.log('Error while retrieving a card from the Workspace ' + params.id + ': ' + err.message)
+        setStudyError(true)
+        setStudyErrorMessage('Cannot retrieve the next Card, please refresh the page.')
+        setNoCardsLeft(true)
+        setCardId('')
+        setCardQuestion('')
+        setCardResponse('')
+      })
+  }
+
   const handleSettingsOpen = () => {
     setSettingsVisible(true)
   }
@@ -200,6 +215,9 @@ function Study (props) {
       fontSize: 'x-large',
       padding: theme.spacing(0, 1)
     },
+    learnCard: {
+      marginTop: 20
+    },
     card: {
       minHeight: '40vh',
       width: '100%',
@@ -233,6 +251,10 @@ function Study (props) {
     },
     close: {
       marginTop: theme.spacing(1)
+    },
+    flipButton: {
+      minWidth: '40vh',
+      height: '100%'
     }
   }))
   const classes = useStyles()
@@ -281,12 +303,12 @@ function Study (props) {
                             <div className={classes.title}>Learn</div>
                             <Box className={classes.events}>
                               <Box className={classes.eventIcon}>
-                                <Fab size="small" color="primary" aria-label="add">
-                                  <FlipIcon onClick={flipCardHandler} />
+                                <Fab size="small" color="primary" aria-label="add" disabled={evaluationButtonsVisible}>
+                                  <SkipNext onClick={handleNextCard} />
                                 </Fab>
                               </Box>
                             </Box>
-                          <List component="nav" aria-label="cards">
+                          <List component="nav" aria-label="cards" className={classes.learnCard}>
                             <CardUi className={classes.card}>
                                 <CardContent className={classes.cardContent}>
                                     <Box display="flex" flexWrap="wrap" p={0} m={0} style={{ backgroundColor: 'var(--study-card-question-background-color)' }}>
@@ -309,7 +331,7 @@ function Study (props) {
                             </CardUi>
                             <AppBar position="static" className={classes.appbarBottom}>
                                 <Toolbar>
-                                    {flipButtonVisible && (<Button color="inherit" style={{ width: '100%' }} onClick={flipCardHandler}>Flip</Button>)}
+                                    {flipButtonVisible && (<ButtonBase className={classes.flipButton}><Button color="inherit" size="large" style={{ width: '100%', height: '100%' }} onClick={flipCardHandler}>Flip</Button></ButtonBase>)}
                                     {evaluationButtonsVisible && (
                                         <Box component="span" display={responseVisibility} style={{ width: '100%' }}>
                                           <Rating display={responseVisibility}
@@ -345,7 +367,7 @@ function Study (props) {
                             <Box className={classes.events}>
                               <Box className={classes.eventIcon}>
                                 <Fab size="small" color="primary" aria-label="add">
-                                  <FlipIcon/>
+                                  <SkipNext/>
                                 </Fab>
                               </Box>
                             </Box>
