@@ -2,6 +2,22 @@
 
 ![Cards](https://github.com/sitMCella/learn-tool/wiki/images/Cards1.png)
 
+## Table of contents
+
+* [Introduction](#introduction)
+* [Configuration](#configuration)
+* [Development](#development)
+  * [Setup](#setup)
+  * [Build project](#build_project)
+  * [Backend Linter](#backend_linter)
+  * [Frontend Linter](#frontend_linter)
+  * [Create Docker images](#create_docker_images)
+  * [Setup Docker compose variables](#setup_docker_compose_variables)
+  * [Run application](#run_application)
+  * [Access application](#access_application)
+  * [Backup the database](#backup_the_database)
+* [REST APIs documentation](#rest_apis_documentation)
+
 ## Introduction
 
 Learn Tool is a web application that aims to improve the study and learning process.
@@ -153,7 +169,7 @@ cat backup/<dump_file> | docker exec -i db psql -U postgres
 
 ## REST APIs documentation
 
-The folder "documents" contains the OpenAPI REST APIs documentation.
+The directory "backend/documents" contains the OpenAPI REST APIs documentation.
 The documentation is compliant with Swagger UI and Postman.
 
 Run the following command to validate the OpenAPI documentation file:
