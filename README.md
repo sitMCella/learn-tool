@@ -1,13 +1,17 @@
 # Learn Tool
 
+![Cards](https://github.com/sitMCella/learn-tool/wiki/images/Cards1.png)
+
 ## Introduction
 
 Learn Tool is a web application that aims to improve the study and learning process.
 Learn Tool consists of an active recall learning tool, and offers a whole range of functionalities, from importing a dataset to create custom cards and workspaces.
 
+Read the [documentation](https://github.com/sitMCella/learn-tool/wiki) in order to discover the features of Learn Tool.
+
 ## Configuration
 
-Learn Tool application makes use of Oauth 2.0 and JWT authentication. Learn Tool supports local authentication and Google authentication.
+Learn Tool application uses Oauth 2.0 and JWT authentication. Learn Tool supports the local authentication and the Google authentication.
 Read the page [google_authentication](google_authentication.md) in order to configure Google Cloud Platform.
 
 ## Development
