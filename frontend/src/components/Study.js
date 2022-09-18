@@ -25,6 +25,7 @@ import StarIcon from '@material-ui/icons/Star'
 import Fab from '@material-ui/core/Fab'
 import SettingsIcon from '@material-ui/icons/Settings'
 import SkipNext from '@material-ui/icons/SkipNext'
+import BeatLoader from 'react-spinners/BeatLoader'
 
 function Alert (props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -43,6 +44,7 @@ function Study (props) {
   const [studyError, setStudyError] = useState(false)
   const [studyErrorMessage, setStudyErrorMessage] = useState('')
   const [settingsVisible, setSettingsVisible] = useState(false)
+  const [pageLoading, setPageLoading] = useState(true)
 
   const getCard = async (signal) => {
     const headers = {
@@ -69,7 +71,10 @@ function Study (props) {
     const controller = new AbortController()
     const signal = controller.signal
     getCard(signal)
-      .then(() => setStudyError(false))
+      .then(() => {
+        setStudyError(false)
+        setPageLoading(false)
+      })
       .catch((err) => {
         console.log('Error while retrieving a card from the Workspace ' + params.id + ': ' + err.message)
         setStudyError(true)
@@ -297,62 +302,68 @@ function Study (props) {
                         <StudySettings handleClose={handleSettingsClose} handleSettingsUpdate={props.onSettingsUpdate} {...props}/>
                         )
                       : (
-                        <div>
-                          {studyError && (<div className={classes.errors}><Alert severity="error">{studyErrorMessage}</Alert></div>)}
-                            <div className={classes.title}>
-                              <Typography variant="h5" color="textSecondary" component="p" gutterBottom>
-                                Learn
-                              </Typography>
-                            </div>
-                            <Box className={classes.events}>
-                              <Box className={classes.eventIcon}>
-                                <Fab size="small" color="primary" aria-label="add" disabled={evaluationButtonsVisible}>
-                                  <SkipNext onClick={handleNextCard} />
-                                </Fab>
-                              </Box>
-                            </Box>
-                          <List component="nav" aria-label="cards" className={classes.learnCard}>
-                            <CardUi className={classes.card}>
-                                <CardContent className={classes.cardContent}>
-                                    <Box display="flex" flexWrap="wrap" p={0} m={0} style={{ backgroundColor: 'var(--study-card-question-background-color)' }}>
-                                        <Box display="flex" flexWrap="wrap" pl={1} pt={1} pr={1} pb={1} m={0} className={classes.questionCard}>
-                                            <Typography variant="body1" color="textSecondary" component="p" gutterBottom style={{ color: 'var(--study-card-question-text-color)' }}>
-                                                {cardQuestion}
-                                            </Typography>
-                                        </Box>
+                          pageLoading
+                            ? (
+                              <BeatLoader color="#2196f3" />
+                              )
+                            : (
+                              <div>
+                                {studyError && (<div className={classes.errors}><Alert severity="error">{studyErrorMessage}</Alert></div>)}
+                                  <div className={classes.title}>
+                                    <Typography variant="h5" color="textSecondary" component="p" gutterBottom>
+                                      Learn
+                                    </Typography>
+                                  </div>
+                                  <Box className={classes.events}>
+                                    <Box className={classes.eventIcon}>
+                                      <Fab size="small" color="primary" aria-label="add" disabled={evaluationButtonsVisible}>
+                                        <SkipNext onClick={handleNextCard} />
+                                      </Fab>
                                     </Box>
-                                    <Box display={responseVisibility} style={{ backgroundColor: 'var(--study-card-response-background-color)' }}>
-                                        <Box display="flex" flexWrap="wrap" pl={1} pt={1} pr={1} pb={1} m={0} className={classes.responseCard}>
-                                            <Box p={0}>
-                                                <Typography variant="body1" color="textSecondary" component="p" gutterBottom style={{ color: 'var(--study-card-response-text-color)' }}>
-                                                    {cardResponse}
-                                                </Typography>
-                                            </Box>
-                                        </Box>
-                                    </Box>
-                                </CardContent>
-                            </CardUi>
-                            <AppBar position="static" className={classes.appbarBottom}>
-                                <Toolbar>
-                                    {flipButtonVisible && (<ButtonBase className={classes.flipButton}><Button color="inherit" size="large" style={{ width: '100%', height: '100%' }} onClick={flipCardHandler}>Flip</Button></ButtonBase>)}
-                                    {evaluationButtonsVisible && (
-                                        <Box component="span" display={responseVisibility} style={{ width: '100%' }}>
-                                          <Rating display={responseVisibility}
-                                              name="hover-feedback"
-                                              value={qualityValue}
-                                              precision={1}
-                                              onChange={(event, newQualityValue) => {
-                                                setQualityValue(newQualityValue)
-                                                evaluateCardHandler({ newQualityValue })
-                                              }}
-                                              emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
-                                          />
-                                        </Box>
-                                    )}
-                                </Toolbar>
-                            </AppBar>
-                          </List>
-                        </div>
+                                  </Box>
+                                <List component="nav" aria-label="cards" className={classes.learnCard}>
+                                  <CardUi className={classes.card}>
+                                      <CardContent className={classes.cardContent}>
+                                          <Box display="flex" flexWrap="wrap" p={0} m={0} style={{ backgroundColor: 'var(--study-card-question-background-color)' }}>
+                                              <Box display="flex" flexWrap="wrap" pl={1} pt={1} pr={1} pb={1} m={0} className={classes.questionCard}>
+                                                  <Typography variant="body1" color="textSecondary" component="p" gutterBottom style={{ color: 'var(--study-card-question-text-color)' }}>
+                                                      {cardQuestion}
+                                                  </Typography>
+                                              </Box>
+                                          </Box>
+                                          <Box display={responseVisibility} style={{ backgroundColor: 'var(--study-card-response-background-color)' }}>
+                                              <Box display="flex" flexWrap="wrap" pl={1} pt={1} pr={1} pb={1} m={0} className={classes.responseCard}>
+                                                  <Box p={0}>
+                                                      <Typography variant="body1" color="textSecondary" component="p" gutterBottom style={{ color: 'var(--study-card-response-text-color)' }}>
+                                                          {cardResponse}
+                                                      </Typography>
+                                                  </Box>
+                                              </Box>
+                                          </Box>
+                                      </CardContent>
+                                  </CardUi>
+                                  <AppBar position="static" className={classes.appbarBottom}>
+                                      <Toolbar>
+                                          {flipButtonVisible && (<ButtonBase className={classes.flipButton}><Button color="inherit" size="large" style={{ width: '100%', height: '100%' }} onClick={flipCardHandler}>Flip</Button></ButtonBase>)}
+                                          {evaluationButtonsVisible && (
+                                              <Box component="span" display={responseVisibility} style={{ width: '100%' }}>
+                                                <Rating display={responseVisibility}
+                                                    name="hover-feedback"
+                                                    value={qualityValue}
+                                                    precision={1}
+                                                    onChange={(event, newQualityValue) => {
+                                                      setQualityValue(newQualityValue)
+                                                      evaluateCardHandler({ newQualityValue })
+                                                    }}
+                                                    emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
+                                                />
+                                              </Box>
+                                          )}
+                                      </Toolbar>
+                                  </AppBar>
+                                </List>
+                              </div>
+                              )
                         )
                   }
                   </Box>
