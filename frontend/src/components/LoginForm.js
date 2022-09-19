@@ -47,7 +47,7 @@ function LoginForm (props) {
         console.log('You are successfully logged in.')
         props.loadCurrentLoggedInUser()
         props.history.push({
-          pathname: '/',
+          pathname: '/workspaces',
           key: Math.random()
         })
       }).catch(error => {

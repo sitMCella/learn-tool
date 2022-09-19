@@ -110,7 +110,7 @@ class App extends Component {
           <Container>
               <BrowserRouter>
                   <Switch>
-                      <Redirect exact from="/" to="/workspaces" />
+                      <Redirect exact from="/" to="/login" />
                       <Route path="/login" render={(props) => <Login authenticated={this.state.authenticated} loadCurrentLoggedInUser={this.loadCurrentlyLoggedInUser} {...props} />} />
                       <Route path="/oauth2/redirect" render={(props) => <OAuth2RedirectHandler {...props} />} />
                       <Route path="/signup" render={(props) => <Signup authenticated={this.state.authenticated} {...props} />}/>
