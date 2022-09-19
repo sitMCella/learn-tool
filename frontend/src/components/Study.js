@@ -302,25 +302,26 @@ function Study (props) {
                         <StudySettings handleClose={handleSettingsClose} handleSettingsUpdate={props.onSettingsUpdate} {...props}/>
                         )
                       : (
-                          pageLoading
-                            ? (
-                              <BeatLoader color="#2196f3" />
-                              )
-                            : (
-                              <div>
-                                {studyError && (<div className={classes.errors}><Alert severity="error">{studyErrorMessage}</Alert></div>)}
-                                  <div className={classes.title}>
-                                    <Typography variant="h5" color="textSecondary" component="p" gutterBottom>
-                                      Learn
-                                    </Typography>
-                                  </div>
-                                  <Box className={classes.events}>
-                                    <Box className={classes.eventIcon}>
-                                      <Fab size="small" color="primary" aria-label="add" disabled={evaluationButtonsVisible}>
-                                        <SkipNext onClick={handleNextCard} />
-                                      </Fab>
-                                    </Box>
-                                  </Box>
+                        <div>
+                          {studyError && (<div className={classes.errors}><Alert severity="error">{studyErrorMessage}</Alert></div>)}
+                          <div className={classes.title}>
+                            <Typography variant="h5" color="textSecondary" component="p" gutterBottom>
+                              Learn
+                            </Typography>
+                          </div>
+                          <Box className={classes.events}>
+                            <Box className={classes.eventIcon}>
+                              <Fab size="small" color="primary" aria-label="add" disabled={pageLoading || evaluationButtonsVisible}>
+                                <SkipNext onClick={handleNextCard} />
+                              </Fab>
+                            </Box>
+                          </Box>
+                          {
+                            pageLoading
+                              ? (
+                                <BeatLoader color="#2196f3" />
+                                )
+                              : (
                                 <List component="nav" aria-label="cards" className={classes.learnCard}>
                                   <CardUi className={classes.card}>
                                       <CardContent className={classes.cardContent}>
@@ -362,8 +363,9 @@ function Study (props) {
                                       </Toolbar>
                                   </AppBar>
                                 </List>
-                              </div>
-                              )
+                                )
+                          }
+                        </div>
                         )
                   }
                   </Box>
