@@ -167,10 +167,10 @@ function Study (props) {
   const useStyles = makeStyles((theme) => ({
     appBar: {
       '@media only screen and (max-width:768px)': {
-        marginLeft: 20
+        width: '98%'
       },
       marginBottom: theme.spacing(2),
-      marginLeft: 30,
+      marginLeft: 20,
       marginRight: 0
     },
     drawerList: {
