@@ -25,6 +25,7 @@ import RocketIcon from '@material-ui/icons/EmojiEvents'
 import SaveAltIcon from '@material-ui/icons/SaveAlt'
 import SearchIcon from '@material-ui/icons/Search'
 import SettingsIcon from '@material-ui/icons/Settings'
+import BeatLoader from 'react-spinners/BeatLoader'
 
 function Alert (props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -40,6 +41,7 @@ const WorkspaceDetails = (props) => {
   const [workspaceDetailsError, setWorkspaceDetailsError] = useState(false)
   const [workspaceDetailsErrorMessage, setWorkspaceDetailsErrorMessage] = useState('')
   const [settingsVisible, setSettingsVisible] = useState(false)
+  const [pageLoading, setPageLoading] = useState(true)
   const paginationSize = 5
 
   const getPagesCount = (cardsCount) => {
@@ -81,7 +83,10 @@ const WorkspaceDetails = (props) => {
     const controller = new AbortController()
     const signal = controller.signal
     getCards(signal)
-      .then(() => setWorkspaceDetailsError(false))
+      .then(() => {
+        setWorkspaceDetailsError(false)
+        setPageLoading(false)
+      })
       .catch((err) => {
         console.log('Error while retrieving the cards from the Workspace with id ' + params.id + ': ' + err.message)
         setWorkspaceDetailsError(true)
@@ -476,23 +481,33 @@ const WorkspaceDetails = (props) => {
                       </div>
                       <Box className={classes.events}>
                         <Box className={classes.eventIcon}>
-                          <Fab size="small" color="primary" aria-label="add" onClick={newCardHandler} disabled={newCardStatus}>
-                              <AddIcon />
+                          <Fab size="small" color="primary" aria-label="add" onClick={newCardHandler} disabled={pageLoading || newCardStatus}>
+                            <AddIcon />
                           </Fab>
                         </Box>
                         <Box className={classes.eventIcon}>
-                          <Fab size="small" color="primary" aria-label="add" component={Link} to={'/workspaces/' + params.id + '/study'}>
-                              <RocketIcon />
+                          <Fab size="small" color="primary" aria-label="add" component={Link} to={'/workspaces/' + params.id + '/study'} disabled={pageLoading}>
+                            <RocketIcon />
                           </Fab>
                         </Box>
                       </Box>
-                      <List component="nav" aria-label="cards">
-                          {cards.map(card => <Card key={card.id} workspaceId={params.id} id={card.id} question={card.question} response={card.response} selected={false} new={card.new} change={card.change}
-          handleCreateCard={createCardHandler} handleCreateCardCancel={createCardCancelHandler} handleCreateCardError={createCardErrorHandler}
-          handleUpdateCard={updateCardHandler} handleUpdateCardComplete={updateCardCompleteHandler} handleUpdateCardCancel={updateCardCancelHandler} handleUpdateCardError={updateCardErrorHandler}
-          handleDeleteCardComplete={deleteCardCompleteHandler} handleDeleteCardError={updateDeleteErrorHandler}/>)}
-                      </List>
-                      <Pagination count={pagesCount} defaultPage={1} siblingCount={0} boundaryCount={2} onChange={handlePaginationChange} />
+                      {
+                        pageLoading
+                          ? (
+                              <BeatLoader color="#2196f3"/>
+                            )
+                          : (
+                            <div>
+                              <List component="nav" aria-label="cards">
+                            {cards.map(card => <Card key={card.id} workspaceId={params.id} id={card.id} question={card.question} response={card.response} selected={false} new={card.new} change={card.change}
+                              handleCreateCard={createCardHandler} handleCreateCardCancel={createCardCancelHandler} handleCreateCardError={createCardErrorHandler}
+                              handleUpdateCard={updateCardHandler} handleUpdateCardComplete={updateCardCompleteHandler} handleUpdateCardCancel={updateCardCancelHandler} handleUpdateCardError={updateCardErrorHandler}
+                              handleDeleteCardComplete={deleteCardCompleteHandler} handleDeleteCardError={updateDeleteErrorHandler}/>)}
+                              </List>
+                              <Pagination count={pagesCount} defaultPage={1} siblingCount={0} boundaryCount={2} onChange={handlePaginationChange} />
+                            </div>
+                            )
+                      }
                     </div>
                     )
               }
