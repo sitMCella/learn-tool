@@ -22,7 +22,13 @@
     "eject": "react-scripts eject",
     "lint": "eslint src/**/*.js"
   },
-  "proxy": "http://localhost:8080",
+  "homepage": ".",
+  "proxy": {
+    "/api": {
+      "target":  "http://127.0.0.1:8080",
+      "ws": true
+    }
+  },
   "browserslist": {
     "production": [
       ">0.2%",

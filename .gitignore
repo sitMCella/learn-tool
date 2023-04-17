@@ -197,3 +197,4 @@ gradle-app.setting
 META-INF/
 
 backup/
+backend/logs/archived/
