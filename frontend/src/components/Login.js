@@ -47,7 +47,7 @@ function Login (props) {
     return (
         <Redirect
         to={{
-          pathname: '/',
+          pathname: '/workspaces',
           state: { from: props.location }
         }}/>
     )
