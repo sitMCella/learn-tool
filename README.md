@@ -36,7 +36,7 @@ Learn Tool is a web application built using Spring Boot 2 framework and Kotlin l
 
 ### Setup
 
-Install OpenJDK 11 and Docker (Docker compose).
+Install OpenJDK 11, Node.js >= 12.4.0, and Docker (Docker compose).
 
 ### Build project
 
