@@ -16,6 +16,7 @@
   * [Run application](#run-application)
   * [Access application](#access-application)
   * [Backup the database](#backup-the-database)
+* [Other Deployment Models](#other-deployment-models)
 * [REST APIs documentation](#rest-apis-documentation)
 
 ## Introduction
@@ -166,6 +167,10 @@ docker exec -t db pg_dumpall -c -U postgres > backup/dump_`date +%d-%m-%Y"_"%H_%
 ```sh
 cat backup/<dump_file> | docker exec -i db psql -U postgres
 ```
+
+## Other Deployment Models
+
+Virtual Machine deployment: [vm_deployment](vm_deployment.md)
 
 ## REST APIs documentation
 
